@@ -10,8 +10,9 @@
 #include "Misc/MessageDialog.h"
 #endif
 
-UElementusInventoryComponent::UElementusInventoryComponent()
-	: CurrentWeight(0.f)
+UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer),
+	  CurrentWeight(0.f)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
@@ -77,7 +78,7 @@ void UElementusInventoryComponent::AddElementusItem_Internal_Implementation(cons
 		ItemStack.Add(ItemId, Quantity);
 	}
 
-	NotifyInventoryChange(ItemId, Quantity);
+	NotifyInventoryChange(ItemId, Quantity, EElementusInventoryUpdateOperation::Add);
 }
 
 void UElementusInventoryComponent::DiscardElementusItem_Internal_Implementation(const FPrimaryAssetId& ItemId,
@@ -105,7 +106,7 @@ void UElementusInventoryComponent::DiscardElementusItem_Internal_Implementation(
 			*ItemStack.Find(ItemId) = CurrentItemQuant;
 		}
 
-		NotifyInventoryChange(ItemId, CurrentItemQuant);
+		NotifyInventoryChange(ItemId, CurrentItemQuant, EElementusInventoryUpdateOperation::Remove);
 	}
 }
 
@@ -162,11 +163,28 @@ void UElementusInventoryComponent::PostEditChangeProperty(FPropertyChangedEvent&
 }
 #endif
 
-void UElementusInventoryComponent::NotifyInventoryChange(const FPrimaryAssetId& ItemId, const int32 Quantity)
+void UElementusInventoryComponent::NotifyInventoryChange(const FPrimaryAssetId& ItemId,
+                                                         const int32 Quantity,
+                                                         const EElementusInventoryUpdateOperation Operation)
 {
-	OnInventoryUpdate.Broadcast(ItemId, ItemStack.Contains(ItemId) ? ItemStack.FindRef(ItemId) : 0);
+	OnInventoryUpdate.Broadcast(ItemId, ItemStack.Contains(ItemId) ? ItemStack.FindRef(ItemId) : 0, Operation);
 
-	if (const UInventoryItemData* ItemData =
+	switch (Operation)
+	{
+	case EElementusInventoryUpdateOperation::Add:
+		OnItemAdded.Broadcast(ItemId, Quantity);
+		break;
+	case EElementusInventoryUpdateOperation::Remove:
+		OnItemRemoved.Broadcast(ItemId, Quantity);
+		break;
+	}
+
+	if (ItemStack.IsEmpty())
+	{
+		CurrentWeight = 0.f;
+		OnInventoryEmpty.Broadcast();
+	}
+	else if (const UInventoryItemData* ItemData =
 			UElementusInventoryFunctions::GetElementusItemDataById(ItemId, {"Data"});
 		ItemStack.Contains(ItemId))
 	{
@@ -242,7 +260,8 @@ void UElementusInventoryComponent::ValidateItemStack()
 #if WITH_EDITOR
 		FMessageDialog::Open(EAppMsgType::Ok,
 		                     FText::FromString(
-			                     "Elementus Inventory only supports Item Data Assets derived from UInventoryItemData."));
+			                     "Elementus Inventory only supports Item Data Assets derived from UInventoryItemData."
+		                     ));
 #endif
 	}
 }

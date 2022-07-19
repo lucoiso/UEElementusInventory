@@ -6,7 +6,9 @@
 #include "ElementusInventoryComponent.h"
 #include "ElementusInventoryFunctions.h"
 
-AElementusInventoryPackage::AElementusInventoryPackage()
+AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer),
+	  bDestroyWhenInventoryIsEmpty(false)
 {
 	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = false;
@@ -31,4 +33,57 @@ void AElementusInventoryPackage::GetItemFromPackage(TMap<FPrimaryAssetId, int32>
                                                     UElementusInventoryComponent* ToInventory) const
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, PackageInventory, ToInventory);
+}
+
+void AElementusInventoryPackage::SetDestroyOnEmpty(const bool bDestroy)
+{
+	if (bDestroyWhenInventoryIsEmpty == bDestroy)
+	{
+		return;
+	}
+
+	bDestroyWhenInventoryIsEmpty = bDestroy;
+	FElementusInventoryEmpty& Delegate = PackageInventory->OnInventoryEmpty;
+
+	if (const bool bIsAlreadyBound =
+			Delegate.IsAlreadyBound(this, &AElementusInventoryPackage::BeginPackageDestruction);
+		bDestroy && !bIsAlreadyBound)
+	{
+		Delegate.AddDynamic(this, &AElementusInventoryPackage::BeginPackageDestruction);
+	}
+	else if (!bDestroy && bIsAlreadyBound)
+	{
+		Delegate.RemoveDynamic(this, &AElementusInventoryPackage::BeginPackageDestruction);
+	}
+}
+
+bool AElementusInventoryPackage::GetDestroyOnEmpty() const
+{
+	return bDestroyWhenInventoryIsEmpty;
+}
+
+void AElementusInventoryPackage::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (bDestroyWhenInventoryIsEmpty)
+	{
+		PackageInventory->OnInventoryEmpty.AddDynamic(this, &AElementusInventoryPackage::BeginPackageDestruction);
+	}
+}
+
+void AElementusInventoryPackage::BeginPackageDestruction_Implementation()
+{
+	// Check if this option is still active
+	if (bDestroyWhenInventoryIsEmpty)
+	{
+		Destroy();
+	}
+	else
+	{
+		UE_LOG(LogElementusInventory, Warning,
+		       TEXT("ElementusInventory - %s: Package %s was not destroyed because the "
+			       "option 'bDestroyWhenInventoryIsEmpty' was disabled"),
+		       *FString(__func__), *GetName());
+	}
 }
