@@ -31,8 +31,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FElementusInventoryItemRemoved,
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FElementusInventoryEmpty);
 
-UCLASS(Blueprintable, ClassGroup=(Custom), meta =(BlueprintSpawnableComponent),
-	Category = "Elementus Inventory | Classes")
+UCLASS(Blueprintable, ClassGroup=(Custom), Category = "Elementus Inventory | Classes",
+	meta =(BlueprintSpawnableComponent))
 class ELEMENTUSINVENTORY_API UElementusInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -40,38 +40,50 @@ class ELEMENTUSINVENTORY_API UElementusInventoryComponent : public UActorCompone
 public:
 	explicit UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer);
 
+	/*  */
 	float GetCurrentWeight() const;
 
+	/*  */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
 	float MaxWeight;
 
+	/*  */
 	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
 	FElementusInventoryUpdate OnInventoryUpdate;
 
+	/*  */
 	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
 	FElementusInventoryItemAdded OnItemAdded;
 
+	/*  */
 	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
 	FElementusInventoryItemRemoved OnItemRemoved;
 
+	/*  */
 	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
 	FElementusInventoryEmpty OnInventoryEmpty;
 
+	/*  */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	TMap<FPrimaryAssetId, int32> GetItemStack() const;
 
+	/*  */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	void AddElementusItem(const FPrimaryAssetId& ItemId, const int32 Quantity);
 
+	/*  */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	void DiscardElementusItem(const FPrimaryAssetId& ItemId, const int32 Quantity);
 
+	/*  */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	virtual void DebugInventoryStack();
 
+	/*  */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	virtual bool CanReceiveItem(const FPrimaryAssetId& ItemId, const int32 Quantity) const;
 
+	/*  */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	virtual bool CanGiveItem(const FPrimaryAssetId& ItemId, const int32 Quantity) const;
 
@@ -81,6 +93,7 @@ protected:
 		meta = (Getter = "GetItemStack"))
 	TMap<FPrimaryAssetId, int32> ItemStack;
 
+	/*  */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Elementus Inventory",
 		meta = (AllowPrivateAccess = "true"))
 	float CurrentWeight;
