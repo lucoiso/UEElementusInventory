@@ -9,7 +9,6 @@
 #include "ElementusInventoryData.h"
 #include "ElementusInventoryPackage.generated.h"
 
-class UNiagaraComponent;
 class UElementusInventoryComponent;
 
 UCLASS(Category = "Project Elementus | Classes")
@@ -19,9 +18,6 @@ class ELEMENTUSINVENTORY_API AElementusInventoryPackage : public AActor
 
 public:
 	explicit AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer);
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory")
-	TObjectPtr<UStaticMeshComponent> PackageMesh;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory")
 	TObjectPtr<UElementusInventoryComponent> PackageInventory;

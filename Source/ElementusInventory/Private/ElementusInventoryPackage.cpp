@@ -16,9 +16,6 @@ AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer&
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
-	PackageMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PackageMesh"));
-	PackageMesh->SetupAttachment(RootComponent);
-
 	PackageInventory = CreateDefaultSubobject<UElementusInventoryComponent>(TEXT("PackageInventory"));
 	PackageInventory->SetIsReplicated(true);
 }
