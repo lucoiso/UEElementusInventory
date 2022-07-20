@@ -202,7 +202,11 @@ void UElementusInventoryFunctions::TradeElementusItem(TMap<FPrimaryAssetId, int3
 		Iterator.Value =
 			FMath::Clamp(Iterator.Value, 0, FromInventory->GetItemStack().FindRef(Iterator.Key));
 
-		FromInventory->DiscardElementusItem(Iterator.Key, Iterator.Value);
-		ToInventory->AddElementusItem(Iterator.Key, Iterator.Value);
+		if (FromInventory->CanGiveItem(Iterator.Key, Iterator.Value)
+			&& ToInventory->CanReceiveItem(Iterator.Key, Iterator.Value))
+		{
+			FromInventory->DiscardElementusItem(Iterator.Key, Iterator.Value);
+			ToInventory->AddElementusItem(Iterator.Key, Iterator.Value);
+		}
 	}
 }

@@ -27,35 +27,35 @@ class ELEMENTUSINVENTORY_API UElementusInventoryFunctions final : public UBluepr
 	GENERATED_BODY()
 
 public:
-	/*  */
+	/* Check if the ids are equal */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static bool CompareItemInfoIds(const FPrimaryAssetId& Info1, const FPrimaryAssetId& Info2);
 
-	/*  */
+	/* Check if the id of the passed datas are equal */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static bool CompareItemDataIds(const UInventoryItemData* Data1, const UInventoryItemData* Data2);
 
-	/*  */
+	/* Return the data of the passed Id */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static UInventoryItemData* GetElementusItemDataById(const FPrimaryAssetId& InID,
 	                                                    const TArray<FName>& InBundles);
 
-	/*  */
+	/* Return a array of data depending of the given ids */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static TArray<UInventoryItemData*> GetElementusItemDataArrayById(const TArray<FPrimaryAssetId> InIDs,
 	                                                                 const TArray<FName>& InBundles);
 
-	/*  */
+	/* Search items and return a array of item data */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static TArray<UInventoryItemData*> SearchElementusItemData(const EElementusSearchType SearchType,
 	                                                           const FString& SearchString,
 	                                                           const TArray<FName>& InBundles);
 
-	/*  */
+	/* Get ids of all registered items */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static TArray<FPrimaryAssetId> GetElementusItemIds();
 
-	/*  */
+	/* Trade items between two inventory components */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static void TradeElementusItem(TMap<FPrimaryAssetId, int32> ItemsToTrade,
 	                               UElementusInventoryComponent* FromInventory,
