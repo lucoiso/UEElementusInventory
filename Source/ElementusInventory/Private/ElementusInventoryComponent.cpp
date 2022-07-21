@@ -12,6 +12,7 @@
 
 UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
+	  MaxWeight(250.f),
 	  CurrentWeight(0.f)
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -129,18 +130,31 @@ bool UElementusInventoryComponent::CanReceiveItem(const FPrimaryAssetId& ItemId,
 	if (const UInventoryItemData* ItemData =
 		UElementusInventoryFunctions::GetElementusItemDataById(ItemId, {"Data"}))
 	{
-		if (CurrentWeight + ItemData->ItemWeight * Quantity <= MaxWeight)
+		if (MaxWeight >= CurrentWeight + ItemData->ItemWeight * Quantity)
 		{
 			return true;
 		}
 	}
+
+	UE_LOG(LogElementusInventory, Warning,
+		   TEXT("Elementus Inventory - %s: Actor %s cannot receive %d item(s) with name '%s'"),
+		   *FString(__func__), *GetOwner()->GetName(), Quantity, *ItemId.ToString());
 
 	return false;
 }
 
 bool UElementusInventoryComponent::CanGiveItem(const FPrimaryAssetId& ItemId, const int32 Quantity) const
 {
-	return ItemStack.Contains(ItemId) && ItemStack.FindRef(ItemId) >= Quantity;
+	const bool bOutput = ItemStack.Contains(ItemId) && ItemStack.FindRef(ItemId) >= Quantity;
+
+	if (!bOutput)
+	{
+		UE_LOG(LogElementusInventory, Warning,
+		       TEXT("Elementus Inventory - %s: Actor %s cannot give %d item(s) with name '%s'"),
+		       *FString(__func__), *GetOwner()->GetName(), Quantity, *ItemId.ToString());
+	}
+	
+	return bOutput;
 }
 
 void UElementusInventoryComponent::BeginPlay()
@@ -186,7 +200,8 @@ void UElementusInventoryComponent::NotifyInventoryChange(const FPrimaryAssetId& 
 	}
 	else if (const UInventoryItemData* ItemData =
 			UElementusInventoryFunctions::GetElementusItemDataById(ItemId, {"Data"});
-		ItemStack.Contains(ItemId))
+		ItemStack.Contains(ItemId)
+		&& Operation == EElementusInventoryUpdateOperation::Add)
 	{
 		CurrentWeight += ItemData->ItemWeight * Quantity;
 	}

@@ -208,5 +208,11 @@ void UElementusInventoryFunctions::TradeElementusItem(TMap<FPrimaryAssetId, int3
 			FromInventory->DiscardElementusItem(Iterator.Key, Iterator.Value);
 			ToInventory->AddElementusItem(Iterator.Key, Iterator.Value);
 		}
+		else
+		{
+			UE_LOG(LogElementusInventory_Internal, Error,
+			       TEXT("Elementus Inventory - %s: Failed to trade item %s"),
+			       *FString(__func__), *Iterator.Key.ToString());
+		}
 	}
 }

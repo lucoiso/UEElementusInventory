@@ -11,7 +11,7 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory, Display, Verbose);
 
-DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory_Internal, Display, NoLogging);
+DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory_Internal, Display, Verbose);
 
 constexpr auto& ElementusItemDataType = TEXT("ElementusInventory_ItemData");
 
