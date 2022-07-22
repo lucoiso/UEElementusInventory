@@ -3,44 +3,22 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "ElementusInventoryEditor.h"
-#include "ElementusInventoryEditorStyle.h"
-#include "ElementusInventoryEditorCommands.h"
-#include "LevelEditor.h"
+#include "SElementusInventoryEditor.h"
 #include "Widgets/Docking/SDockTab.h"
-#include "Widgets/Layout/SBox.h"
-#include "Widgets/Text/STextBlock.h"
+#include "LevelEditor.h"
 #include "ToolMenus.h"
 #include "WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructureModule.h"
 
-static const FName ElementusInventoryEditorTabName("ElementusInventory");
-
+static const FName ElementusInventoryEditorTabName("Elementus Inventory");
 #define LOCTEXT_NAMESPACE "FElementusInventoryEditorModule"
 
 void FElementusInventoryEditorModule::StartupModule()
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
+	const auto& RegisterDelegate =
+		FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FElementusInventoryEditorModule::RegisterMenus);
 
-	FElementusInventoryEditorStyle::Initialize();
-	FElementusInventoryEditorStyle::ReloadTextures();
-
-	FElementusInventoryEditorCommands::Register();
-
-	PluginCommands = MakeShareable(new FUICommandList);
-
-	PluginCommands->MapAction(FElementusInventoryEditorCommands::Get().OpenPluginWindow,
-	                          FExecuteAction::CreateRaw(this, &FElementusInventoryEditorModule::PluginButtonClicked),
-	                          FCanExecuteAction());
-
-	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateRaw(this,
-		&FElementusInventoryEditorModule::RegisterMenus));
-
-	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ElementusInventoryEditorTabName,
-	                                                  FOnSpawnTab::CreateRaw(this,
-	                                                                         &FElementusInventoryEditorModule::OnSpawnPluginTab)
-	                        )
-	                        .SetDisplayName(LOCTEXT("FElementusInventoryEditorTabTitle", "ElementusInventory"))
-	                        .SetMenuType(ETabSpawnerMenuType::Hidden);
+	UToolMenus::RegisterStartupCallback(RegisterDelegate);
 }
 
 void FElementusInventoryEditorModule::ShutdownModule()
@@ -48,34 +26,21 @@ void FElementusInventoryEditorModule::ShutdownModule()
 	UToolMenus::UnRegisterStartupCallback(this);
 	UToolMenus::UnregisterOwner(this);
 
-	FElementusInventoryEditorStyle::Shutdown();
-	FElementusInventoryEditorCommands::Unregister();
-
 	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(ElementusInventoryEditorTabName);
 }
 
-TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnPluginTab(
-	[[maybe_unused]] const FSpawnTabArgs& SpawnTabArgs) const
+TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs) const
 {
-	const FText WidgetText = LOCTEXT("WindowWidgetText", "Work in Progress");
+	UE_LOG(LogTemp, Display, TEXT("ElementusInventory - %s: Spawning tab %s"),
+	       *FString(__func__), *SpawnTabArgs.GetTabId().ToString());
+
+	const FText WidgetText = NSLOCTEXT(LOCTEXT_NAMESPACE, "WindowWidgetText", "Work in Progress");
 
 	return SNew(SDockTab)
 		.TabRole(NomadTab)
 		[
-			// Put your tab content here!
-			SNew(SBox)
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
-			[
-				SNew(STextBlock)
-				.Text(WidgetText)
-			]
+			SNew(USElementusInventoryEditor)
 		];
-}
-
-void FElementusInventoryEditorModule::PluginButtonClicked()
-{
-	FGlobalTabmanager::Get()->TryInvokeTab(ElementusInventoryEditorTabName);
 }
 
 void FElementusInventoryEditorModule::RegisterMenus()
@@ -83,23 +48,23 @@ void FElementusInventoryEditorModule::RegisterMenus()
 	FToolMenuOwnerScoped OwnerScoped(this);
 
 	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(
-		LOCTEXT("ElementusCategory", "Elementus"),
-		LOCTEXT("ElementusCategoryTooltipText", "Elementus Plugins Tabs."),
+		NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategory", "Elementus"),
+		NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategoryTooltip", "Elementus Plugins Tabs"),
 		FSlateIcon(FEditorStyle::GetStyleSetName(), "InputBindingEditor.LevelViewport"));
 
-	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(FName(TEXT("ElementusInventoryEditor")),
-	                                                  FOnSpawnTab::CreateRaw(this,
-	                                                                         &FElementusInventoryEditorModule::OnSpawnPluginTab))
-	                        .SetDisplayName(NSLOCTEXT("ElementusInventoryEditorModule",
+	const auto& TabSpawnerDelegate =
+		FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnPluginTab);
+
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ElementusInventoryEditorTabName, TabSpawnerDelegate)
+	                        .SetDisplayName(NSLOCTEXT(LOCTEXT_NAMESPACE,
 	                                                  "ElementusInventoryTitle",
 	                                                  "Elementus Inventory"))
-	                        .SetTooltipText(NSLOCTEXT("ElementusInventoryEditorModule",
-	                                                  "ElementusInventoryTooltipText",
-	                                                  "Open ElementusInventory Editor Tab."))
+	                        .SetTooltipText(NSLOCTEXT(LOCTEXT_NAMESPACE,
+	                                                  "ElementusInventoryTooltip",
+	                                                  "Open Elementus Inventory Window."))
 	                        .SetGroup(Menu.ToSharedRef())
 	                        .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "MainFrame.PackageProject"));
 }
-
 #undef LOCTEXT_NAMESPACE
 
 IMPLEMENT_MODULE(FElementusInventoryEditorModule, ElementusInventoryEditor)

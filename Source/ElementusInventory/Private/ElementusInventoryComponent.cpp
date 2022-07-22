@@ -137,8 +137,8 @@ bool UElementusInventoryComponent::CanReceiveItem(const FPrimaryAssetId& ItemId,
 	}
 
 	UE_LOG(LogElementusInventory, Warning,
-		   TEXT("Elementus Inventory - %s: Actor %s cannot receive %d item(s) with name '%s'"),
-		   *FString(__func__), *GetOwner()->GetName(), Quantity, *ItemId.ToString());
+	       TEXT("Elementus Inventory - %s: Actor %s cannot receive %d item(s) with name '%s'"),
+	       *FString(__func__), *GetOwner()->GetName(), Quantity, *ItemId.ToString());
 
 	return false;
 }
@@ -153,7 +153,7 @@ bool UElementusInventoryComponent::CanGiveItem(const FPrimaryAssetId& ItemId, co
 		       TEXT("Elementus Inventory - %s: Actor %s cannot give %d item(s) with name '%s'"),
 		       *FString(__func__), *GetOwner()->GetName(), Quantity, *ItemId.ToString());
 	}
-	
+
 	return bOutput;
 }
 
