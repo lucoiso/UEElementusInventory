@@ -28,33 +28,57 @@ public:
 
 	virtual TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName) override
 	{
+		const FSlateFontInfo& CellFont = FCoreStyle::GetDefaultFontStyle("Regular", 10);
+		const FMargin& CellMargin = FMargin(4.f);
+		
 		if (ColumnName == ColumnId_PrimaryIdLabel)
 		{
-			return SNew(STextBlock).Text(FText::FromString(Item->PrimaryAssetId.ToString()));
+			return SNew(STextBlock)
+			.Text(FText::FromString(Item->PrimaryAssetId.ToString()))
+			.Font(CellFont)
+			.Margin(CellMargin);
 		}
 		if (ColumnName == ColumnId_ItemIdLabel)
 		{
-			return SNew(STextBlock).Text(FText::FromString(Item->Id.ToString()));
+			return SNew(STextBlock)
+			.Text(FText::FromString(Item->Id.ToString()))
+			.Font(CellFont)
+			.Margin(CellMargin);
 		}
 		if (ColumnName == ColumnId_NameLabel)
 		{
-			return SNew(STextBlock).Text(FText::FromString(Item->Name.ToString()));
+			return SNew(STextBlock)
+			.Text(FText::FromString(Item->Name.ToString()))
+			.Font(CellFont)
+			.Margin(CellMargin);
 		}
 		if (ColumnName == ColumnId_TypeLabel)
 		{
-			return SNew(STextBlock).Text(FText::FromString(Item->Type.ToString()));
+			return SNew(STextBlock)
+			.Text(FText::FromString(Item->Type.ToString()))
+			.Font(CellFont)
+			.Margin(CellMargin);
 		}
 		if (ColumnName == ColumnId_ClassLabel)
 		{
-			return SNew(STextBlock).Text(FText::FromString(Item->Class.ToString()));
+			return SNew(STextBlock)
+			.Text(FText::FromString(Item->Class.ToString()))
+			.Font(CellFont)
+			.Margin(CellMargin);
 		}
 		if (ColumnName == ColumnId_ValueLabel)
 		{
-			return SNew(STextBlock).Text(FText::FromString(FString::SanitizeFloat(Item->Value)));
+			return SNew(STextBlock)
+			.Text(FText::FromString(FString::SanitizeFloat(Item->Value)))
+			.Font(CellFont)
+			.Margin(CellMargin);
 		}
 		if (ColumnName == ColumnId_WeightLabel)
 		{
-			return SNew(STextBlock).Text(FText::FromString(FString::SanitizeFloat(Item->Weight)));
+			return SNew(STextBlock)
+			.Text(FText::FromString(FString::SanitizeFloat(Item->Weight)))
+			.Font(CellFont)
+			.Margin(CellMargin);
 		}
 
 		return SNullWidget::NullWidget;
@@ -66,43 +90,42 @@ private:
 
 void USElementusInventoryEditor::Construct([[maybe_unused]] const FArguments& InArgs)
 {
+	const TSharedPtr<SHeaderRow> HeaderRow = SNew(SHeaderRow);
+
+	const auto& HeaderColumnCreator_Lambda =
+		[&](const FName& ColumnId, const FString& ColumnText) -> const SHeaderRow::FColumn::FArguments
+		{
+			return SHeaderRow::Column(ColumnId)
+							.DefaultLabel(FText::FromString(ColumnText))
+							.FillWidth(0.5f)
+							.SortMode(this, &USElementusInventoryEditor::GetColumnSort, ColumnId)
+							.OnSort(this, &USElementusInventoryEditor::OnColumnSort)
+							.HeaderComboVisibility(EHeaderComboVisibility::OnHover);
+		};
+
+	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_PrimaryIdLabel, "Primary Asset Id"));
+	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_ItemIdLabel, "Item Id"));
+	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_NameLabel, "Item Name"));
+	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_TypeLabel, "Item Type"));
+	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_ClassLabel, "Item Class"));
+	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_ValueLabel, "Item Value"));
+	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_WeightLabel, "Item Weight"));
+
+	EdListView = SNew(SListView<FElementusItemPtr>)
+					.ListItemsSource(&ItemArr)
+					.SelectionMode(ESelectionMode::Single)
+					.IsFocusable(true)
+					.OnGenerateRow(this, &USElementusInventoryEditor::OnGenerateWidgetForList)
+					.HeaderRow(HeaderRow);
+	
 	ChildSlot
 	[
-		SNew(SListView<FElementusItemPtr>)
-				.ItemHeight(24)
-				.ListItemsSource(&ItemArr)
-				.OnGenerateRow(this, &USElementusInventoryEditor::OnGenerateWidgetForList)
-				.HeaderRow
-		        	(
-			    	    SNew(SHeaderRow)
-			    	    + SHeaderRow::Column(ColumnId_PrimaryIdLabel)
-			    	    .DefaultLabel(FText::FromString("Primary Asset Id"))
-			    	    .FillWidth(0.5f)
-			    	    
-			    	    + SHeaderRow::Column(ColumnId_ItemIdLabel)
-			    	    .DefaultLabel(FText::FromString("Item Id"))
-			    	    .FillWidth(0.2f)
-						
-			    	    + SHeaderRow::Column(ColumnId_NameLabel)
-			    	    .DefaultLabel(FText::FromString("Item Name"))
-			    	    .FillWidth(0.2f)
-						
-			    	    + SHeaderRow::Column(ColumnId_TypeLabel)
-			    	    .DefaultLabel(FText::FromString("Item Type"))
-			    	    .FillWidth(0.2f)
-						
-			    	    + SHeaderRow::Column(ColumnId_ClassLabel)
-			    	    .DefaultLabel(FText::FromString("Item Class"))
-			    	    .FillWidth(0.2f)
-						
-			    	    + SHeaderRow::Column(ColumnId_ValueLabel)
-			    	    .DefaultLabel(FText::FromString("Item Value"))
-			    	    .FillWidth(0.2f)
-						
-			    	    + SHeaderRow::Column(ColumnId_WeightLabel)
-			    	    .DefaultLabel(FText::FromString("Item Weight"))
-			    	    .FillWidth(0.2f)
-		        	)
+		SNew(SBorder)
+			.VAlign(VAlign_Fill)
+			.HAlign(HAlign_Fill)
+			[
+				EdListView.ToSharedRef()
+			]
 	];
 
 	for (const auto& Iterator : UElementusInventoryFunctions::GetElementusItemIds())
@@ -115,4 +138,82 @@ TSharedRef<ITableRow> USElementusInventoryEditor::OnGenerateWidgetForList(const 
                                                                           const TSharedRef<STableViewBase>& OwnerTable) const
 {
 	return SNew(SElementusItemTableRow, OwnerTable, InItem);
+}
+
+void USElementusInventoryEditor::OnColumnSort([[maybe_unused]] const EColumnSortPriority::Type SortPriority,
+												const FName& ColumnName,
+												const EColumnSortMode::Type SortMode)
+{
+	ColumnBeingSorted = ColumnName;
+	CurrentSortMode = SortMode;
+
+	const auto& CompareLambda =
+		[&] (const auto& Val1, const auto& Val2) -> bool
+		{
+			switch (SortMode)
+			{
+				case EColumnSortMode::Ascending:
+					return Val1 < Val2;
+				case EColumnSortMode::Descending:
+					return Val1 > Val2;
+				case EColumnSortMode::None:
+					return Val1 < Val2;
+				default:
+					return false;
+			}
+		};
+
+	const auto& SortLambda =
+		[&] (const TSharedPtr<FElementusItemData>& Val1, const TSharedPtr<FElementusItemData>& Val2) -> bool
+		{
+			if (ColumnName == ColumnId_PrimaryIdLabel)
+			{
+				return CompareLambda(Val1->PrimaryAssetId.ToString(), Val2->PrimaryAssetId.ToString());
+			}
+
+			if (ColumnName == ColumnId_ItemIdLabel)
+			{
+				return CompareLambda(Val1->Id.ToString(), Val2->Id.ToString());
+			}
+
+			if (ColumnName == ColumnId_NameLabel)
+			{
+				return CompareLambda(Val1->Name.ToString(), Val2->Name.ToString());
+			}
+
+			if (ColumnName == ColumnId_TypeLabel)
+			{
+				return CompareLambda(Val1->Type.ToString(), Val2->Type.ToString());
+			}
+
+			if (ColumnName == ColumnId_ClassLabel)
+			{
+				return CompareLambda(Val1->Class.ToString(), Val2->Class.ToString());
+			}
+
+			if (ColumnName == ColumnId_ValueLabel)
+			{
+				return CompareLambda(Val1->Value, Val2->Value);
+			}
+
+			if (ColumnName == ColumnId_WeightLabel)
+			{
+				return CompareLambda(Val1->Weight, Val2->Weight);
+			}
+
+			return false;
+		};
+
+	Algo::Sort(ItemArr, SortLambda);
+	EdListView->RequestListRefresh();
+}
+
+EColumnSortMode::Type USElementusInventoryEditor::GetColumnSort(const FName ColumnId) const
+{
+	if (ColumnBeingSorted != ColumnId)
+	{
+		return EColumnSortMode::None;
+	}
+
+	return CurrentSortMode;
 }

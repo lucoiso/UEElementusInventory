@@ -63,4 +63,13 @@ class USElementusInventoryEditor final : public SCompoundWidget
 
 	TSharedRef<ITableRow> OnGenerateWidgetForList(TSharedPtr<FElementusItemData> InItem,
 	                                              const TSharedRef<STableViewBase>& OwnerTable) const;
+
+	void OnColumnSort(EColumnSortPriority::Type SortPriority, const FName& ColumnName, EColumnSortMode::Type SortMode);
+	EColumnSortMode::Type GetColumnSort(const FName ColumnId) const;
+
+private:
+	FName ColumnBeingSorted = NAME_None;
+	EColumnSortMode::Type CurrentSortMode = EColumnSortMode::None;
+
+	TSharedPtr<SListView<FElementusItemPtr>> EdListView;
 };
