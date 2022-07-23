@@ -3,12 +3,12 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "ElementusInventoryEditor.h"
-#include "SElementusInventoryEditor.h"
 #include "Widgets/Docking/SDockTab.h"
 #include "LevelEditor.h"
 #include "ToolMenus.h"
 #include "WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructureModule.h"
+#include "SElementusFrame.h"
 
 static const FName ElementusInventoryEditorTabName("Elementus Inventory");
 #define LOCTEXT_NAMESPACE "FElementusInventoryEditorModule"
@@ -31,15 +31,10 @@ void FElementusInventoryEditorModule::ShutdownModule()
 
 TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs) const
 {
-	UE_LOG(LogTemp, Display, TEXT("ElementusInventory - %s: Spawning tab %s"),
-	       *FString(__func__), *SpawnTabArgs.GetTabId().ToString());
-
-	const FText WidgetText = NSLOCTEXT(LOCTEXT_NAMESPACE, "WindowWidgetText", "Work in Progress");
-
 	return SNew(SDockTab)
 		.TabRole(NomadTab)
 		[
-			SNew(USElementusInventoryEditor)
+			SNew(SElementusFrame)
 		];
 }
 

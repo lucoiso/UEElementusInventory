@@ -7,65 +7,58 @@
 #include "CoreMinimal.h"
 #include "ElementusInventoryFunctions.h"
 
-static FString EnumToString(const TCHAR* InEnumName, int32 InEnumValue)
+struct FElementusItemRowData
 {
-	const auto& EnumPtr = FindObject<UEnum>(ANY_PACKAGE, InEnumName, true);
-	if (EnumPtr == nullptr)
-	{
-		return "Invalid";
-	}
-
-#if WITH_EDITOR
-	return EnumPtr->GetDisplayNameTextByValue(InEnumValue).ToString();
-#else
-	return EnumPtr->GetEnumName(InEnumValue);
-#endif
-}
-
-struct FElementusItemData
-{
-	explicit FElementusItemData(const FPrimaryAssetId& InPrimaryAssetId)
+	explicit FElementusItemRowData(const FPrimaryAssetId& InPrimaryAssetId)
 	{
 		const auto& ItemData =
 			UElementusInventoryFunctions::GetElementusItemDataById(InPrimaryAssetId,
 			                                                       {TEXT("Data"), TEXT("Actor")});
 
 		PrimaryAssetId = InPrimaryAssetId;
-		Id = *FString::FromInt(ItemData->ItemId);
+		Id = ItemData->ItemId;
 		Name = ItemData->ItemName;
-		Type = *EnumToString(TEXT("EElementusItemType"), static_cast<uint8>(ItemData->ItemType));
+		Type = ItemData->ItemType;
 		Class = *ItemData->ItemClass->GetPathName();
 		Value = ItemData->ItemValue;
 		Weight = ItemData->ItemWeight;
 	}
 
 	FPrimaryAssetId PrimaryAssetId;
-	FName Id = NAME_None;
+	int32 Id = -1;
 	FName Name = NAME_None;
-	FName Type = NAME_None;
+	EElementusItemType Type = EElementusItemType::None;
 	FName Class = NAME_None;
 	float Value = -1.f;
 	float Weight = -1.f;
 };
 
-typedef TSharedPtr<FElementusItemData, ESPMode::ThreadSafe> FElementusItemPtr;
+using FElementusItemPtr = TSharedPtr<FElementusItemRowData, ESPMode::ThreadSafe>;
 
-class USElementusInventoryEditor final : public SCompoundWidget
+class SElementusTable final : public SCompoundWidget
 {
-	SLATE_USER_ARGS(USElementusInventoryEditor)
+	SLATE_USER_ARGS(SElementusTable)
 		{
 		}
 
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
-	TArray<TSharedPtr<FElementusItemData>> ItemArr;
+	TArray<TSharedPtr<FElementusItemRowData>> ItemArr;
 
-	TSharedRef<ITableRow> OnGenerateWidgetForList(TSharedPtr<FElementusItemData> InItem,
+	TSharedRef<ITableRow> OnGenerateWidgetForList(TSharedPtr<FElementusItemRowData> InItem,
 	                                              const TSharedRef<STableViewBase>& OwnerTable) const;
 
 	void OnColumnSort(EColumnSortPriority::Type SortPriority, const FName& ColumnName, EColumnSortMode::Type SortMode);
 	EColumnSortMode::Type GetColumnSort(const FName ColumnId) const;
+
+	EVisibility GetIsVisible(const FElementusItemPtr InItem) const;
+
+	TArray<int32> AllowedTypes;
+	FText SearchText;
+
+	void OnSearchTextModified(const FText& InText);
+	void OnSearchTypeModified(const ECheckBoxState InState, const int32 InType);
 
 private:
 	FName ColumnBeingSorted = NAME_None;
