@@ -17,6 +17,4 @@ public:
 
 private:
 	void RegisterMenus();
-
-	TSharedRef<SDockTab> OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs) const;
 };

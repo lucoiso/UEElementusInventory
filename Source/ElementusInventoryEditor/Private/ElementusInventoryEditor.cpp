@@ -3,14 +3,15 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "ElementusInventoryEditor.h"
+#include "ElementusStaticIds.h"
+#include "SElementusFrame.h"
+#include "SElementusItemCreator.h"
 #include "Widgets/Docking/SDockTab.h"
 #include "LevelEditor.h"
 #include "ToolMenus.h"
 #include "WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructureModule.h"
-#include "SElementusFrame.h"
 
-static const FName ElementusInventoryEditorTabName("Elementus Inventory");
 #define LOCTEXT_NAMESPACE "FElementusInventoryEditorModule"
 
 void FElementusInventoryEditorModule::StartupModule()
@@ -26,20 +27,23 @@ void FElementusInventoryEditorModule::ShutdownModule()
 	UToolMenus::UnRegisterStartupCallback(this);
 	UToolMenus::UnregisterOwner(this);
 
-	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(ElementusInventoryEditorTabName);
-}
-
-TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs) const
-{
-	return SNew(SDockTab)
-		.TabRole(NomadTab)
-		[
-			SNew(SElementusFrame)
-		];
+	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(ElementusEditorTabId);
+	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(ItemCreatorTabId);
 }
 
 void FElementusInventoryEditorModule::RegisterMenus()
 {
+	const auto& TabCreator_Lambda =
+		[&]([[maybe_unused]] const FSpawnTabArgs& SpawnTabArgs,
+		    const TSharedRef<SWidget>& InContent) -> TSharedRef<SDockTab>
+	{
+		return SNew(SDockTab)
+			.TabRole(NomadTab)
+			[
+				InContent
+			];
+	};
+
 	FToolMenuOwnerScoped OwnerScoped(this);
 
 	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(
@@ -47,18 +51,22 @@ void FElementusInventoryEditorModule::RegisterMenus()
 		NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategoryTooltip", "Elementus Plugins Tabs"),
 		FSlateIcon(FEditorStyle::GetStyleSetName(), "InputBindingEditor.LevelViewport"));
 
-	const auto& TabSpawnerDelegate =
-		FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnPluginTab);
+	const auto& EditorTabSpawnerDelegate =
+		FOnSpawnTab::CreateLambda(TabCreator_Lambda, SNew(SElementusFrame));
 
-	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ElementusInventoryEditorTabName, TabSpawnerDelegate)
-	                        .SetDisplayName(NSLOCTEXT(LOCTEXT_NAMESPACE,
-	                                                  "ElementusInventoryTitle",
-	                                                  "Elementus Inventory"))
-	                        .SetTooltipText(NSLOCTEXT(LOCTEXT_NAMESPACE,
-	                                                  "ElementusInventoryTooltip",
-	                                                  "Open Elementus Inventory Window."))
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ElementusEditorTabId, EditorTabSpawnerDelegate)
+	                        .SetDisplayName(FText::FromString("Elementus Inventory"))
+	                        .SetTooltipText(FText::FromString("Open Elementus Inventory Window"))
 	                        .SetGroup(Menu.ToSharedRef())
-	                        .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "MainFrame.PackageProject"));
+	                        .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "Icons.Package"));
+
+
+	const auto& ItemCreatorTabSpawnerDelegate =
+		FOnSpawnTab::CreateLambda(TabCreator_Lambda, SNew(SElementusItemCreator));
+
+	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ItemCreatorTabId, ItemCreatorTabSpawnerDelegate)
+	                        .SetDisplayName(FText::FromString("Elementus Item Creator"))
+	                        .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "Icons.PlusCircle"));
 }
 #undef LOCTEXT_NAMESPACE
 

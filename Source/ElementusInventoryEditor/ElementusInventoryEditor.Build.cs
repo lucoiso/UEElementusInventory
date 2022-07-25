@@ -17,7 +17,6 @@ public class ElementusInventoryEditor : ModuleRules
 				"Core"
 			});
 
-
 		PrivateDependencyModuleNames.AddRange(
 			new[]
 			{
@@ -31,7 +30,8 @@ public class ElementusInventoryEditor : ModuleRules
 				"Slate",
 				"SlateCore",
 				"EditorStyle",
-				"WorkspaceMenuStructure"
+				"WorkspaceMenuStructure",
+				"PropertyEditor"
 			});
 	}
 }

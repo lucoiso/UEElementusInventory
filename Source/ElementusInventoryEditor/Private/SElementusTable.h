@@ -60,6 +60,8 @@ class SElementusTable final : public SCompoundWidget
 	void OnSearchTextModified(const FText& InText);
 	void OnSearchTypeModified(const ECheckBoxState InState, const int32 InType);
 
+	void UpdateItemList();
+
 private:
 	FName ColumnBeingSorted = NAME_None;
 	EColumnSortMode::Type CurrentSortMode = EColumnSortMode::None;

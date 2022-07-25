@@ -30,6 +30,7 @@ public:
 	               const FElementusItemPtr InEntryItem)
 	{
 		HighlightText = InArgs._HightlightTextSource;
+
 		Item = InEntryItem;
 		SMultiColumnTableRow<FElementusItemPtr>::Construct(FSuperRowType::FArguments(), InOwnerTableView);
 	}
@@ -42,12 +43,11 @@ public:
 		const auto& TextBlockCreator_Lambda =
 			[this, &CellFont, &CellMargin](const FText& InText) -> TSharedRef<STextBlock>
 		{
-			const FText& HighlightText = *this->HighlightText;
 			return SNew(STextBlock)
 					.Text(InText)
 					.Font(CellFont)
 					.Margin(CellMargin)
-					.HighlightText(HighlightText);
+					.HighlightText(*HighlightText);
 		};
 
 		if (ColumnName == ColumnId_PrimaryIdLabel)
@@ -113,7 +113,7 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments& InArgs)
 
 	EdListView = SNew(SListView<FElementusItemPtr>)
 					.ListItemsSource(&ItemArr)
-					.SelectionMode(ESelectionMode::Single)
+					.SelectionMode(ESelectionMode::Multi)
 					.IsFocusable(true)
 					.OnGenerateRow(this, &SElementusTable::OnGenerateWidgetForList)
 					.HeaderRow(HeaderRow);
@@ -123,16 +123,12 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments& InArgs)
 		SNew(SBorder)
 			.VAlign(VAlign_Fill)
 			.HAlign(HAlign_Fill)
-			.Padding(2.f)
 		[
 			EdListView.ToSharedRef()
 		]
 	];
 
-	for (const auto& Iterator : UElementusInventoryFunctions::GetElementusItemIds())
-	{
-		ItemArr.Add(MakeShareable<FElementusItemRowData>(new FElementusItemRowData(Iterator)));
-	}
+	UpdateItemList();
 }
 
 TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusItemPtr InItem,
@@ -191,6 +187,18 @@ void SElementusTable::OnSearchTypeModified(const ECheckBoxState InState, const i
 		AllowedTypes.Remove(InType);
 		break;
 	}
+	EdListView->RequestListRefresh();
+}
+
+void SElementusTable::UpdateItemList()
+{
+	ItemArr.Empty();
+
+	for (const auto& Iterator : UElementusInventoryFunctions::GetElementusItemIds())
+	{
+		ItemArr.Add(MakeShareable<FElementusItemRowData>(new FElementusItemRowData(Iterator)));
+	}
+
 	EdListView->RequestListRefresh();
 }
 

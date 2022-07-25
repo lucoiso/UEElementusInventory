@@ -30,6 +30,7 @@ void SElementusFrame::Construct([[maybe_unused]] const FArguments& InArgs)
 			.AutoHeight()
 			[
 				SNew(SElementusUtils)
+				.TableSource(&Table.Get())
 			]
 		]
 		+ SHorizontalBox::Slot()
@@ -38,4 +39,6 @@ void SElementusFrame::Construct([[maybe_unused]] const FArguments& InArgs)
 			Table
 		]
 	];
+
+	Table->UpdateItemList();
 }

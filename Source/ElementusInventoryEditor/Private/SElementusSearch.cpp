@@ -36,8 +36,7 @@ void SElementusSearch::Construct(const FArguments& InArgs)
 	[
 		SNew(SVerticalBox)
 		+ SVerticalBox::Slot()
-		  .AutoHeight()
-		  .Padding(Slot_Padding)
+		.AutoHeight()
 		[
 			SNew(SSearchBox)
 			.OnTextChanged(this, &SElementusSearch::TriggerOnSearchTextChanged)
@@ -55,7 +54,7 @@ void SElementusSearch::Construct(const FArguments& InArgs)
 		  .Padding(Slot_Padding)
 		[
 			SNew(SUniformGridPanel)
-			.SlotPadding(Slot_Padding / 2.f)
+			.SlotPadding(Slot_Padding / 4.f)
 			+ SUniformGridPanel::Slot(0, 0)
 			[
 				CheckBoxCreator_Lambda(EElementusItemType::Accessory)
