@@ -5,7 +5,9 @@
 #include "SElementusUtils.h"
 #include "ElementusStaticIds.h"
 #include "SElementusTable.h"
+#include "Engine/AssetManager.h"
 #include "Widgets/Layout/SUniformGridPanel.h"
+#include "ObjectTools.h"
 
 void SElementusUtils::Construct(const FArguments& InArgs)
 {
@@ -54,34 +56,9 @@ void SElementusUtils::Construct(const FArguments& InArgs)
 			]
 			+ SUniformGridPanel::Slot(0, 1)
 			[
-				ButtonCreator_Lambda("Validate Items",
-				                     "Validate items on folders added to the asset manager",
-				                     2)
-			]
-			+ SUniformGridPanel::Slot(1, 1)
-			[
-				ButtonCreator_Lambda("Validate Folders",
-				                     "Search for folders that contains Elementus Items and add to the Asset Manager settings"
-				                     " and remove folders that don't contain Elementus Items",
-				                     3)
-			]
-			+ SUniformGridPanel::Slot(0, 2)
-			[
-				ButtonCreator_Lambda("Randomize Ids",
-				                     "Randomize all items ids",
-				                     4)
-			]
-			+ SUniformGridPanel::Slot(1, 2)
-			[
-				ButtonCreator_Lambda("Export Table",
-				                     "Export the items table to a csv file",
-				                     5)
-			]
-			+ SUniformGridPanel::Slot(0, 3)
-			[
 				ButtonCreator_Lambda("Update Table",
 				                     "Update the items table",
-				                     6)
+				                     2)
 			]
 		]
 	];
@@ -93,7 +70,25 @@ FReply SElementusUtils::OnButtonClicked(const uint32 ButtonId) const
 	{
 		FGlobalTabmanager::Get()->TryInvokeTab(ItemCreatorTabId);
 	}
-	else if (ButtonId == 6)
+	else if (ButtonId == 1)
+	{
+		if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+		{
+			TArray<FAssetData> AssetsToDelete;
+			for (const auto& Iterator : TableSource->GetSelectedItems())
+			{
+				FAssetData AssetData;
+				AssetManager->GetPrimaryAssetData(Iterator->PrimaryAssetId, AssetData);
+				AssetsToDelete.Add(AssetData);
+			}
+
+			if (ObjectTools::DeleteAssets(AssetsToDelete) > 0)
+			{
+				TableSource->UpdateItemList();
+			}
+		}
+	}
+	else if (ButtonId == 2)
 	{
 		TableSource->UpdateItemList();
 	}

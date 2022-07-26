@@ -62,6 +62,8 @@ class SElementusTable final : public SCompoundWidget
 
 	void UpdateItemList();
 
+	TArray<TSharedPtr<FElementusItemRowData>> GetSelectedItems() const;
+
 private:
 	FName ColumnBeingSorted = NAME_None;
 	EColumnSortMode::Type CurrentSortMode = EColumnSortMode::None;

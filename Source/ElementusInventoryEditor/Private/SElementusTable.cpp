@@ -200,6 +200,11 @@ void SElementusTable::UpdateItemList()
 	EdListView->RequestListRefresh();
 }
 
+TArray<TSharedPtr<FElementusItemRowData>> SElementusTable::GetSelectedItems() const
+{
+	return EdListView->GetSelectedItems();
+}
+
 void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::Type SortPriority,
                                    const FName& ColumnName,
                                    const EColumnSortMode::Type SortMode)

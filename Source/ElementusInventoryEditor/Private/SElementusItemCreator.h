@@ -23,7 +23,7 @@ class SElementusItemCreator final : public SCompoundWidget
 	void HandleNewEntryClassSelected(const UClass* Class);
 
 	void UpdateFolders();
-	
+
 	FReply HandleCreateItemButtonClicked() const;
 
 private:

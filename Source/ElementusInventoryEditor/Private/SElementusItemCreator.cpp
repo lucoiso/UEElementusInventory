@@ -230,10 +230,10 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 				                          [
 					                          SNew(SButton)
 												.OnClicked(FOnClicked::CreateLambda([this]() -> FReply
-					                           	           {
-						                       	               UpdateFolders();
-						                       	               return FReply::Handled();
-					                           	           }))
+					                                       {
+						                                       UpdateFolders();
+						                                       return FReply::Handled();
+					                                       }))
 												.Content()
 					                          [
 						                          SNew(SImage)
