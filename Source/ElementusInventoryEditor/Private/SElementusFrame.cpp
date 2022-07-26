@@ -39,6 +39,4 @@ void SElementusFrame::Construct([[maybe_unused]] const FArguments& InArgs)
 			Table
 		]
 	];
-
-	Table->UpdateItemList();
 }

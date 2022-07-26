@@ -5,12 +5,21 @@
 #include "SElementusItemCreator.h"
 #include "PropertyCustomizationHelpers.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Widgets/Layout/SUniformGridPanel.h"
 #include "AssetThumbnail.h"
+#include "ElementusInventoryData.h"
+#include "ElementusInventoryEditorFunctions.h"
+#include "Engine/AssetManager.h"
+#include "Widgets/Layout/SUniformGridPanel.h"
+#include "Widgets/Input/SNumericEntryBox.h"
+#include "Widgets/Input/SMultiLineEditableTextBox.h"
+#include "Widgets/Input/STextComboBox.h"
+#include "PackageTools.h"
+#include "AssetToolsModule.h"
+#include "Factories/DataAssetFactory.h"
 
 void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 {
-	constexpr float Slot_Padding = 4.f;
+	constexpr float Slot_Padding = 1.f;
 
 	ImageIcon_ThumbnailPool = MakeShareable(new FAssetThumbnailPool(1024));
 
@@ -21,7 +30,8 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 							.Text(FText::FromString(InStr))
 							.TextStyle(FEditorStyle::Get(), "PropertyEditor.AssetClass")
 							.Font(FEditorStyle::GetFontStyle("PropertyWindow.NormalFont"))
-							.Justification(ETextJustify::Left);
+							.Justification(ETextJustify::Left)
+							.Margin(4.f);
 	};
 
 	const auto& ObjEntryBoxCreator_Lambda =
@@ -41,33 +51,116 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 
 	const auto& ContentPairCreator_Lambda =
 		[this](const TSharedRef<SWidget> Content1,
-		       const TSharedRef<SWidget> Content2) -> const TSharedRef<SHorizontalBox>
+		       const TSharedRef<SWidget> Content2) -> const TSharedRef<SBorder>
 	{
-		return SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot()
-			  .FillWidth(0.5f)
-			  .HAlign(HAlign_Fill)
-			  .VAlign(VAlign_Center)
+		return SNew(SBorder)
+			.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
 			[
-				Content1
-			]
-			+ SHorizontalBox::Slot()
-			  .FillWidth(0.5f)
-			  .MaxWidth(300.f)
-			  .HAlign(HAlign_Fill)
-			  .VAlign(VAlign_Center)
-			[
-				Content2
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				  .FillWidth(0.5f)
+				  .HAlign(HAlign_Fill)
+				  .VAlign(VAlign_Center)
+				[
+					Content1
+				]
+				+ SHorizontalBox::Slot()
+				  .FillWidth(0.5f)
+				  .MaxWidth(250.f)
+				  .HAlign(HAlign_Fill)
+				  .VAlign(VAlign_Center)
+				[
+					Content2
+				]
 			];
 	};
 
-	// Work in Progress
+	ItemTypesArr = ElementusEdHelper::GetEnumValuesAsStringArray(TEXT("EElementusItemType"));
+
+	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	{
+		if (FPrimaryAssetTypeInfo Info;
+			AssetManager->GetPrimaryAssetTypeInfo(FPrimaryAssetType(ElementusItemDataType), Info))
+		{
+			for (const auto& Path : Info.AssetScanPaths)
+			{
+				AssetFoldersArr.Add(MakeShareable(new FString(Path)));
+			}
+		}
+	}
+
 	ChildSlot
 	[
 		SNew(SBorder)
-		.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
 		[
 			SNew(SVerticalBox)
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Id"),
+				                          SNew(SNumericEntryBox<int32>)
+												.AllowSpin(false)
+												.MinValue(0)
+												.Value_Lambda([this] { return ItemId; })
+												.OnValueChanged_Lambda(
+					                                                       [this](const int32 InValue)
+					                                                       {
+						                                                       ItemId = InValue;
+					                                                       }))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Class"),
+				                          SNew(SClassPropertyEntryBox)
+												.AllowAbstract(true)
+												.SelectedClass(this,
+												               &SElementusItemCreator::GetSelectedEntryClass)
+												.OnSetClass(this,
+												            &SElementusItemCreator::HandleNewEntryClassSelected))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Name"),
+				                          SNew(SEditableTextBox)
+				                          .OnTextChanged(FOnTextChanged::CreateLambda(
+					                          [this](const FText& InText)
+					                          {
+						                          ItemName = *InText.ToString();
+					                          })))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Description"),
+				                          SNew(SMultiLineEditableTextBox)
+				                          .OnTextChanged(FOnTextChanged::CreateLambda(
+					                          [this](const FText& InText)
+					                          {
+						                          ItemDescription = InText;
+					                          })))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Type"),
+				                          SNew(STextComboBox)
+				                          .OptionsSource(&ItemTypesArr)
+				                          .OnSelectionChanged(
+					                                             STextComboBox::FOnTextSelectionChanged::CreateLambda(
+						                                             [this](const TSharedPtr<FString>& InStr,
+						                                                    [[maybe_unused]] ESelectInfo::Type
+						                                                    SelectionInfo)
+						                                             {
+							                                             ItemType = ItemTypesArr.Find(InStr);
+						                                             })))
+			]
 			+ SVerticalBox::Slot()
 			  .Padding(Slot_Padding)
 			  .AutoHeight()
@@ -81,6 +174,73 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Icon"),
 				                          ObjEntryBoxCreator_Lambda(UTexture2D::StaticClass(), 1))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Value"),
+				                          SNew(SNumericEntryBox<float>)
+												.AllowSpin(false)
+												.MinValue(0.0f)
+												.Value_Lambda([this] { return ItemValue; })
+												.OnValueChanged_Lambda(
+					                                                       [this](const float InValue)
+					                                                       {
+						                                                       ItemValue = InValue;
+					                                                       }))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Weight"),
+				                          SNew(SNumericEntryBox<float>)
+												.AllowSpin(false)
+												.MinValue(0.0f)
+												.Value_Lambda([this] { return ItemWeight; })
+												.OnValueChanged_Lambda(
+					                                                       [this](const float InValue)
+					                                                       {
+						                                                       ItemWeight = InValue;
+					                                                       }))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Asset Name"),
+				                          SNew(SEditableTextBox)
+				                          .OnTextChanged(FOnTextChanged::CreateLambda(
+					                          [this](const FText& InText)
+					                          {
+						                          AssetName = *InText.ToString();
+					                          })))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Asset Folder"),
+				                          SNew(STextComboBox)
+				                          .OptionsSource(&AssetFoldersArr)
+				                          .OnSelectionChanged(
+					                                             STextComboBox::FOnTextSelectionChanged::CreateLambda(
+						                                             [this](const TSharedPtr<FString>& InStr,
+						                                                    [[maybe_unused]] ESelectInfo::Type
+						                                                    SelectionInfo)
+						                                             {
+							                                             AssetFolder = FName(*InStr.Get());
+						                                             })))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding * 2.f)
+			  .HAlign(HAlign_Center)
+			  .AutoHeight()
+			[
+				SNew(SButton)
+					.Text(FText::FromString("Create Item"))
+					.OnClicked(this, &SElementusItemCreator::HandleCreateItemButtonClicked)
 			]
 		]
 	];
@@ -96,4 +256,53 @@ FString SElementusItemCreator::GetObjPath(const int32 ObjId) const
 	return ObjectMap.Contains(ObjId) && ObjectMap.FindRef(ObjId).IsValid()
 		       ? ObjectMap.FindRef(ObjId)->GetPathName()
 		       : FString("");
+}
+
+void SElementusItemCreator::HandleNewEntryClassSelected(const UClass* Class)
+{
+	ItemClass = Class;
+}
+
+const UClass* SElementusItemCreator::GetSelectedEntryClass() const
+{
+	return ItemClass.Get();
+}
+
+FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
+{
+	if (AssetFolder.IsNone() || AssetName.IsNone())
+	{
+		FMessageDialog::Open(EAppMsgType::Ok,
+		                     FText::FromString("Please enter the asset name and folder for the new item."));
+
+		return FReply::Handled();
+	}
+
+	const FAssetToolsModule& AssetToolsModule =
+		FModuleManager::Get().LoadModuleChecked<FAssetToolsModule>("AssetTools");
+
+	const FString& PackageName =
+		UPackageTools::SanitizePackageName(AssetFolder.ToString() + TEXT("/") + AssetName.ToString());
+
+	UDataAssetFactory* Factory = NewObject<UDataAssetFactory>();
+
+	if (UObject* NewData = AssetToolsModule.Get().CreateAsset(AssetName.ToString(),
+	                                                          FPackageName::GetLongPackagePath(PackageName),
+	                                                          UInventoryItemData::StaticClass(),
+	                                                          Factory);
+		NewData != nullptr)
+	{
+		UInventoryItemData* ItemData = Cast<UInventoryItemData>(NewData);
+		ItemData->ItemId = ItemId;
+		ItemData->ItemClass = TSoftClassPtr(ItemClass.Get());
+		ItemData->ItemName = ItemName;
+		ItemData->ItemDescription = ItemDescription;
+		ItemData->ItemType = static_cast<EElementusItemType>(ItemType);
+		ItemData->ItemValue = ItemValue;
+		ItemData->ItemWeight = ItemWeight;
+		ItemData->ItemImage = Cast<UTexture2D>(ObjectMap.FindRef(0));
+		ItemData->ItemIcon = Cast<UTexture2D>(ObjectMap.FindRef(1));
+	}
+
+	return FReply::Handled();
 }

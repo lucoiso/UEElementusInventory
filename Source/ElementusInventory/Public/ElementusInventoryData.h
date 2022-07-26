@@ -6,7 +6,6 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "Engine/DataTable.h"
 #include "ElementusInventoryData.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory, Display, Verbose);

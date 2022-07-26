@@ -31,19 +31,34 @@ void FElementusInventoryEditorModule::ShutdownModule()
 	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(ItemCreatorTabId);
 }
 
-void FElementusInventoryEditorModule::RegisterMenus()
+TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnTab(const FSpawnTabArgs& SpawnTabArgs, FName TabId) const
 {
-	const auto& TabCreator_Lambda =
-		[&]([[maybe_unused]] const FSpawnTabArgs& SpawnTabArgs,
-		    const TSharedRef<SWidget>& InContent) -> TSharedRef<SDockTab>
+	TSharedPtr<SWidget> OutContent;
+
+	if (TabId == ElementusEditorTabId)
+	{
+		OutContent = SNew(SElementusFrame);
+	}
+	else if (TabId == ItemCreatorTabId)
+	{
+		OutContent = SNew(SElementusItemCreator);
+	}
+
+
+	if (OutContent.IsValid())
 	{
 		return SNew(SDockTab)
 			.TabRole(NomadTab)
 			[
-				InContent
+				OutContent.ToSharedRef()
 			];
-	};
+	}
 
+	return SNew(SDockTab);
+}
+
+void FElementusInventoryEditorModule::RegisterMenus()
+{
 	FToolMenuOwnerScoped OwnerScoped(this);
 
 	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(
@@ -52,7 +67,7 @@ void FElementusInventoryEditorModule::RegisterMenus()
 		FSlateIcon(FEditorStyle::GetStyleSetName(), "InputBindingEditor.LevelViewport"));
 
 	const auto& EditorTabSpawnerDelegate =
-		FOnSpawnTab::CreateLambda(TabCreator_Lambda, SNew(SElementusFrame));
+		FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ElementusEditorTabId);
 
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ElementusEditorTabId, EditorTabSpawnerDelegate)
 	                        .SetDisplayName(FText::FromString("Elementus Inventory"))
@@ -62,7 +77,7 @@ void FElementusInventoryEditorModule::RegisterMenus()
 
 
 	const auto& ItemCreatorTabSpawnerDelegate =
-		FOnSpawnTab::CreateLambda(TabCreator_Lambda, SNew(SElementusItemCreator));
+		FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ItemCreatorTabId);
 
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ItemCreatorTabId, ItemCreatorTabSpawnerDelegate)
 	                        .SetDisplayName(FText::FromString("Elementus Item Creator"))

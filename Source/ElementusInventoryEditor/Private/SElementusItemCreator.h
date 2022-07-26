@@ -19,7 +19,24 @@ class SElementusItemCreator final : public SCompoundWidget
 	FString GetObjPath(const int32 ObjId) const;
 	void OnObjChanged(const FAssetData& AssetData, const int32 ObjId);
 
+	const UClass* GetSelectedEntryClass() const;
+	void HandleNewEntryClassSelected(const UClass* Class);
+
+	FReply HandleCreateItemButtonClicked() const;
+
 private:
 	TMap<int32, TWeakObjectPtr<UObject>> ObjectMap;
 	TSharedPtr<FAssetThumbnailPool> ImageIcon_ThumbnailPool;
+	TArray<TSharedPtr<FString>> ItemTypesArr;
+	TArray<TSharedPtr<FString>> AssetFoldersArr;
+
+	FName AssetName;
+	FName AssetFolder;
+	int32 ItemId = 0;
+	TWeakObjectPtr<const UClass> ItemClass;
+	FName ItemName;
+	FText ItemDescription;
+	uint8 ItemType = 0;
+	float ItemValue = 0.f;
+	float ItemWeight = 0.f;
 };

@@ -127,8 +127,6 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments& InArgs)
 			EdListView.ToSharedRef()
 		]
 	];
-
-	UpdateItemList();
 }
 
 TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusItemPtr InItem,

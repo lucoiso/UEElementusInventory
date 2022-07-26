@@ -6,7 +6,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ElementusInventoryData.h"
 #include "ElementusInventoryPackage.generated.h"
 
 class UElementusInventoryComponent;
