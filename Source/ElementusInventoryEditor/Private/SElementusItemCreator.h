@@ -22,6 +22,8 @@ class SElementusItemCreator final : public SCompoundWidget
 	const UClass* GetSelectedEntryClass() const;
 	void HandleNewEntryClassSelected(const UClass* Class);
 
+	void UpdateFolders();
+	
 	FReply HandleCreateItemButtonClicked() const;
 
 private:

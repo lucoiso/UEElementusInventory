@@ -76,18 +76,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 	};
 
 	ItemTypesArr = ElementusEdHelper::GetEnumValuesAsStringArray(TEXT("EElementusItemType"));
-
-	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
-	{
-		if (FPrimaryAssetTypeInfo Info;
-			AssetManager->GetPrimaryAssetTypeInfo(FPrimaryAssetType(ElementusItemDataType), Info))
-		{
-			for (const auto& Path : Info.AssetScanPaths)
-			{
-				AssetFoldersArr.Add(MakeShareable(new FString(Path)));
-			}
-		}
-	}
+	UpdateFolders();
 
 	ChildSlot
 	[
@@ -222,16 +211,35 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Asset Folder"),
-				                          SNew(STextComboBox)
-				                          .OptionsSource(&AssetFoldersArr)
-				                          .OnSelectionChanged(
-					                                             STextComboBox::FOnTextSelectionChanged::CreateLambda(
-						                                             [this](const TSharedPtr<FString>& InStr,
-						                                                    [[maybe_unused]] ESelectInfo::Type
-						                                                    SelectionInfo)
-						                                             {
-							                                             AssetFolder = FName(*InStr.Get());
-						                                             })))
+				                          SNew(SHorizontalBox)
+				                          + SHorizontalBox::Slot()
+				                          [
+					                          SNew(STextComboBox)
+					                          .OptionsSource(&AssetFoldersArr)
+					                          .OnSelectionChanged(
+						                                             STextComboBox::FOnTextSelectionChanged::CreateLambda(
+							                                             [this](const TSharedPtr<FString>& InStr,
+							                                             [[maybe_unused]] ESelectInfo::Type
+							                                             SelectionInfo)
+							                                             {
+								                                             AssetFolder = FName(*InStr.Get());
+							                                             }))
+				                          ]
+				                          + SHorizontalBox::Slot()
+				                          .AutoWidth()
+				                          [
+					                          SNew(SButton)
+												.OnClicked(FOnClicked::CreateLambda([this]() -> FReply
+					                           	           {
+						                       	               UpdateFolders();
+						                       	               return FReply::Handled();
+					                           	           }))
+												.Content()
+					                          [
+						                          SNew(SImage)
+						                          .Image(FEditorStyle::GetBrush("Icons.Refresh"))
+					                          ]
+				                          ])
 			]
 			+ SVerticalBox::Slot()
 			  .Padding(Slot_Padding * 2.f)
@@ -266,6 +274,23 @@ void SElementusItemCreator::HandleNewEntryClassSelected(const UClass* Class)
 const UClass* SElementusItemCreator::GetSelectedEntryClass() const
 {
 	return ItemClass.Get();
+}
+
+void SElementusItemCreator::UpdateFolders()
+{
+	AssetFoldersArr.Empty();
+
+	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	{
+		if (FPrimaryAssetTypeInfo Info;
+			AssetManager->GetPrimaryAssetTypeInfo(FPrimaryAssetType(ElementusItemDataType), Info))
+		{
+			for (const auto& Path : Info.AssetScanPaths)
+			{
+				AssetFoldersArr.Add(MakeShareable(new FString(Path)));
+			}
+		}
+	}
 }
 
 FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
