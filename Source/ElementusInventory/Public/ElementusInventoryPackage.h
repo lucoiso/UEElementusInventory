@@ -24,12 +24,12 @@ public:
 
 	/* Put a item in this package */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void PutItemIntoPackage(TMap<FPrimaryAssetId, int32>& ItemInfo,
+	void PutItemIntoPackage(TMap<FElementusItemId, int32>& ItemInfo,
 	                        UElementusInventoryComponent* FromInventory) const;
 
 	/* Get a item from this package */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void GetItemFromPackage(TMap<FPrimaryAssetId, int32>& ItemInfo,
+	void GetItemFromPackage(TMap<FElementusItemId, int32>& ItemInfo,
 	                        UElementusInventoryComponent* ToInventory) const;
 
 	/* Set this package to auto destroy when its empty */

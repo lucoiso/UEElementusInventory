@@ -82,3 +82,23 @@ public:
 		meta = (AssetBundles = "UI"))
 	TSoftObjectPtr<UTexture2D> ItemImage;
 };
+
+USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
+struct FElementusItemId : public FPrimaryAssetId
+{
+	GENERATED_USTRUCT_BODY()
+	FElementusItemId()
+		: Super()
+	{
+	}
+
+	explicit FElementusItemId(const FPrimaryAssetId& InId)
+		: Super(InId.PrimaryAssetType, InId.PrimaryAssetName)
+	{
+	}
+
+	explicit FElementusItemId(const FString& TypeAndName)
+		: Super(TypeAndName)
+	{
+	}
+};

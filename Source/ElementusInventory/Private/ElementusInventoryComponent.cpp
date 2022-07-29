@@ -24,12 +24,12 @@ float UElementusInventoryComponent::GetCurrentWeight() const
 	return CurrentWeight;
 }
 
-TMap<FPrimaryAssetId, int32> UElementusInventoryComponent::GetItemStack() const
+TMap<FElementusItemId, int32> UElementusInventoryComponent::GetItemStack() const
 {
 	return ItemStack;
 }
 
-void UElementusInventoryComponent::AddElementusItem(const FPrimaryAssetId& ItemId, const int32 Quantity)
+void UElementusInventoryComponent::AddElementusItem(const FElementusItemId& ItemId, const int32 Quantity)
 {
 	UE_LOG(LogElementusInventory, Display,
 	       TEXT("Elementus Inventory - %s: Adding %d item(s) with name '%s' to inventory"),
@@ -38,7 +38,7 @@ void UElementusInventoryComponent::AddElementusItem(const FPrimaryAssetId& ItemI
 	AddElementusItem_Internal(ItemId, Quantity);
 }
 
-void UElementusInventoryComponent::DiscardElementusItem(const FPrimaryAssetId& ItemId, const int32 Quantity)
+void UElementusInventoryComponent::DiscardElementusItem(const FElementusItemId& ItemId, const int32 Quantity)
 {
 	UE_LOG(LogElementusInventory, Display,
 	       TEXT("Elementus Inventory - %s: Discarding %d item(s) with name '%s' from inventory"),
@@ -61,7 +61,7 @@ constexpr void DoMulticastLoggingIdentification(const ENetMode& CurrentNetMode)
 	}
 }
 
-void UElementusInventoryComponent::AddElementusItem_Internal_Implementation(const FPrimaryAssetId& ItemId,
+void UElementusInventoryComponent::AddElementusItem_Internal_Implementation(const FElementusItemId& ItemId,
                                                                             const int32 Quantity)
 {
 	DoMulticastLoggingIdentification(GetOwner()->GetNetMode());
@@ -82,7 +82,7 @@ void UElementusInventoryComponent::AddElementusItem_Internal_Implementation(cons
 	NotifyInventoryChange(ItemId, Quantity, EElementusInventoryUpdateOperation::Add);
 }
 
-void UElementusInventoryComponent::DiscardElementusItem_Internal_Implementation(const FPrimaryAssetId& ItemId,
+void UElementusInventoryComponent::DiscardElementusItem_Internal_Implementation(const FElementusItemId& ItemId,
 	const int32 Quantity)
 {
 	DoMulticastLoggingIdentification(GetOwner()->GetNetMode());
@@ -125,7 +125,7 @@ void UElementusInventoryComponent::DebugInventoryStack()
 	UE_LOG(LogElementusInventory, Warning, TEXT("Weight: %d"), CurrentWeight);
 }
 
-bool UElementusInventoryComponent::CanReceiveItem(const FPrimaryAssetId& ItemId, const int32 Quantity) const
+bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemId& ItemId, const int32 Quantity) const
 {
 	if (const UInventoryItemData* ItemData =
 		UElementusInventoryFunctions::GetElementusItemDataById(ItemId, {"Data"}))
@@ -143,7 +143,7 @@ bool UElementusInventoryComponent::CanReceiveItem(const FPrimaryAssetId& ItemId,
 	return false;
 }
 
-bool UElementusInventoryComponent::CanGiveItem(const FPrimaryAssetId& ItemId, const int32 Quantity) const
+bool UElementusInventoryComponent::CanGiveItem(const FElementusItemId& ItemId, const int32 Quantity) const
 {
 	const bool bOutput = ItemStack.Contains(ItemId) && ItemStack.FindRef(ItemId) >= Quantity;
 
@@ -177,7 +177,7 @@ void UElementusInventoryComponent::PostEditChangeProperty(FPropertyChangedEvent&
 }
 #endif
 
-void UElementusInventoryComponent::NotifyInventoryChange(const FPrimaryAssetId& ItemId,
+void UElementusInventoryComponent::NotifyInventoryChange(const FElementusItemId& ItemId,
                                                          const int32 Quantity,
                                                          const EElementusInventoryUpdateOperation Operation)
 {
@@ -213,7 +213,7 @@ void UElementusInventoryComponent::NotifyInventoryChange(const FPrimaryAssetId& 
 
 void UElementusInventoryComponent::UpdateCurrentWeight()
 {
-	TArray<FPrimaryAssetId> ItemIds;
+	TArray<FElementusItemId> ItemIds;
 	ItemStack.GetKeys(ItemIds);
 
 	float NewWeigth = 0.f;
@@ -223,9 +223,11 @@ void UElementusInventoryComponent::UpdateCurrentWeight()
 	{
 		for (const auto& Iterator : ItemDataArr)
 		{
-			if (ItemStack.Contains(Iterator->GetPrimaryAssetId()))
+			if (ItemStack.Contains(FElementusItemId(Iterator->GetPrimaryAssetId())))
 			{
-				NewWeigth += Iterator->ItemWeight * ItemStack.FindRef(Iterator->GetPrimaryAssetId());
+				NewWeigth +=
+					Iterator->ItemWeight
+					* ItemStack.FindRef(FElementusItemId(Iterator->GetPrimaryAssetId()));
 			}
 		}
 	}
@@ -235,7 +237,7 @@ void UElementusInventoryComponent::UpdateCurrentWeight()
 
 void UElementusInventoryComponent::ValidateItemStack()
 {
-	TArray<FPrimaryAssetId> ItemIds;
+	TArray<FElementusItemId> ItemIds;
 	ItemStack.GetKeys(ItemIds);
 
 	bool bHasInvalidItems = false;

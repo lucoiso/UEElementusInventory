@@ -19,4 +19,5 @@ public:
 
 private:
 	void RegisterMenus();
+	FPropertyEditorModule* PropertyEditorModule = nullptr;
 };

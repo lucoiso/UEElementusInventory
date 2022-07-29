@@ -20,13 +20,13 @@ AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer&
 	PackageInventory->SetIsReplicated(true);
 }
 
-void AElementusInventoryPackage::PutItemIntoPackage(TMap<FPrimaryAssetId, int32>& ItemInfo,
+void AElementusInventoryPackage::PutItemIntoPackage(TMap<FElementusItemId, int32>& ItemInfo,
                                                     UElementusInventoryComponent* FromInventory) const
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, FromInventory, PackageInventory);
 }
 
-void AElementusInventoryPackage::GetItemFromPackage(TMap<FPrimaryAssetId, int32>& ItemInfo,
+void AElementusInventoryPackage::GetItemFromPackage(TMap<FElementusItemId, int32>& ItemInfo,
                                                     UElementusInventoryComponent* ToInventory) const
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, PackageInventory, ToInventory);

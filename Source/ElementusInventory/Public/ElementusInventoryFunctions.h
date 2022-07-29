@@ -18,6 +18,7 @@ enum class EElementusSearchType : uint8
 };
 
 class UElementusInventoryComponent;
+struct FElementusItemId;
 /**
  * 
  */
@@ -29,7 +30,7 @@ class ELEMENTUSINVENTORY_API UElementusInventoryFunctions final : public UBluepr
 public:
 	/* Check if the ids are equal */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	static bool CompareItemInfoIds(const FPrimaryAssetId& Info1, const FPrimaryAssetId& Info2);
+	static bool CompareItemInfoIds(const FElementusItemId& Info1, const FElementusItemId& Info2);
 
 	/* Check if the id of the passed datas are equal */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
@@ -37,12 +38,12 @@ public:
 
 	/* Return the data of the passed Id */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static UInventoryItemData* GetElementusItemDataById(const FPrimaryAssetId& InID,
+	static UInventoryItemData* GetElementusItemDataById(const FElementusItemId& InID,
 	                                                    const TArray<FName>& InBundles);
 
 	/* Return a array of data depending of the given ids */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static TArray<UInventoryItemData*> GetElementusItemDataArrayById(const TArray<FPrimaryAssetId> InIDs,
+	static TArray<UInventoryItemData*> GetElementusItemDataArrayById(const TArray<FElementusItemId> InIDs,
 	                                                                 const TArray<FName>& InBundles);
 
 	/* Search items and return a array of item data */
@@ -53,16 +54,16 @@ public:
 
 	/* Get ids of all registered items */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static TArray<FPrimaryAssetId> GetElementusItemIds();
+	static TArray<FElementusItemId> GetElementusItemIds();
 
 	/* Trade items between two inventory components */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static void TradeElementusItem(TMap<FPrimaryAssetId, int32> ItemsToTrade,
+	static void TradeElementusItem(TMap<FElementusItemId, int32> ItemsToTrade,
 	                               UElementusInventoryComponent* FromInventory,
 	                               UElementusInventoryComponent* ToInventory);
 
 private:
 	static TArray<UInventoryItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
-	                                                                   const TArray<FPrimaryAssetId> InIDs,
+	                                                                   const TArray<FElementusItemId> InIDs,
 	                                                                   const TArray<FName>& InBundles);
 };

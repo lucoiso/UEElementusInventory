@@ -6,3 +6,4 @@
 
 static const FName ElementusEditorTabId("Elementus Inventory");
 static const FName ItemCreatorTabId("Elementus Item Creator");
+static const FName ItemStackPropertyId("ElementusItemId");

@@ -9,7 +9,7 @@
 
 struct FElementusItemRowData
 {
-	explicit FElementusItemRowData(const FPrimaryAssetId& InPrimaryAssetId)
+	explicit FElementusItemRowData(const FElementusItemId& InPrimaryAssetId)
 	{
 		const auto& ItemData =
 			UElementusInventoryFunctions::GetElementusItemDataById(InPrimaryAssetId,

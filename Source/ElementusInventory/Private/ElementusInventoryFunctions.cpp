@@ -6,7 +6,7 @@
 #include "ElementusInventoryComponent.h"
 #include "Engine/AssetManager.h"
 
-bool UElementusInventoryFunctions::CompareItemInfoIds(const FPrimaryAssetId& Info1, const FPrimaryAssetId& Info2)
+bool UElementusInventoryFunctions::CompareItemInfoIds(const FElementusItemId& Info1, const FElementusItemId& Info2)
 {
 	return Info1 == Info2;
 }
@@ -16,7 +16,7 @@ bool UElementusInventoryFunctions::CompareItemDataIds(const UInventoryItemData* 
 	return Data1->GetPrimaryAssetId() == Data2->GetPrimaryAssetId();
 }
 
-UInventoryItemData* UElementusInventoryFunctions::GetElementusItemDataById(const FPrimaryAssetId& InID,
+UInventoryItemData* UElementusInventoryFunctions::GetElementusItemDataById(const FElementusItemId& InID,
                                                                            const TArray<FName>& InBundles)
 {
 	UInventoryItemData* Output = nullptr;
@@ -41,7 +41,7 @@ UInventoryItemData* UElementusInventoryFunctions::GetElementusItemDataById(const
 }
 
 TArray<UInventoryItemData*> UElementusInventoryFunctions::GetElementusItemDataArrayById(
-	const TArray<FPrimaryAssetId> InIDs,
+	const TArray<FElementusItemId> InIDs,
 	const TArray<FName>& InBundles)
 {
 	TArray<UInventoryItemData*> Output;
@@ -59,7 +59,7 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::SearchElementusItemDat
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
 		TArray<UInventoryItemData*> ReturnedValues =
-			LoadElementusItemDatas_Internal(AssetManager, TArray<FPrimaryAssetId>(), InBundles);
+			LoadElementusItemDatas_Internal(AssetManager, TArray<FElementusItemId>(), InBundles);
 
 		for (const auto& Iterator : ReturnedValues)
 		{
@@ -97,10 +97,11 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::SearchElementusItemDat
 }
 
 TArray<UInventoryItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
-	const TArray<FPrimaryAssetId> InIDs,
+	const TArray<FElementusItemId> InIDs,
 	const TArray<FName>& InBundles)
 {
 	TArray<UInventoryItemData*> Output;
+	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
 
 	constexpr auto& FuncNam_LambVer = __func__;
 	const auto& CheckAssetValidity_Lambda =
@@ -148,7 +149,7 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 	};
 
 	if (const TSharedPtr<FStreamableHandle> StreamableHandle =
-			InAssetManager->LoadPrimaryAssets(InIDs, InBundles);
+			InAssetManager->LoadPrimaryAssets(PrimaryAssetIds, InBundles);
 		StreamableHandle.IsValid())
 	{
 		StreamableHandle->WaitUntilComplete(5.f);
@@ -165,12 +166,15 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 			PassItemArr_Lambda(LoadedAssets);
 		}
 
-		for (int Iterator = 0; Iterator < InIDs.Num(); ++Iterator)
+		if (!Output.IsEmpty())
 		{
-			if (!InIDs.Contains(Output[Iterator]->GetPrimaryAssetId()))
+			for (int Iterator = 0; Iterator < InIDs.Num(); ++Iterator)
 			{
-				Output.RemoveAt(Iterator);
-				--Iterator;
+				if (!InIDs.Contains(Output[Iterator]->GetPrimaryAssetId()))
+				{
+					Output.RemoveAt(Iterator);
+					--Iterator;
+				}
 			}
 		}
 	}
@@ -180,20 +184,20 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 	return Output;
 }
 
-TArray<FPrimaryAssetId> UElementusInventoryFunctions::GetElementusItemIds()
+TArray<FElementusItemId> UElementusInventoryFunctions::GetElementusItemIds()
 {
 	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
 		if (TArray<FPrimaryAssetId> IdList;
 			AssetManager->GetPrimaryAssetIdList(FPrimaryAssetType(ElementusItemDataType), IdList))
 		{
-			return IdList;
+			return TArray<FElementusItemId>(IdList);
 		}
 	}
-	return TArray<FPrimaryAssetId>();
+	return TArray<FElementusItemId>();
 }
 
-void UElementusInventoryFunctions::TradeElementusItem(TMap<FPrimaryAssetId, int32> ItemsToTrade,
+void UElementusInventoryFunctions::TradeElementusItem(TMap<FElementusItemId, int32> ItemsToTrade,
                                                       UElementusInventoryComponent* FromInventory,
                                                       UElementusInventoryComponent* ToInventory)
 {

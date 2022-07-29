@@ -3,6 +3,8 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "ElementusInventoryEditor.h"
+
+#include "ElementusDetailsPanel.h"
 #include "ElementusStaticIds.h"
 #include "SElementusFrame.h"
 #include "SElementusItemCreator.h"
@@ -20,6 +22,11 @@ void FElementusInventoryEditorModule::StartupModule()
 		FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FElementusInventoryEditorModule::RegisterMenus);
 
 	UToolMenus::RegisterStartupCallback(RegisterDelegate);
+
+	PropertyEditorModule = &FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+	PropertyEditorModule->RegisterCustomPropertyTypeLayout(ItemStackPropertyId,
+	                                                       FOnGetPropertyTypeCustomizationInstance::CreateStatic(
+		                                                       &ElementusDetailsPanel::MakeInstance));
 }
 
 void FElementusInventoryEditorModule::ShutdownModule()
@@ -29,6 +36,8 @@ void FElementusInventoryEditorModule::ShutdownModule()
 
 	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(ElementusEditorTabId);
 	FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(ItemCreatorTabId);
+
+	PropertyEditorModule->UnregisterCustomPropertyTypeLayout(ItemStackPropertyId);
 }
 
 TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnTab(const FSpawnTabArgs& SpawnTabArgs, FName TabId) const
