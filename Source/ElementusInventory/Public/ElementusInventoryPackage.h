@@ -8,6 +8,7 @@
 #include "GameFramework/Actor.h"
 #include "ElementusInventoryPackage.generated.h"
 
+struct FElementusItemId;
 class UElementusInventoryComponent;
 
 UCLASS(Category = "Elementus Inventory | Classes")

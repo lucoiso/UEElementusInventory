@@ -28,6 +28,14 @@ class ELEMENTUSINVENTORY_API UElementusInventoryFunctions final : public UBluepr
 	GENERATED_BODY()
 
 public:
+	/* Unload all elementus items that were loaded by Asset Manager */
+	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
+	static void UnloadAllElementusItems();
+	
+	/* Unload a elementus item that was loaded by Asset Manager */
+	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
+	static void UnloadElementusItem(const FElementusItemId& InItemId);
+
 	/* Check if the ids are equal */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static bool CompareItemInfoIds(const FElementusItemId& Info1, const FElementusItemId& Info2);
@@ -39,18 +47,21 @@ public:
 	/* Return the data of the passed Id */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static UInventoryItemData* GetElementusItemDataById(const FElementusItemId& InID,
-	                                                    const TArray<FName>& InBundles);
+	                                                    const TArray<FName>& InBundles,
+	                                                    const bool bAutoUnload = true);
 
 	/* Return a array of data depending of the given ids */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static TArray<UInventoryItemData*> GetElementusItemDataArrayById(const TArray<FElementusItemId> InIDs,
-	                                                                 const TArray<FName>& InBundles);
+	                                                                 const TArray<FName>& InBundles,
+	                                                                 const bool bAutoUnload = true);
 
 	/* Search items and return a array of item data */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static TArray<UInventoryItemData*> SearchElementusItemData(const EElementusSearchType SearchType,
 	                                                           const FString& SearchString,
-	                                                           const TArray<FName>& InBundles);
+	                                                           const TArray<FName>& InBundles,
+	                                                           const bool bAutoUnload = true);
 
 	/* Get ids of all registered items */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
@@ -65,5 +76,6 @@ public:
 private:
 	static TArray<UInventoryItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
 	                                                                   const TArray<FElementusItemId> InIDs,
-	                                                                   const TArray<FName>& InBundles);
+	                                                                   const TArray<FName>& InBundles,
+	                                                                   const bool bAutoUnload);
 };

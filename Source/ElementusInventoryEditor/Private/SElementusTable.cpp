@@ -3,11 +3,15 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusTable.h"
+#include "ElementusInventoryEditorFunctions.h"
+#include "Engine/AssetManager.h"
+#include "Subsystems/AssetEditorSubsystem.h"
 
 static const FName& ColumnId_PrimaryIdLabel = TEXT("PrimaryAssetId");
 static const FName& ColumnId_ItemIdLabel = TEXT("Id");
 static const FName& ColumnId_NameLabel = TEXT("Name");
 static const FName& ColumnId_TypeLabel = TEXT("Type");
+static const FName& ColumnId_ObjectLabel = TEXT("Object");
 static const FName& ColumnId_ClassLabel = TEXT("Class");
 static const FName& ColumnId_ValueLabel = TEXT("Value");
 static const FName& ColumnId_WeightLabel = TEXT("Weight");
@@ -67,6 +71,10 @@ public:
 			return TextBlockCreator_Lambda(FText::FromString(
 				ElementusEdHelper::EnumToString(TEXT("EElementusItemType"), static_cast<uint8>(Item->Type))));
 		}
+		if (ColumnName == ColumnId_ObjectLabel)
+		{
+			return TextBlockCreator_Lambda(FText::FromString(Item->Object.ToString()));
+		}
 		if (ColumnName == ColumnId_ClassLabel)
 		{
 			return TextBlockCreator_Lambda(FText::FromString(Item->Class.ToString()));
@@ -107,6 +115,7 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments& InArgs)
 	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_ItemIdLabel, "Id"));
 	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_NameLabel, "Name"));
 	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_TypeLabel, "Type"));
+	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_ObjectLabel, "Object"));
 	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_ClassLabel, "Class"));
 	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_ValueLabel, "Value"));
 	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_WeightLabel, "Weight"));
@@ -116,7 +125,8 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments& InArgs)
 					.SelectionMode(ESelectionMode::Multi)
 					.IsFocusable(true)
 					.OnGenerateRow(this, &SElementusTable::OnGenerateWidgetForList)
-					.HeaderRow(HeaderRow);
+					.HeaderRow(HeaderRow)
+					.OnMouseButtonDoubleClick(this, &SElementusTable::OnTableItemDoubleClicked);
 
 	ChildSlot
 	[
@@ -127,6 +137,8 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments& InArgs)
 			EdListView.ToSharedRef()
 		]
 	];
+
+	UpdateItemList();
 }
 
 TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusItemPtr InItem,
@@ -135,6 +147,17 @@ TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusI
 	return SNew(SElementusItemTableRow, OwnerTable, InItem)
 				.Visibility(this, &SElementusTable::GetIsVisible, InItem)
 				.HightlightTextSource(&SearchText);
+}
+
+void SElementusTable::OnTableItemDoubleClicked(const TSharedPtr<FElementusItemRowData> ElementusItemRowData) const
+{
+	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	{
+		UAssetEditorSubsystem* AssetEditorSubsystem = NewObject<UAssetEditorSubsystem>();
+		const FSoftObjectPath AssetPath = AssetManager->GetPrimaryAssetPath(ElementusItemRowData->PrimaryAssetId);
+
+		AssetEditorSubsystem->OpenEditorForAsset(AssetPath.ToString());
+	}
 }
 
 EVisibility SElementusTable::GetIsVisible(const FElementusItemPtr InItem) const

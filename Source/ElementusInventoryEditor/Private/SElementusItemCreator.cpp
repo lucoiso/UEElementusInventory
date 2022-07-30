@@ -16,6 +16,7 @@
 #include "PackageTools.h"
 #include "AssetToolsModule.h"
 #include "Factories/DataAssetFactory.h"
+#include "UObject/SavePackage.h"
 
 void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 {
@@ -78,6 +79,14 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 	ItemTypesArr = ElementusEdHelper::GetEnumValuesAsStringArray(TEXT("EElementusItemType"));
 	UpdateFolders();
 
+	const TSharedRef<SToolTip> ToolTip = SNew(SToolTip)
+		.Text(FText::FromString(TEXT("Already exists a item with this Id.")))
+		.Visibility_Lambda(
+			[this] () -> EVisibility
+			{
+				return IsCreateEnabled() ? EVisibility::Collapsed : EVisibility::Visible;
+			});
+
 	ChildSlot
 	[
 		SNew(SBorder)
@@ -102,13 +111,20 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 			  .Padding(Slot_Padding)
 			  .AutoHeight()
 			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Object"),
+					ObjEntryBoxCreator_Lambda(UObject::StaticClass(), 0))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Class"),
-				                          SNew(SClassPropertyEntryBox)
-												.AllowAbstract(true)
-												.SelectedClass(this,
-												               &SElementusItemCreator::GetSelectedEntryClass)
-												.OnSetClass(this,
-												            &SElementusItemCreator::HandleNewEntryClassSelected))
+											SNew(SClassPropertyEntryBox)
+											.AllowAbstract(true)
+											.SelectedClass(this,
+														   &SElementusItemCreator::GetSelectedEntryClass)
+											.OnSetClass(this,
+														&SElementusItemCreator::HandleNewEntryClassSelected))
 			]
 			+ SVerticalBox::Slot()
 			  .Padding(Slot_Padding)
@@ -155,14 +171,14 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Image"),
-				                          ObjEntryBoxCreator_Lambda(UTexture2D::StaticClass(), 0))
+				                          ObjEntryBoxCreator_Lambda(UTexture2D::StaticClass(), 1))
 			]
 			+ SVerticalBox::Slot()
 			  .Padding(Slot_Padding)
 			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Icon"),
-				                          ObjEntryBoxCreator_Lambda(UTexture2D::StaticClass(), 1))
+				                          ObjEntryBoxCreator_Lambda(UTexture2D::StaticClass(), 2))
 			]
 			+ SVerticalBox::Slot()
 			  .Padding(Slot_Padding)
@@ -249,6 +265,8 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 				SNew(SButton)
 					.Text(FText::FromString("Create Item"))
 					.OnClicked(this, &SElementusItemCreator::HandleCreateItemButtonClicked)
+					.IsEnabled(this, &SElementusItemCreator::IsCreateEnabled)
+					.ToolTip(ToolTip)
 			]
 		]
 	];
@@ -319,15 +337,37 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 	{
 		UInventoryItemData* ItemData = Cast<UInventoryItemData>(NewData);
 		ItemData->ItemId = ItemId;
+		ItemData->ItemObject = TSoftObjectPtr(Cast<UObject>(ObjectMap.FindRef(0)));
 		ItemData->ItemClass = TSoftClassPtr(ItemClass.Get());
 		ItemData->ItemName = ItemName;
 		ItemData->ItemDescription = ItemDescription;
 		ItemData->ItemType = static_cast<EElementusItemType>(ItemType);
 		ItemData->ItemValue = ItemValue;
 		ItemData->ItemWeight = ItemWeight;
-		ItemData->ItemImage = Cast<UTexture2D>(ObjectMap.FindRef(0));
-		ItemData->ItemIcon = Cast<UTexture2D>(ObjectMap.FindRef(1));
+		ItemData->ItemImage = Cast<UTexture2D>(ObjectMap.FindRef(1));
+		ItemData->ItemIcon = Cast<UTexture2D>(ObjectMap.FindRef(2));
+
+		TArray<FAssetData> SyncAssets;
+		SyncAssets.Add(FAssetData(ItemData));
+		GEditor->SyncBrowserToObjects(SyncAssets);
+		
+		const FSavePackageArgs SaveArgs;
+		const FString TempPackageName = ItemData->GetPackage()->GetName();
+		const FString TempPackageFilename =
+			FPackageName::LongPackageNameToFilename(TempPackageName, FPackageName::GetAssetPackageExtension());
+		
+		GEditor->Save(ItemData->GetPackage(), ItemData, *TempPackageFilename, SaveArgs);
 	}
 
 	return FReply::Handled();
+}
+
+bool SElementusItemCreator::IsCreateEnabled() const
+{
+	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	{
+		return !AssetManager->GetPrimaryAssetPath(FPrimaryAssetId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)))).IsValid();
+	}
+
+	return false;
 }

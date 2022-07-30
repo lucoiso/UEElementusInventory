@@ -18,13 +18,14 @@ class SElementusItemCreator final : public SCompoundWidget
 
 	FString GetObjPath(const int32 ObjId) const;
 	void OnObjChanged(const FAssetData& AssetData, const int32 ObjId);
-
+	
 	const UClass* GetSelectedEntryClass() const;
 	void HandleNewEntryClassSelected(const UClass* Class);
-
+	
 	void UpdateFolders();
 
 	FReply HandleCreateItemButtonClicked() const;
+	bool IsCreateEnabled() const;
 
 private:
 	TMap<int32, TWeakObjectPtr<UObject>> ObjectMap;

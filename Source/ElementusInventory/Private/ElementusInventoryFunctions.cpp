@@ -6,6 +6,22 @@
 #include "ElementusInventoryComponent.h"
 #include "Engine/AssetManager.h"
 
+void UElementusInventoryFunctions::UnloadAllElementusItems()
+{
+	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	{
+		AssetManager->UnloadPrimaryAssetsWithType(FPrimaryAssetType(ElementusItemDataType));
+	}
+}
+
+void UElementusInventoryFunctions::UnloadElementusItem(const FElementusItemId& InItemId)
+{
+	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	{
+		AssetManager->UnloadPrimaryAsset(FPrimaryAssetId(InItemId));
+	}
+}
+
 bool UElementusInventoryFunctions::CompareItemInfoIds(const FElementusItemId& Info1, const FElementusItemId& Info2)
 {
 	return Info1 == Info2;
@@ -17,7 +33,8 @@ bool UElementusInventoryFunctions::CompareItemDataIds(const UInventoryItemData* 
 }
 
 UInventoryItemData* UElementusInventoryFunctions::GetElementusItemDataById(const FElementusItemId& InID,
-                                                                           const TArray<FName>& InBundles)
+                                                                           const TArray<FName>& InBundles,
+                                                                           const bool bAutoUnload)
 {
 	UInventoryItemData* Output = nullptr;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
@@ -34,32 +51,37 @@ UInventoryItemData* UElementusInventoryFunctions::GetElementusItemDataById(const
 			Output = AssetManager->GetPrimaryAssetObject<UInventoryItemData>(InID);
 		}
 
-		AssetManager->UnloadPrimaryAsset(InID);
+		if (bAutoUnload)
+		{
+			AssetManager->UnloadPrimaryAsset(InID);
+		}
 	}
 
 	return Output;
 }
 
-TArray<UInventoryItemData*> UElementusInventoryFunctions::GetElementusItemDataArrayById(
-	const TArray<FElementusItemId> InIDs,
-	const TArray<FName>& InBundles)
+TArray<UInventoryItemData*> UElementusInventoryFunctions::GetElementusItemDataArrayById(const TArray<FElementusItemId> InIDs,
+																						const TArray<FName>& InBundles,
+																						const bool bAutoUnload)
 {
 	TArray<UInventoryItemData*> Output;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
-		Output = LoadElementusItemDatas_Internal(AssetManager, InIDs, InBundles);
+		Output = LoadElementusItemDatas_Internal(AssetManager, InIDs, InBundles, bAutoUnload);
 	}
 	return Output;
 }
 
 TArray<UInventoryItemData*> UElementusInventoryFunctions::SearchElementusItemData(const EElementusSearchType SearchType,
-	const FString& SearchString, const TArray<FName>& InBundles)
+																				  const FString& SearchString,
+																				  const TArray<FName>& InBundles,
+																				  const bool bAutoUnload)
 {
 	TArray<UInventoryItemData*> Output;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
 		TArray<UInventoryItemData*> ReturnedValues =
-			LoadElementusItemDatas_Internal(AssetManager, TArray<FElementusItemId>(), InBundles);
+			LoadElementusItemDatas_Internal(AssetManager, TArray<FElementusItemId>(), InBundles, bAutoUnload);
 
 		for (const auto& Iterator : ReturnedValues)
 		{
@@ -97,8 +119,9 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::SearchElementusItemDat
 }
 
 TArray<UInventoryItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
-	const TArray<FElementusItemId> InIDs,
-	const TArray<FName>& InBundles)
+																						  const TArray<FElementusItemId> InIDs,
+																						  const TArray<FName>& InBundles,
+																						  const bool bAutoUnload)
 {
 	TArray<UInventoryItemData*> Output;
 	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
@@ -179,8 +202,11 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 		}
 	}
 
-	// Unload all elementus item assets
-	InAssetManager->UnloadPrimaryAssetsWithType(FPrimaryAssetType(ElementusItemDataType));
+	if (bAutoUnload)
+	{
+		// Unload all elementus item assets
+		InAssetManager->UnloadPrimaryAssets(PrimaryAssetIds);
+	}
 	return Output;
 }
 

@@ -13,13 +13,17 @@ struct FElementusItemRowData
 	{
 		const auto& ItemData =
 			UElementusInventoryFunctions::GetElementusItemDataById(InPrimaryAssetId,
-			                                                       {TEXT("Data"), TEXT("Actor")});
+			                                                       {
+			                                                       	TEXT("Data"),
+			                                                       	TEXT("SoftData"),
+			                                                       });
 
 		PrimaryAssetId = InPrimaryAssetId;
 		Id = ItemData->ItemId;
 		Name = ItemData->ItemName;
 		Type = ItemData->ItemType;
-		Class = *ItemData->ItemClass->GetPathName();
+		Class = ItemData->ItemClass.IsValid() ? *ItemData->ItemClass->GetName() : TEXT("None");
+		Object = ItemData->ItemObject.IsValid() ? *ItemData->ItemObject->GetName() : TEXT("None");
 		Value = ItemData->ItemValue;
 		Weight = ItemData->ItemWeight;
 	}
@@ -29,6 +33,7 @@ struct FElementusItemRowData
 	FName Name = NAME_None;
 	EElementusItemType Type = EElementusItemType::None;
 	FName Class = NAME_None;
+	FName Object = NAME_None;
 	float Value = -1.f;
 	float Weight = -1.f;
 };
@@ -48,6 +53,8 @@ class SElementusTable final : public SCompoundWidget
 
 	TSharedRef<ITableRow> OnGenerateWidgetForList(TSharedPtr<FElementusItemRowData> InItem,
 	                                              const TSharedRef<STableViewBase>& OwnerTable) const;
+	
+	void OnTableItemDoubleClicked(TSharedPtr<FElementusItemRowData> ElementusItemRowData) const;
 
 	void OnColumnSort(EColumnSortPriority::Type SortPriority, const FName& ColumnName, EColumnSortMode::Type SortMode);
 	EColumnSortMode::Type GetColumnSort(const FName ColumnId) const;

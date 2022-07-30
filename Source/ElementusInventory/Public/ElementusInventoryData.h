@@ -51,7 +51,11 @@ public:
 	int32 ItemId;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (AssetBundles = "Actor"))
+		meta = (AssetBundles = "SoftData"))
+	TSoftObjectPtr<UObject> ItemObject;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
+		meta = (AssetBundles = "SoftData"))
 	TSoftClassPtr<UObject> ItemClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
