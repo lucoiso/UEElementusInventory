@@ -40,7 +40,7 @@ void FElementusInventoryEditorModule::ShutdownModule()
 	PropertyEditorModule->UnregisterCustomPropertyTypeLayout(ItemStackPropertyId);
 }
 
-TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnTab(const FSpawnTabArgs& SpawnTabArgs, FName TabId) const
+TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnTab([[maybe_unused]] const FSpawnTabArgs& SpawnTabArgs, const FName TabId) const
 {
 	TSharedPtr<SWidget> OutContent;
 

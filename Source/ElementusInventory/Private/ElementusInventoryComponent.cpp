@@ -5,6 +5,8 @@
 #include "ElementusInventoryComponent.h"
 #include "ElementusInventoryFunctions.h"
 #include "Engine/AssetManager.h"
+#include "GameFramework/Actor.h"
+#include "Engine/World.h"
 
 #if WITH_EDITOR
 #include "Misc/MessageDialog.h"
@@ -241,7 +243,7 @@ void UElementusInventoryComponent::ValidateItemStack()
 	ItemStack.GetKeys(ItemIds);
 
 	bool bHasInvalidItems = false;
-	const bool bEnableLogging = GetOwner()->IsTemplate()
+	bool bEnableLogging = GetOwner()->IsTemplate()
 		|| GetOwner()->GetWorld()->IsGameWorld()
 #if WITH_EDITOR
 		|| GetOwner()->IsSelectedInEditor();

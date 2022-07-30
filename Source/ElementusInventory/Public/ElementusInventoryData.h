@@ -32,6 +32,8 @@ enum class EElementusItemType : uint8
 	Other
 };
 
+class UTexture2D;
+
 UCLASS(NotBlueprintable, NotPlaceable, Category = "Elementus Inventory | Classes | Data")
 class ELEMENTUSINVENTORY_API UInventoryItemData final : public UPrimaryDataAsset
 {

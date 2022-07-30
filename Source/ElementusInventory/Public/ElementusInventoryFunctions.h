@@ -18,6 +18,7 @@ enum class EElementusSearchType : uint8
 };
 
 class UElementusInventoryComponent;
+class UAssetManager;
 struct FElementusItemId;
 /**
  * 
