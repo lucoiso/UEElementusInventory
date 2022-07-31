@@ -35,7 +35,7 @@ private:
 
 	FName AssetName;
 	FName AssetFolder;
-	int32 ItemId = 0;
+	int32 ItemId = 1;
 	TWeakObjectPtr<const UClass> ItemClass;
 	FName ItemName;
 	FText ItemDescription;

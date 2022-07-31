@@ -99,7 +99,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Id"),
 				                          SNew(SNumericEntryBox<int32>)
 												.AllowSpin(false)
-												.MinValue(0)
+												.MinValue(1)
 												.Value_Lambda([this] { return ItemId; })
 												.OnValueChanged_Lambda(
 					                                                       [this](const int32 InValue)
@@ -170,20 +170,6 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 			  .Padding(Slot_Padding)
 			  .AutoHeight()
 			[
-				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Image"),
-				                          ObjEntryBoxCreator_Lambda(UTexture2D::StaticClass(), 1))
-			]
-			+ SVerticalBox::Slot()
-			  .Padding(Slot_Padding)
-			  .AutoHeight()
-			[
-				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Icon"),
-				                          ObjEntryBoxCreator_Lambda(UTexture2D::StaticClass(), 2))
-			]
-			+ SVerticalBox::Slot()
-			  .Padding(Slot_Padding)
-			  .AutoHeight()
-			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Value"),
 				                          SNew(SNumericEntryBox<float>)
 												.AllowSpin(false)
@@ -209,6 +195,20 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 					                                                       {
 						                                                       ItemWeight = InValue;
 					                                                       }))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Icon"),
+				                          ObjEntryBoxCreator_Lambda(UTexture2D::StaticClass(), 1))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Image"),
+				                          ObjEntryBoxCreator_Lambda(UTexture2D::StaticClass(), 2))
 			]
 			+ SVerticalBox::Slot()
 			  .Padding(Slot_Padding)
@@ -344,8 +344,8 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 		ItemData->ItemType = static_cast<EElementusItemType>(ItemType);
 		ItemData->ItemValue = ItemValue;
 		ItemData->ItemWeight = ItemWeight;
-		ItemData->ItemImage = Cast<UTexture2D>(ObjectMap.FindRef(1));
-		ItemData->ItemIcon = Cast<UTexture2D>(ObjectMap.FindRef(2));
+		ItemData->ItemIcon = Cast<UTexture2D>(ObjectMap.FindRef(1));
+		ItemData->ItemImage = Cast<UTexture2D>(ObjectMap.FindRef(2));
 
 		TArray<FAssetData> SyncAssets;
 		SyncAssets.Add(FAssetData(ItemData));
@@ -366,7 +366,8 @@ bool SElementusItemCreator::IsCreateEnabled() const
 {
 	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
-		return !AssetManager->GetPrimaryAssetPath(FPrimaryAssetId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)))).IsValid();
+		return ItemId != 0
+				&& !AssetManager->GetPrimaryAssetPath(FPrimaryAssetId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)))).IsValid();
 	}
 
 	return false;

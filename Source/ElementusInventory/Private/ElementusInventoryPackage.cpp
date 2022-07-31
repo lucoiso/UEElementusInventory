@@ -63,10 +63,7 @@ void AElementusInventoryPackage::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (bDestroyWhenInventoryIsEmpty)
-	{
-		PackageInventory->OnInventoryEmpty.AddDynamic(this, &AElementusInventoryPackage::BeginPackageDestruction);
-	}
+	SetDestroyOnEmpty(bDestroyWhenInventoryIsEmpty);
 }
 
 void AElementusInventoryPackage::BeginPackageDestruction_Implementation()
