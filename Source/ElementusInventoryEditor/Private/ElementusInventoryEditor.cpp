@@ -13,6 +13,7 @@
 #include "ToolMenus.h"
 #include "WorkspaceMenuStructure.h"
 #include "WorkspaceMenuStructureModule.h"
+#include "Widgets/Layout/SScrollBox.h"
 
 #define LOCTEXT_NAMESPACE "FElementusInventoryEditorModule"
 
@@ -59,7 +60,11 @@ TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnTab([[maybe_unused]
 		return SNew(SDockTab)
 			.TabRole(NomadTab)
 			[
-				OutContent.ToSharedRef()
+				SNew(SScrollBox)
+				+ SScrollBox::Slot()
+				[
+					OutContent.ToSharedRef()
+				]
 			];
 	}
 

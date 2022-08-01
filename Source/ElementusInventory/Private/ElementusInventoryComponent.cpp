@@ -6,11 +6,6 @@
 #include "ElementusInventoryFunctions.h"
 #include "Engine/AssetManager.h"
 #include "GameFramework/Actor.h"
-#include "Engine/World.h"
-
-#if WITH_EDITOR
-#include "Misc/MessageDialog.h"
-#endif
 
 UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
@@ -26,27 +21,27 @@ float UElementusInventoryComponent::GetCurrentWeight() const
 	return CurrentWeight;
 }
 
-TMap<FElementusItemId, int32> UElementusInventoryComponent::GetItemStack() const
+TArray<FElementusItemInfo> UElementusInventoryComponent::GetItemStack() const
 {
 	return ItemStack;
 }
 
-void UElementusInventoryComponent::AddElementusItem(const FElementusItemId& ItemId, const int32 Quantity)
+void UElementusInventoryComponent::AddElementusItem(const FElementusItemInfo& AddInfo)
 {
 	UE_LOG(LogElementusInventory, Display,
 	       TEXT("Elementus Inventory - %s: Adding %d item(s) with name '%s' to inventory"),
-	       *FString(__func__), Quantity, *ItemId.ToString());
+	       *FString(__func__), AddInfo.Quantity, *AddInfo.ItemId.ToString());
 
-	AddElementusItem_Internal(ItemId, Quantity);
+	AddElementusItem_Internal(AddInfo);
 }
 
-void UElementusInventoryComponent::DiscardElementusItem(const FElementusItemId& ItemId, const int32 Quantity)
+void UElementusInventoryComponent::RemoveElementusItem(const FElementusItemInfo& RemoveInfo)
 {
 	UE_LOG(LogElementusInventory, Display,
 	       TEXT("Elementus Inventory - %s: Discarding %d item(s) with name '%s' from inventory"),
-	       *FString(__func__), Quantity, *ItemId.ToString());
+	       *FString(__func__), RemoveInfo.Quantity, *RemoveInfo.ItemId.ToString());
 
-	DiscardElementusItem_Internal(ItemId, Quantity);
+	RemoveElementusItem_Internal(RemoveInfo);
 }
 
 constexpr void DoMulticastLoggingIdentification(const ENetMode& CurrentNetMode)
@@ -63,53 +58,62 @@ constexpr void DoMulticastLoggingIdentification(const ENetMode& CurrentNetMode)
 	}
 }
 
-void UElementusInventoryComponent::AddElementusItem_Internal_Implementation(const FElementusItemId& ItemId,
-                                                                            const int32 Quantity)
+void UElementusInventoryComponent::AddElementusItem_Internal_Implementation(const FElementusItemInfo& AddInfo)
 {
 	DoMulticastLoggingIdentification(GetOwner()->GetNetMode());
 
 	UE_LOG(LogElementusInventory_Internal, Display,
 	       TEXT("Elementus Inventory - %s: Adding %d item(s) with name '%s' to inventory"),
-	       *FString(__func__), Quantity, *ItemId.ToString());
+	       *FString(__func__), AddInfo.Quantity, *AddInfo.ItemId.ToString());
 
-	if (ItemStack.Contains(ItemId))
+	if (int32 InIndex;
+		FindElementusItemInStack(AddInfo, InIndex))
 	{
-		*ItemStack.Find(ItemId) += Quantity;
+		ItemStack[InIndex].Quantity += AddInfo.Quantity;
 	}
 	else
 	{
-		ItemStack.Add(ItemId, Quantity);
+		ItemStack.Add(AddInfo);
 	}
 
-	NotifyInventoryChange(ItemId, Quantity, EElementusInventoryUpdateOperation::Add);
+	NotifyInventoryChange(AddInfo, EElementusInventoryUpdateOperation::Add);
 }
 
-void UElementusInventoryComponent::DiscardElementusItem_Internal_Implementation(const FElementusItemId& ItemId,
-	const int32 Quantity)
+void UElementusInventoryComponent::RemoveElementusItem_Internal_Implementation(const FElementusItemInfo& RemoveInfo)
 {
 	DoMulticastLoggingIdentification(GetOwner()->GetNetMode());
 
 	UE_LOG(LogElementusInventory_Internal, Display,
-	       TEXT("Elementus Inventory - %s: Discarding %d item(s) with name '%s' from inventory"),
-	       *FString(__func__), Quantity, *ItemId.ToString());
+	       TEXT("Elementus Inventory - %s: Removing %d item(s) with name '%s' from inventory"),
+	       *FString(__func__), RemoveInfo.Quantity, *RemoveInfo.ItemId.ToString());
 
-	if (auto CurrentItemQuant = ItemStack.FindRef(ItemId))
+	bool bNotify = false;
+	int32 Residue = 0;
+	do
 	{
-		CurrentItemQuant =
-			FMath::Clamp<int32>(CurrentItemQuant - Quantity,
-			                    0,
-			                    CurrentItemQuant);
-
-		if (CurrentItemQuant == 0)
+		if (int32 InIndex;
+			FindElementusItemInStack(RemoveInfo, InIndex))
 		{
-			ItemStack.Remove(ItemId);
-		}
-		else
-		{
-			*ItemStack.Find(ItemId) = CurrentItemQuant;
-		}
+			Residue = RemoveInfo.Quantity - ItemStack[InIndex].Quantity;
 
-		NotifyInventoryChange(ItemId, CurrentItemQuant, EElementusInventoryUpdateOperation::Remove);
+			ItemStack[InIndex].Quantity =
+				FMath::Clamp<int32>(ItemStack[InIndex].Quantity - RemoveInfo.Quantity,
+				                    0,
+				                    ItemStack[InIndex].Quantity);
+
+			if (ItemStack[InIndex].Quantity <= 0)
+			{
+				ItemStack.RemoveAt(InIndex);
+			}
+
+			bNotify = true;
+		}
+	}
+	while (Residue > 0);
+
+	if (bNotify)
+	{
+		NotifyInventoryChange(RemoveInfo, EElementusInventoryUpdateOperation::Remove);
 	}
 }
 
@@ -120,19 +124,24 @@ void UElementusInventoryComponent::DebugInventoryStack()
 
 	for (const auto& Iterator : ItemStack)
 	{
-		UE_LOG(LogElementusInventory, Warning, TEXT("Item: %s"), *Iterator.Key.ToString());
-		UE_LOG(LogElementusInventory, Warning, TEXT("Quantity: %d"), Iterator.Value);
+		UE_LOG(LogElementusInventory, Warning, TEXT("Item: %s"), *Iterator.ItemId.ToString());
+		UE_LOG(LogElementusInventory, Warning, TEXT("Quantity: %d"), Iterator.Quantity);
+
+		for (const auto& Tag : Iterator.Tags)
+		{
+			UE_LOG(LogElementusInventory, Warning, TEXT("Tag: %s"), *Tag.ToString());
+		}
 	}
 
 	UE_LOG(LogElementusInventory, Warning, TEXT("Weight: %d"), CurrentWeight);
 }
 
-bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemId& ItemId, const int32 Quantity) const
+bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo& InItemInfo) const
 {
 	if (const UInventoryItemData* ItemData =
-		UElementusInventoryFunctions::GetElementusItemDataById(ItemId, {"Data"}))
+		UElementusInventoryFunctions::GetElementusItemDataById(InItemInfo.ItemId, {"Data"}))
 	{
-		if (MaxWeight >= CurrentWeight + ItemData->ItemWeight * Quantity)
+		if (MaxWeight >= CurrentWeight + ItemData->ItemWeight * InItemInfo.Quantity)
 		{
 			return true;
 		}
@@ -140,20 +149,22 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemId& ItemId
 
 	UE_LOG(LogElementusInventory, Warning,
 	       TEXT("Elementus Inventory - %s: Actor %s cannot receive %d item(s) with name '%s'"),
-	       *FString(__func__), *GetOwner()->GetName(), Quantity, *ItemId.ToString());
+	       *FString(__func__), *GetOwner()->GetName(), InItemInfo.Quantity, *InItemInfo.ItemId.ToString());
 
 	return false;
 }
 
-bool UElementusInventoryComponent::CanGiveItem(const FElementusItemId& ItemId, const int32 Quantity) const
+bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo& InItemInfo)
 {
-	const bool bOutput = ItemStack.Contains(ItemId) && ItemStack.FindRef(ItemId) >= Quantity;
+	int32 InIndex;
+	const bool bOutput = FindElementusItemInStack(InItemInfo, InIndex) && ItemStack[InIndex].Quantity >= InItemInfo.
+		Quantity;
 
 	if (!bOutput)
 	{
 		UE_LOG(LogElementusInventory, Warning,
 		       TEXT("Elementus Inventory - %s: Actor %s cannot give %d item(s) with name '%s'"),
-		       *FString(__func__), *GetOwner()->GetName(), Quantity, *ItemId.ToString());
+		       *FString(__func__), *GetOwner()->GetName(), InItemInfo.Quantity, *InItemInfo.ItemId.ToString());
 	}
 
 	return bOutput;
@@ -164,36 +175,12 @@ void UElementusInventoryComponent::BeginPlay()
 	Super::BeginPlay();
 
 	UpdateCurrentWeight();
-	ValidateItemStack();
 }
 
-#if WITH_EDITOR
-void UElementusInventoryComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-
-	if (PropertyChangedEvent.Property == FindFieldChecked<FProperty>(GetClass(), "ItemStack"))
-	{
-		ValidateItemStack();
-	}
-}
-#endif
-
-void UElementusInventoryComponent::NotifyInventoryChange(const FElementusItemId& ItemId,
-                                                         const int32 Quantity,
+void UElementusInventoryComponent::NotifyInventoryChange(const FElementusItemInfo& Modifier,
                                                          const EElementusInventoryUpdateOperation Operation)
 {
-	OnInventoryUpdate.Broadcast(ItemId, ItemStack.Contains(ItemId) ? ItemStack.FindRef(ItemId) : 0, Operation);
-
-	switch (Operation)
-	{
-	case EElementusInventoryUpdateOperation::Add:
-		OnItemAdded.Broadcast(ItemId, Quantity);
-		break;
-	case EElementusInventoryUpdateOperation::Remove:
-		OnItemRemoved.Broadcast(ItemId, Quantity);
-		break;
-	}
+	OnInventoryUpdate.Broadcast(Modifier, Operation);
 
 	if (ItemStack.IsEmpty())
 	{
@@ -201,11 +188,11 @@ void UElementusInventoryComponent::NotifyInventoryChange(const FElementusItemId&
 		OnInventoryEmpty.Broadcast();
 	}
 	else if (const UInventoryItemData* ItemData =
-			UElementusInventoryFunctions::GetElementusItemDataById(ItemId, {"Data"});
-		ItemStack.Contains(ItemId)
+			UElementusInventoryFunctions::GetElementusItemDataById(Modifier.ItemId, {"Data"});
+		ContainItemInStack(Modifier)
 		&& Operation == EElementusInventoryUpdateOperation::Add)
 	{
-		CurrentWeight += ItemData->ItemWeight * Quantity;
+		CurrentWeight += ItemData->ItemWeight * Modifier.Quantity;
 	}
 	else
 	{
@@ -215,72 +202,34 @@ void UElementusInventoryComponent::NotifyInventoryChange(const FElementusItemId&
 
 void UElementusInventoryComponent::UpdateCurrentWeight()
 {
-	TArray<FElementusItemId> ItemIds;
-	ItemStack.GetKeys(ItemIds);
-
 	float NewWeigth = 0.f;
-	if (const TArray<UInventoryItemData*>& ItemDataArr =
-			UElementusInventoryFunctions::GetElementusItemDataArrayById(ItemIds, {"Data"});
-		!ItemDataArr.IsEmpty())
+	for (const auto& Iterator : ItemStack)
 	{
-		for (const auto& Iterator : ItemDataArr)
+		if (const UInventoryItemData* ItemData =
+			UElementusInventoryFunctions::GetElementusItemDataById(Iterator.ItemId, {"Data"}))
 		{
-			if (ItemStack.Contains(FElementusItemId(Iterator->GetPrimaryAssetId())))
-			{
-				NewWeigth +=
-					Iterator->ItemWeight
-					* ItemStack.FindRef(FElementusItemId(Iterator->GetPrimaryAssetId()));
-			}
+			NewWeigth += ItemData->ItemWeight * Iterator.Quantity;
 		}
 	}
 
 	CurrentWeight = NewWeigth;
 }
 
-void UElementusInventoryComponent::ValidateItemStack()
+bool UElementusInventoryComponent::FindElementusItemInStack(const FElementusItemInfo InItemInfo, int32& OutIndex) const
 {
-	TArray<FElementusItemId> ItemIds;
-	ItemStack.GetKeys(ItemIds);
-
-	bool bHasInvalidItems = false;
-	bool bEnableLogging = GetOwner()->IsTemplate()
-		|| GetOwner()->GetWorld()->IsGameWorld()
-#if WITH_EDITOR
-		|| GetOwner()->IsSelectedInEditor();
-#else
-		|| false; // just to add the ';' to the end of the line
-#endif
-
-	for (const auto& Iterator : ItemIds)
+	OutIndex = ItemStack.IndexOfByPredicate([&InItemInfo](const FElementusItemInfo& InInfo)
 	{
-		if (Iterator.PrimaryAssetType.IsValid()
-			&& Iterator.PrimaryAssetType != FPrimaryAssetType(ElementusItemDataType))
-		{
-			if (bEnableLogging)
-			{
-				UE_LOG(LogElementusInventory, Error,
-				       TEXT("Elementus Inventory - %s: Removing item %s from %s inventory"),
-				       *FString(__func__), *Iterator.ToString(), *GetOwner()->GetName());
-			}
+		return InInfo == InItemInfo;
+	});
 
-			ItemStack.Remove(Iterator);
-			bHasInvalidItems = true;
-		}
-	}
+	return OutIndex != INDEX_NONE;
+}
 
-	if (bHasInvalidItems && bEnableLogging)
-	{
-		UE_LOG(LogElementusInventory, Error,
-		       TEXT(
-			       "Elementus Inventory - %s: Elementus Inventory only supports Item Data Assets derived from UInventoryItemData"
-		       ),
-		       *FString(__func__));
-
-#if WITH_EDITOR
-		FMessageDialog::Open(EAppMsgType::Ok,
-		                     FText::FromString(
-			                     "Elementus Inventory only supports Item Data Assets derived from UInventoryItemData."
-		                     ));
-#endif
-	}
+bool UElementusInventoryComponent::ContainItemInStack(const FElementusItemInfo InItemInfo) const
+{
+	return Algo::FindByPredicate(ItemStack,
+	                             [&InItemInfo](const FElementusItemInfo& InInfo)
+	                             {
+		                             return InInfo == InItemInfo;
+	                             }) != nullptr;
 }

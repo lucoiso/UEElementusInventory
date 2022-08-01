@@ -5,6 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ElementusInventoryData.h"
 #include "GameFramework/Actor.h"
 #include "ElementusInventoryPackage.generated.h"
 
@@ -25,12 +26,12 @@ public:
 
 	/* Put a item in this package */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void PutItemIntoPackage(TMap<FElementusItemId, int32>& ItemInfo,
+	void PutItemIntoPackage(TArray<FElementusItemInfo>& ItemInfo,
 	                        UElementusInventoryComponent* FromInventory) const;
 
 	/* Get a item from this package */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void GetItemFromPackage(TMap<FElementusItemId, int32>& ItemInfo,
+	void GetItemFromPackage(TArray<FElementusItemInfo>& ItemInfo,
 	                        UElementusInventoryComponent* ToInventory) const;
 
 	/* Set this package to auto destroy when its empty */

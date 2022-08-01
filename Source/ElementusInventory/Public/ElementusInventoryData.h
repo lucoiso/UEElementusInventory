@@ -6,6 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "GameplayTagContainer.h"
 #include "ElementusInventoryData.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory, Display, Verbose);
@@ -93,6 +94,7 @@ USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
 struct FElementusItemId : public FPrimaryAssetId
 {
 	GENERATED_USTRUCT_BODY()
+
 	FElementusItemId()
 		: Super()
 	{
@@ -107,4 +109,36 @@ struct FElementusItemId : public FPrimaryAssetId
 		: Super(TypeAndName)
 	{
 	}
+};
+
+USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
+struct FElementusItemInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	FElementusItemInfo() = default;
+
+	explicit FElementusItemInfo(const FElementusItemId& InItemId)
+		: ItemId(InItemId)
+	{
+	}
+
+	explicit FElementusItemInfo(const FElementusItemId& InItemId, const int32& InQuant)
+		: ItemId(InItemId), Quantity(InQuant)
+	{
+	}
+
+	bool operator==(const FElementusItemInfo& Other) const
+	{
+		return ItemId == Other.ItemId && Tags.HasAll(Other.Tags);
+	}
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory")
+	FElementusItemId ItemId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	int32 Quantity = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	FGameplayTagContainer Tags;
 };

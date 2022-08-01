@@ -32,14 +32,14 @@ public:
 	/* Unload all elementus items that were loaded by Asset Manager */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static void UnloadAllElementusItems();
-	
+
 	/* Unload a elementus item that was loaded by Asset Manager */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static void UnloadElementusItem(const FElementusItemId& InItemId);
 
 	/* Check if the ids are equal */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	static bool CompareItemInfoIds(const FElementusItemId& Info1, const FElementusItemId& Info2);
+	static bool CompareItemInfos(const FElementusItemInfo& Info1, const FElementusItemInfo& Info2);
 
 	/* Check if the id of the passed datas are equal */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
@@ -70,9 +70,12 @@ public:
 
 	/* Trade items between two inventory components */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static void TradeElementusItem(TMap<FElementusItemId, int32> ItemsToTrade,
+	static void TradeElementusItem(TArray<FElementusItemInfo> ItemsToTrade,
 	                               UElementusInventoryComponent* FromInventory,
 	                               UElementusInventoryComponent* ToInventory);
+
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	static bool IsItemValid(const FElementusItemInfo InItemInfo);
 
 private:
 	static TArray<UInventoryItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,

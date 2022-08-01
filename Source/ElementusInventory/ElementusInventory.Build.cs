@@ -22,7 +22,8 @@ public class ElementusInventory : ModuleRules
 			new[]
 			{
 				"Engine",
-				"CoreUObject"
+				"CoreUObject",
+				"GameplayTags"
 			}
 		);
 	}

@@ -31,7 +31,8 @@ public class ElementusInventoryEditor : ModuleRules
 				"SlateCore",
 				"EditorStyle",
 				"WorkspaceMenuStructure",
-				"PropertyEditor"
+				"PropertyEditor",
+				"GameplayTags"
 			});
 	}
 }

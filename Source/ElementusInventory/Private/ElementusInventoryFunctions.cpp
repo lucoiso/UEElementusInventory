@@ -22,7 +22,7 @@ void UElementusInventoryFunctions::UnloadElementusItem(const FElementusItemId& I
 	}
 }
 
-bool UElementusInventoryFunctions::CompareItemInfoIds(const FElementusItemId& Info1, const FElementusItemId& Info2)
+bool UElementusInventoryFunctions::CompareItemInfos(const FElementusItemInfo& Info1, const FElementusItemInfo& Info2)
 {
 	return Info1 == Info2;
 }
@@ -60,9 +60,10 @@ UInventoryItemData* UElementusInventoryFunctions::GetElementusItemDataById(const
 	return Output;
 }
 
-TArray<UInventoryItemData*> UElementusInventoryFunctions::GetElementusItemDataArrayById(const TArray<FElementusItemId> InIDs,
-																						const TArray<FName>& InBundles,
-																						const bool bAutoUnload)
+TArray<UInventoryItemData*> UElementusInventoryFunctions::GetElementusItemDataArrayById(
+	const TArray<FElementusItemId> InIDs,
+	const TArray<FName>& InBundles,
+	const bool bAutoUnload)
 {
 	TArray<UInventoryItemData*> Output;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
@@ -73,9 +74,9 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::GetElementusItemDataAr
 }
 
 TArray<UInventoryItemData*> UElementusInventoryFunctions::SearchElementusItemData(const EElementusSearchType SearchType,
-																				  const FString& SearchString,
-																				  const TArray<FName>& InBundles,
-																				  const bool bAutoUnload)
+	const FString& SearchString,
+	const TArray<FName>& InBundles,
+	const bool bAutoUnload)
 {
 	TArray<UInventoryItemData*> Output;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
@@ -119,9 +120,9 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::SearchElementusItemDat
 }
 
 TArray<UInventoryItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
-																						  const TArray<FElementusItemId> InIDs,
-																						  const TArray<FName>& InBundles,
-																						  const bool bAutoUnload)
+	const TArray<FElementusItemId> InIDs,
+	const TArray<FName>& InBundles,
+	const bool bAutoUnload)
 {
 	TArray<UInventoryItemData*> Output;
 	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
@@ -223,26 +224,30 @@ TArray<FElementusItemId> UElementusInventoryFunctions::GetElementusItemIds()
 	return TArray<FElementusItemId>();
 }
 
-void UElementusInventoryFunctions::TradeElementusItem(TMap<FElementusItemId, int32> ItemsToTrade,
+void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo> ItemsToTrade,
                                                       UElementusInventoryComponent* FromInventory,
                                                       UElementusInventoryComponent* ToInventory)
 {
 	for (auto& Iterator : ItemsToTrade)
 	{
-		Iterator.Value =
-			FMath::Clamp(Iterator.Value, 0, FromInventory->GetItemStack().FindRef(Iterator.Key));
+		Iterator.Quantity =
+			FMath::Clamp(Iterator.Quantity, 0, Iterator.Quantity);
 
-		if (FromInventory->CanGiveItem(Iterator.Key, Iterator.Value)
-			&& ToInventory->CanReceiveItem(Iterator.Key, Iterator.Value))
+		if (FromInventory->CanGiveItem(Iterator) && ToInventory->CanReceiveItem(Iterator))
 		{
-			FromInventory->DiscardElementusItem(Iterator.Key, Iterator.Value);
-			ToInventory->AddElementusItem(Iterator.Key, Iterator.Value);
+			FromInventory->RemoveElementusItem(Iterator);
+			ToInventory->AddElementusItem(Iterator);
 		}
 		else
 		{
 			UE_LOG(LogElementusInventory_Internal, Error,
 			       TEXT("Elementus Inventory - %s: Failed to trade item %s"),
-			       *FString(__func__), *Iterator.Key.ToString());
+			       *FString(__func__), *Iterator.ItemId.ToString());
 		}
 	}
+}
+
+bool UElementusInventoryFunctions::IsItemValid(const FElementusItemInfo InItemInfo)
+{
+	return InItemInfo.ItemId.IsValid();
 }

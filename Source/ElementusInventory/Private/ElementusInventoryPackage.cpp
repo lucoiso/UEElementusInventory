@@ -20,13 +20,13 @@ AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer&
 	PackageInventory->SetIsReplicated(true);
 }
 
-void AElementusInventoryPackage::PutItemIntoPackage(TMap<FElementusItemId, int32>& ItemInfo,
+void AElementusInventoryPackage::PutItemIntoPackage(TArray<FElementusItemInfo>& ItemInfo,
                                                     UElementusInventoryComponent* FromInventory) const
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, FromInventory, PackageInventory);
 }
 
-void AElementusInventoryPackage::GetItemFromPackage(TMap<FElementusItemId, int32>& ItemInfo,
+void AElementusInventoryPackage::GetItemFromPackage(TArray<FElementusItemInfo>& ItemInfo,
                                                     UElementusInventoryComponent* ToInventory) const
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, PackageInventory, ToInventory);
@@ -64,6 +64,11 @@ void AElementusInventoryPackage::BeginPlay()
 	Super::BeginPlay();
 
 	SetDestroyOnEmpty(bDestroyWhenInventoryIsEmpty);
+
+	if (bDestroyWhenInventoryIsEmpty && PackageInventory->GetItemStack().IsEmpty())
+	{
+		Destroy();
+	}
 }
 
 void AElementusInventoryPackage::BeginPackageDestruction_Implementation()

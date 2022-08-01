@@ -16,18 +16,9 @@ enum class EElementusInventoryUpdateOperation : uint8
 	Remove
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FElementusInventoryUpdate,
-                                               const FElementusItemId, ItemId,
-                                               const int32, NewQuantity,
-                                               const EElementusInventoryUpdateOperation, Operation);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FElementusInventoryItemAdded,
-                                             const FElementusItemId, ItemId,
-                                             const int32, AddedQuantity);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FElementusInventoryItemRemoved,
-                                             const FElementusItemId, ItemId,
-                                             const int32, RemovedQuantity);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FElementusInventoryUpdate,
+                                             const FElementusItemInfo, Modifier,
+                                             const EElementusInventoryUpdateOperation, Operation);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FElementusInventoryEmpty);
 
@@ -51,25 +42,19 @@ public:
 	FElementusInventoryUpdate OnInventoryUpdate;
 
 	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
-	FElementusInventoryItemAdded OnItemAdded;
-
-	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
-	FElementusInventoryItemRemoved OnItemRemoved;
-
-	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
 	FElementusInventoryEmpty OnInventoryEmpty;
 
 	/* Get the items that this inventory have */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	TMap<FElementusItemId, int32> GetItemStack() const;
+	TArray<FElementusItemInfo> GetItemStack() const;
 
 	/* Add a item to this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void AddElementusItem(const FElementusItemId& ItemId, const int32 Quantity);
+	void AddElementusItem(const FElementusItemInfo& AddInfo);
 
 	/* Remove a item from this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void DiscardElementusItem(const FElementusItemId& ItemId, const int32 Quantity);
+	void RemoveElementusItem(const FElementusItemInfo& RemoveInfo);
 
 	/* Print debug informations in the log about this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
@@ -77,18 +62,24 @@ public:
 
 	/* Check if this inventory can receive the passed item */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	virtual bool CanReceiveItem(const FElementusItemId& ItemId, const int32 Quantity) const;
+	virtual bool CanReceiveItem(const FElementusItemInfo& InItemInfo) const;
 
 	/* Check if this inventory can give the passed item */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	virtual bool CanGiveItem(const FElementusItemId& ItemId, const int32 Quantity) const;
+	virtual bool CanGiveItem(const FElementusItemInfo& InItemInfo);
+
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	bool FindElementusItemInStack(const FElementusItemInfo InItemInfo, int32& OutIndex) const;
+
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	bool ContainItemInStack(const FElementusItemInfo InItemInfo) const;
 
 protected:
 	/* Items that this inventory have (UInventoryItemData -> Quantity) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory",
 		meta = (Getter = "GetItemStack"))
-	TMap<FElementusItemId, int32> ItemStack;
-	
+	TArray<FElementusItemInfo> ItemStack;
+
 	/* Current weight of this inventory */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Elementus Inventory",
 		meta = (AllowPrivateAccess = "true"))
@@ -96,23 +87,15 @@ protected:
 
 	virtual void BeginPlay() override;
 
-#if WITH_EDITOR
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
-
 private:
 	UFUNCTION(NetMulticast, Reliable)
-	void AddElementusItem_Internal(const FElementusItemId& ItemId,
-	                               const int32 Quantity);
+	void AddElementusItem_Internal(const FElementusItemInfo& AddInfo);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void DiscardElementusItem_Internal(const FElementusItemId& ItemId,
-	                                   const int32 Quantity);
+	void RemoveElementusItem_Internal(const FElementusItemInfo& RemoveInfo);
 
-	void NotifyInventoryChange(const FElementusItemId& ItemId,
-	                           const int32 Quantity,
+	void NotifyInventoryChange(const FElementusItemInfo& Modifier,
 	                           const EElementusInventoryUpdateOperation Operation);
 
 	void UpdateCurrentWeight();
-	void ValidateItemStack();
 };
