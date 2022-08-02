@@ -81,11 +81,12 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 
 	const TSharedRef<SToolTip> ToolTip = SNew(SToolTip)
 		.Text(FText::FromString(TEXT("Already exists a item with this Id.")))
-		.Visibility_Lambda(
-			[this] () -> EVisibility
-			{
-				return IsCreateEnabled() ? EVisibility::Collapsed : EVisibility::Visible;
-			});
+		.Visibility_Lambda([this]() -> EVisibility
+		                   {
+			                   return IsCreateEnabled()
+				                          ? EVisibility::Collapsed
+				                          : EVisibility::Visible;
+		                   });
 
 	ChildSlot
 	[
@@ -101,30 +102,29 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 												.AllowSpin(false)
 												.MinValue(1)
 												.Value_Lambda([this] { return ItemId; })
-												.OnValueChanged_Lambda(
-					                                                       [this](const int32 InValue)
-					                                                       {
-						                                                       ItemId = InValue;
-					                                                       }))
+												.OnValueChanged_Lambda([this](const int32 InValue)
+					                                                   {
+						                                                   ItemId = InValue;
+					                                                   }))
 			]
 			+ SVerticalBox::Slot()
 			  .Padding(Slot_Padding)
 			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Object"),
-					ObjEntryBoxCreator_Lambda(UObject::StaticClass(), 0))
+				                          ObjEntryBoxCreator_Lambda(UObject::StaticClass(), 0))
 			]
 			+ SVerticalBox::Slot()
 			  .Padding(Slot_Padding)
 			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Class"),
-											SNew(SClassPropertyEntryBox)
+				                          SNew(SClassPropertyEntryBox)
 											.AllowAbstract(true)
 											.SelectedClass(this,
-														   &SElementusItemCreator::GetSelectedEntryClass)
+											               &SElementusItemCreator::GetSelectedEntryClass)
 											.OnSetClass(this,
-														&SElementusItemCreator::HandleNewEntryClassSelected))
+											            &SElementusItemCreator::HandleNewEntryClassSelected))
 			]
 			+ SVerticalBox::Slot()
 			  .Padding(Slot_Padding)
@@ -157,11 +157,10 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Type"),
 				                          SNew(STextComboBox)
 				                          .OptionsSource(&ItemTypesArr)
-				                          .OnSelectionChanged(
-					                                             STextComboBox::FOnTextSelectionChanged::CreateLambda(
+				                          .OnSelectionChanged(STextComboBox::FOnTextSelectionChanged::CreateLambda(
 						                                             [this](const TSharedPtr<FString>& InStr,
-						                                                    [[maybe_unused]] ESelectInfo::Type
-						                                                    SelectionInfo)
+									                                               [[maybe_unused]] ESelectInfo::Type
+									                                               SelectionInfo)
 						                                             {
 							                                             ItemType = ItemTypesArr.Find(InStr);
 						                                             })))
@@ -175,11 +174,10 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 												.AllowSpin(false)
 												.MinValue(0.0f)
 												.Value_Lambda([this] { return ItemValue; })
-												.OnValueChanged_Lambda(
-					                                                       [this](const float InValue)
-					                                                       {
-						                                                       ItemValue = InValue;
-					                                                       }))
+												.OnValueChanged_Lambda([this](const float InValue)
+					                                                   {
+						                                                   ItemValue = InValue;
+					                                                   }))
 			]
 			+ SVerticalBox::Slot()
 			  .Padding(Slot_Padding)
@@ -190,11 +188,10 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 												.AllowSpin(false)
 												.MinValue(0.0f)
 												.Value_Lambda([this] { return ItemWeight; })
-												.OnValueChanged_Lambda(
-					                                                       [this](const float InValue)
-					                                                       {
-						                                                       ItemWeight = InValue;
-					                                                       }))
+												.OnValueChanged_Lambda([this](const float InValue)
+					                                                   {
+						                                                   ItemWeight = InValue;
+					                                                   }))
 			]
 			+ SVerticalBox::Slot()
 			  .Padding(Slot_Padding)
@@ -232,14 +229,13 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 				                          [
 					                          SNew(STextComboBox)
 					                          .OptionsSource(&AssetFoldersArr)
-					                          .OnSelectionChanged(
-						                                             STextComboBox::FOnTextSelectionChanged::CreateLambda(
-							                                             [this](const TSharedPtr<FString>& InStr,
-							                                             [[maybe_unused]] ESelectInfo::Type
-							                                             SelectionInfo)
-							                                             {
-								                                             AssetFolder = FName(*InStr.Get());
-							                                             }))
+					                          .OnSelectionChanged(STextComboBox::FOnTextSelectionChanged::CreateLambda(
+							                                      [this](const TSharedPtr<FString>& InStr,
+										                                        [[maybe_unused]] ESelectInfo::Type
+										                                        SelectionInfo)
+							                                      {
+								                                      AssetFolder = FName(*InStr.Get());
+							                                      }))
 				                          ]
 				                          + SHorizontalBox::Slot()
 				                          .AutoWidth()
@@ -350,12 +346,12 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 		TArray<FAssetData> SyncAssets;
 		SyncAssets.Add(FAssetData(ItemData));
 		GEditor->SyncBrowserToObjects(SyncAssets);
-		
+
 		const FSavePackageArgs SaveArgs;
 		const FString TempPackageName = ItemData->GetPackage()->GetName();
 		const FString TempPackageFilename =
 			FPackageName::LongPackageNameToFilename(TempPackageName, FPackageName::GetAssetPackageExtension());
-		
+
 		GEditor->Save(ItemData->GetPackage(), ItemData, *TempPackageFilename, SaveArgs);
 	}
 
@@ -366,8 +362,8 @@ bool SElementusItemCreator::IsCreateEnabled() const
 {
 	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
-		return ItemId != 0
-				&& !AssetManager->GetPrimaryAssetPath(FPrimaryAssetId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)))).IsValid();
+		const FPrimaryAssetId& InId = FPrimaryAssetId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)));
+		return ItemId != 0 && !AssetManager->GetPrimaryAssetPath(InId).IsValid();
 	}
 
 	return false;

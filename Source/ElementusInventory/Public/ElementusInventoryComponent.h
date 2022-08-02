@@ -50,11 +50,11 @@ public:
 
 	/* Add a item to this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void AddElementusItem(const FElementusItemInfo& AddInfo);
+	void AddElementusItem(const FElementusItemInfo& InModifier);
 
 	/* Remove a item from this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void RemoveElementusItem(const FElementusItemInfo& RemoveInfo);
+	void RemoveElementusItem(const FElementusItemInfo& InModifier);
 
 	/* Print debug informations in the log about this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")

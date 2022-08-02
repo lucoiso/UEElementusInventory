@@ -24,7 +24,7 @@ public:
 	                               IPropertyTypeCustomizationUtils& CustomizationUtils) override;
 
 	FString GetObjPath() const;
-	void OnObjChanged(const FAssetData& AssetData);
+	void OnObjChanged(const FAssetData& AssetData) const;
 
 private:
 	TSharedPtr<IPropertyHandle> PropertyHandlePtr;

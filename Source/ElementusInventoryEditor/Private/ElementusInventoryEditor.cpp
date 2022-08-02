@@ -24,10 +24,11 @@ void FElementusInventoryEditorModule::StartupModule()
 
 	UToolMenus::RegisterStartupCallback(RegisterDelegate);
 
+	const auto& MakeInstanceDelegate =
+		FOnGetPropertyTypeCustomizationInstance::CreateStatic(&ElementusDetailsPanel::MakeInstance);
+
 	PropertyEditorModule = &FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	PropertyEditorModule->RegisterCustomPropertyTypeLayout(ItemStackPropertyId,
-	                                                       FOnGetPropertyTypeCustomizationInstance::CreateStatic(
-		                                                       &ElementusDetailsPanel::MakeInstance));
+	PropertyEditorModule->RegisterCustomPropertyTypeLayout(ItemStackPropertyId, MakeInstanceDelegate);
 }
 
 void FElementusInventoryEditorModule::ShutdownModule()
@@ -41,7 +42,8 @@ void FElementusInventoryEditorModule::ShutdownModule()
 	PropertyEditorModule->UnregisterCustomPropertyTypeLayout(ItemStackPropertyId);
 }
 
-TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnTab([[maybe_unused]] const FSpawnTabArgs& SpawnTabArgs, const FName TabId) const
+TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnTab([[maybe_unused]] const FSpawnTabArgs& SpawnTabArgs,
+                                                                 const FName TabId) const
 {
 	TSharedPtr<SWidget> OutContent;
 

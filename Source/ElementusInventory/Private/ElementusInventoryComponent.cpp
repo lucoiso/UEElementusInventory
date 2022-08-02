@@ -26,22 +26,22 @@ TArray<FElementusItemInfo> UElementusInventoryComponent::GetItemStack() const
 	return ItemStack;
 }
 
-void UElementusInventoryComponent::AddElementusItem(const FElementusItemInfo& AddInfo)
+void UElementusInventoryComponent::AddElementusItem(const FElementusItemInfo& InModifier)
 {
 	UE_LOG(LogElementusInventory, Display,
 	       TEXT("Elementus Inventory - %s: Adding %d item(s) with name '%s' to inventory"),
-	       *FString(__func__), AddInfo.Quantity, *AddInfo.ItemId.ToString());
+	       *FString(__func__), InModifier.Quantity, *InModifier.ItemId.ToString());
 
-	AddElementusItem_Internal(AddInfo);
+	AddElementusItem_Internal(InModifier);
 }
 
-void UElementusInventoryComponent::RemoveElementusItem(const FElementusItemInfo& RemoveInfo)
+void UElementusInventoryComponent::RemoveElementusItem(const FElementusItemInfo& InModifier)
 {
 	UE_LOG(LogElementusInventory, Display,
 	       TEXT("Elementus Inventory - %s: Discarding %d item(s) with name '%s' from inventory"),
-	       *FString(__func__), RemoveInfo.Quantity, *RemoveInfo.ItemId.ToString());
+	       *FString(__func__), InModifier.Quantity, *InModifier.ItemId.ToString());
 
-	RemoveElementusItem_Internal(RemoveInfo);
+	RemoveElementusItem_Internal(InModifier);
 }
 
 constexpr void DoMulticastLoggingIdentification(const ENetMode& CurrentNetMode)

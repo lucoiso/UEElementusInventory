@@ -91,21 +91,21 @@ public:
 };
 
 USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
-struct FElementusItemId : public FPrimaryAssetId
+struct FPrimaryElementusItemId : public FPrimaryAssetId
 {
 	GENERATED_USTRUCT_BODY()
 
-	FElementusItemId()
+	FPrimaryElementusItemId()
 		: Super()
 	{
 	}
 
-	explicit FElementusItemId(const FPrimaryAssetId& InId)
+	explicit FPrimaryElementusItemId(const FPrimaryAssetId& InId)
 		: Super(InId.PrimaryAssetType, InId.PrimaryAssetName)
 	{
 	}
 
-	explicit FElementusItemId(const FString& TypeAndName)
+	explicit FPrimaryElementusItemId(const FString& TypeAndName)
 		: Super(TypeAndName)
 	{
 	}
@@ -118,23 +118,23 @@ struct FElementusItemInfo
 
 	FElementusItemInfo() = default;
 
-	explicit FElementusItemInfo(const FElementusItemId& InItemId)
+	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId)
 		: ItemId(InItemId)
 	{
 	}
 
-	explicit FElementusItemInfo(const FElementusItemId& InItemId, const int32& InQuant)
+	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId, const int32& InQuant)
 		: ItemId(InItemId), Quantity(InQuant)
 	{
 	}
 
 	bool operator==(const FElementusItemInfo& Other) const
 	{
-		return ItemId == Other.ItemId && Tags.HasAll(Other.Tags);
+		return ItemId == Other.ItemId && Tags.HasAllExact(Other.Tags) && Other.Tags.HasAllExact(Tags);
 	}
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory")
-	FElementusItemId ItemId;
+	FPrimaryElementusItemId ItemId;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
 	int32 Quantity = 1;

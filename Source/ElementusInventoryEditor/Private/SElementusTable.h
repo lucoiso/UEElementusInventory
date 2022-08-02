@@ -9,13 +9,13 @@
 
 struct FElementusItemRowData
 {
-	explicit FElementusItemRowData(const FElementusItemId& InPrimaryAssetId)
+	explicit FElementusItemRowData(const FPrimaryElementusItemId& InPrimaryAssetId)
 	{
 		const auto& ItemData =
 			UElementusInventoryFunctions::GetElementusItemDataById(InPrimaryAssetId,
 			                                                       {
-			                                                       	TEXT("Data"),
-			                                                       	TEXT("SoftData"),
+				                                                       TEXT("Data"),
+				                                                       TEXT("SoftData"),
 			                                                       });
 
 		PrimaryAssetId = InPrimaryAssetId;
@@ -53,7 +53,7 @@ class SElementusTable final : public SCompoundWidget
 
 	TSharedRef<ITableRow> OnGenerateWidgetForList(TSharedPtr<FElementusItemRowData> InItem,
 	                                              const TSharedRef<STableViewBase>& OwnerTable) const;
-	
+
 	void OnTableItemDoubleClicked(TSharedPtr<FElementusItemRowData> ElementusItemRowData) const;
 
 	void OnColumnSort(EColumnSortPriority::Type SortPriority, const FName& ColumnName, EColumnSortMode::Type SortMode);

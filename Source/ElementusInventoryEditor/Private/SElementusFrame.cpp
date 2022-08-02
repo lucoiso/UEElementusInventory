@@ -34,7 +34,7 @@ void SElementusFrame::Construct([[maybe_unused]] const FArguments& InArgs)
 			]
 		]
 		+ SHorizontalBox::Slot()
-		.FillWidth(0.8f)
+		.FillWidth(1.f)
 		[
 			Table
 		]

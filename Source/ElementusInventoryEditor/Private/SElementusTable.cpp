@@ -101,7 +101,7 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments& InArgs)
 
 	const auto& HeaderColumnCreator_Lambda =
 		[&](const FName& ColumnId, const FString& ColumnText,
-		    const float InWidth = 0.5f) -> const SHeaderRow::FColumn::FArguments
+		    const float InWidth = 1.f) -> const SHeaderRow::FColumn::FArguments
 	{
 		return SHeaderRow::Column(ColumnId)
 		       .DefaultLabel(FText::FromString(ColumnText))
@@ -131,8 +131,6 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments& InArgs)
 	ChildSlot
 	[
 		SNew(SBorder)
-			.VAlign(VAlign_Fill)
-			.HAlign(HAlign_Fill)
 		[
 			EdListView.ToSharedRef()
 		]
@@ -215,7 +213,7 @@ void SElementusTable::UpdateItemList()
 {
 	ItemArr.Empty();
 
-	for (const auto& Iterator : UElementusInventoryFunctions::GetElementusItemIds())
+	for (const auto& Iterator : UElementusInventoryFunctions::GetAllElementusItemIds())
 	{
 		ItemArr.Add(MakeShareable<FElementusItemRowData>(new FElementusItemRowData(Iterator)));
 	}
