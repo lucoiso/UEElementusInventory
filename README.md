@@ -1,34 +1,28 @@
 # Unreal Engine Plugin: Elementus Inventory
 
-## Work in Progress
+![inventory_1](https://user-images.githubusercontent.com/77353979/182725692-481defef-3c1c-486b-bda2-c98c2038d4e4.png)
 
 ## About
-A Work in Progress Unreal Engine plugin that provides a Data-Driven Inventory & Items system based on FPrimaryAssetIds and the Asset Manager.
 
-This plugin is being developed in [Project Elementus](https://github.com/lucoiso/UEProject_Elementus).  
-Check the issue for more details: [Project Elementus Issue #11](https://github.com/lucoiso/UEProject_Elementus/issues/11)
+A Unreal Engine plugin that provides a Data-Driven Inventory & Items system based on FPrimaryAssetIds and the Asset Manager.
+
+## Links
+* [Project Elementus](https://github.com/lucoiso/UEProject_Elementus)
+* [Unreal Engine Forum](https://forums.unrealengine.com/t/free-elementus-inventory-data-driven-inventory-system/617474?u=lucoiso)
+
+> ## Tab Invoker
+> <img src="https://user-images.githubusercontent.com/77353979/182725151-524435d1-e4d4-42d1-b0cd-c013dc2c8963.png" width="500" />
 
 > ## Custom Panel
-> <img src="https://user-images.githubusercontent.com/77353979/181854369-a3cc72ef-1873-4e2a-8fa0-f97d1d38611b.png" width="500" />
+> <img src="https://user-images.githubusercontent.com/77353979/182725153-49735fe4-a9cf-4b94-a91e-a0042a1a15c7.png" width="500" />
 
 > ## Item Creator
-> <img src="https://user-images.githubusercontent.com/77353979/181854371-688951eb-9a0d-4bf0-ad2a-d9b1c35da94e.png" width="500" />
+> <img src="https://user-images.githubusercontent.com/77353979/182725253-860ae284-963f-4aa2-820c-c6b8ea9a5695.png" width="500" />
 
 > ## Blueprints
-> <img src="https://user-images.githubusercontent.com/77353979/181854372-67a50ee8-831b-4e8a-87b3-116570bf8cb4.png" width="500" />
+> <img src="https://user-images.githubusercontent.com/77353979/182727032-381dac14-5f8b-45f5-a1a1-04a8bb5f1eb5.png" width="500" />
 
-> ## Examples
-> <img src="https://user-images.githubusercontent.com/77353979/181854373-7936c2d7-1da8-4501-a6c8-a3aeca851bdf.png" width="500" />
->
-> *Individual Inventory | Player inventory*
->
-> <img src="https://user-images.githubusercontent.com/77353979/181854374-0455a09d-30a8-44a6-8f55-6a8299f1807a.png" width="500" />
->
-> *Trade | Player trading with a package*
->
-> <img src="https://user-images.githubusercontent.com/77353979/181854376-0baeb9e1-23a4-48bc-9f55-76c85f8df903.png" width="500" />
->
-> *Multiplayer | Both players trading with the same package*
-
+> ## Example
+> <img src="https://user-images.githubusercontent.com/77353979/182725154-682fd497-5b8f-4e2a-ae6a-a924ea0df66f.png" width="500" />
 
 ## More infos on the way!
