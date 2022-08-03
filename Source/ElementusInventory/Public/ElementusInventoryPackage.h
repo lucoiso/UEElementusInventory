@@ -26,12 +26,12 @@ public:
 
 	/* Put a item in this package */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void PutItemIntoPackage(TArray<FElementusItemInfo>& ItemInfo,
+	void PutItemIntoPackage(const TArray<FElementusItemInfo>& ItemInfo,
 	                        UElementusInventoryComponent* FromInventory) const;
 
 	/* Get a item from this package */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void GetItemFromPackage(TArray<FElementusItemInfo>& ItemInfo,
+	void GetItemFromPackage(const TArray<FElementusItemInfo>& ItemInfo,
 	                        UElementusInventoryComponent* ToInventory) const;
 
 	/* Set this package to auto destroy when its empty */
