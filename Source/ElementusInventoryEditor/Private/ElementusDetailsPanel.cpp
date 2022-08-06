@@ -27,10 +27,10 @@ void ElementusDetailsPanel::CustomizeHeader(const TSharedRef<IPropertyHandle> Pr
 				.ObjectPath(this, &ElementusDetailsPanel::GetObjPath)
 				.OnObjectChanged(this, &ElementusDetailsPanel::OnObjChanged)
 				.OnShouldFilterAsset_Lambda([](const FAssetData& AssetData) -> bool
-				                            {
-					                            return AssetData.GetPrimaryAssetId().PrimaryAssetType !=
-						                            FPrimaryAssetType(ElementusItemDataType);
-				                            })
+			                             {
+				                             return AssetData.GetPrimaryAssetId().PrimaryAssetType !=
+					                             FPrimaryAssetType(ElementusItemDataType);
+			                             })
 		];
 }
 
@@ -63,7 +63,7 @@ FString ElementusDetailsPanel::GetObjPath() const
 		FString AssetIdValueStr;
 		PropertyHandlePtr->GetChildHandle(GET_MEMBER_NAME_CHECKED(FPrimaryAssetId, PrimaryAssetName))->
 		                   GetValueAsDisplayString(AssetIdValueStr);
-		
+
 		const FPrimaryAssetId AssetId(*AssetTypeValueStr, *AssetIdValueStr);
 		return AssetId.IsValid() ? AssetManager->GetPrimaryAssetPath(AssetId).ToString() : "";
 	}

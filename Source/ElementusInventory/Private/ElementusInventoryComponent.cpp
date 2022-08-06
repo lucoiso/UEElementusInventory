@@ -228,7 +228,7 @@ bool UElementusInventoryComponent::FindElementusItemInStack(const FElementusItem
 bool UElementusInventoryComponent::ContainItemInStack(const FElementusItemInfo InItemInfo) const
 {
 	return ItemStack.FindByPredicate([&InItemInfo](const FElementusItemInfo& InInfo)
-		                             {
-			                             return InInfo == InItemInfo;
-		                             }) != nullptr;
+	{
+		return InInfo == InItemInfo;
+	}) != nullptr;
 }
