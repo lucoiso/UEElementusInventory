@@ -21,13 +21,13 @@ AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer&
 }
 
 void AElementusInventoryPackage::PutItemIntoPackage(const TArray<FElementusItemInfo>& ItemInfo,
-                                                    UElementusInventoryComponent* FromInventory) const
+                                                    UElementusInventoryComponent* FromInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, FromInventory, PackageInventory);
 }
 
 void AElementusInventoryPackage::GetItemFromPackage(const TArray<FElementusItemInfo>& ItemInfo,
-                                                    UElementusInventoryComponent* ToInventory) const
+                                                    UElementusInventoryComponent* ToInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, PackageInventory, ToInventory);
 }
