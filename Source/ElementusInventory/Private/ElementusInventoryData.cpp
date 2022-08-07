@@ -7,7 +7,7 @@
 DEFINE_LOG_CATEGORY(LogElementusInventory);
 DEFINE_LOG_CATEGORY(LogElementusInventory_Internal);
 
-UInventoryItemData::UInventoryItemData(const FObjectInitializer& ObjectInitializer)
+UElementusItemData::UElementusItemData(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }

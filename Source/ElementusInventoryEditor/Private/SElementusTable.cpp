@@ -95,7 +95,7 @@ private:
 	FElementusItemPtr Item;
 };
 
-void SElementusTable::Construct([[maybe_unused]] const FArguments& InArgs)
+void SElementusTable::Construct([[maybe_unused]] const FArguments&)
 {
 	const TSharedPtr<SHeaderRow> HeaderRow = SNew(SHeaderRow);
 
@@ -226,7 +226,7 @@ TArray<TSharedPtr<FElementusItemRowData>> SElementusTable::GetSelectedItems() co
 	return EdListView->GetSelectedItems();
 }
 
-void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::Type SortPriority,
+void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::Type,
                                    const FName& ColumnName,
                                    const EColumnSortMode::Type SortMode)
 {

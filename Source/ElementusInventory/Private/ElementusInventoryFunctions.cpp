@@ -28,17 +28,17 @@ bool UElementusInventoryFunctions::CompareElementusItems(const FElementusItemInf
 	return Info1 == Info2;
 }
 
-bool UElementusInventoryFunctions::CompareElementusItemDatas(const UInventoryItemData* Data1,
-                                                             const UInventoryItemData* Data2)
+bool UElementusInventoryFunctions::CompareElementusItemDatas(const UElementusItemData* Data1,
+                                                             const UElementusItemData* Data2)
 {
 	return Data1->GetPrimaryAssetId() == Data2->GetPrimaryAssetId();
 }
 
-UInventoryItemData* UElementusInventoryFunctions::GetElementusItemDataById(const FPrimaryElementusItemId& InID,
+UElementusItemData* UElementusInventoryFunctions::GetElementusItemDataById(const FPrimaryElementusItemId& InID,
                                                                            const TArray<FName>& InBundles,
                                                                            const bool bAutoUnload)
 {
-	UInventoryItemData* Output = nullptr;
+	UElementusItemData* Output = nullptr;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
 		if (const TSharedPtr<FStreamableHandle> StreamableHandle =
@@ -46,11 +46,11 @@ UInventoryItemData* UElementusInventoryFunctions::GetElementusItemDataById(const
 			StreamableHandle.IsValid())
 		{
 			StreamableHandle->WaitUntilComplete(5.f);
-			Output = Cast<UInventoryItemData>(StreamableHandle->GetLoadedAsset());
+			Output = Cast<UElementusItemData>(StreamableHandle->GetLoadedAsset());
 		}
 		else // The object is already loaded
 		{
-			Output = AssetManager->GetPrimaryAssetObject<UInventoryItemData>(InID);
+			Output = AssetManager->GetPrimaryAssetObject<UElementusItemData>(InID);
 		}
 
 		if (bAutoUnload)
@@ -62,12 +62,12 @@ UInventoryItemData* UElementusInventoryFunctions::GetElementusItemDataById(const
 	return Output;
 }
 
-TArray<UInventoryItemData*> UElementusInventoryFunctions::GetElementusItemDataArrayById(
+TArray<UElementusItemData*> UElementusInventoryFunctions::GetElementusItemDataArrayById(
 	const TArray<FPrimaryElementusItemId> InIDs,
 	const TArray<FName>& InBundles,
 	const bool bAutoUnload)
 {
-	TArray<UInventoryItemData*> Output;
+	TArray<UElementusItemData*> Output;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
 		Output = LoadElementusItemDatas_Internal(AssetManager, InIDs, InBundles, bAutoUnload);
@@ -75,15 +75,15 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::GetElementusItemDataAr
 	return Output;
 }
 
-TArray<UInventoryItemData*> UElementusInventoryFunctions::SearchElementusItemData(const EElementusSearchType SearchType,
+TArray<UElementusItemData*> UElementusInventoryFunctions::SearchElementusItemData(const EElementusSearchType SearchType,
 	const FString& SearchString,
 	const TArray<FName>& InBundles,
 	const bool bAutoUnload)
 {
-	TArray<UInventoryItemData*> Output;
+	TArray<UElementusItemData*> Output;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
-		TArray<UInventoryItemData*> ReturnedValues =
+		TArray<UElementusItemData*> ReturnedValues =
 			LoadElementusItemDatas_Internal(AssetManager, TArray<FPrimaryElementusItemId>(), InBundles, bAutoUnload);
 
 		for (const auto& Iterator : ReturnedValues)
@@ -121,12 +121,12 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::SearchElementusItemDat
 	return Output;
 }
 
-TArray<UInventoryItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
+TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
 	const TArray<FPrimaryElementusItemId> InIDs,
 	const TArray<FName>& InBundles,
 	const bool bAutoUnload)
 {
-	TArray<UInventoryItemData*> Output;
+	TArray<UElementusItemData*> Output;
 	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
 
 	constexpr auto& FuncNam_LambVer = __func__;
@@ -167,7 +167,7 @@ TArray<UInventoryItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 				continue;
 			}
 
-			if (UInventoryItemData* CastedAsset = Cast<UInventoryItemData>(Iterator))
+			if (UElementusItemData* CastedAsset = Cast<UElementusItemData>(Iterator))
 			{
 				Output.Add(CastedAsset);
 			}

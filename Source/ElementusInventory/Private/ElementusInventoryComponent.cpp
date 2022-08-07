@@ -138,7 +138,7 @@ void UElementusInventoryComponent::DebugInventoryStack()
 
 bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo& InItemInfo) const
 {
-	if (const UInventoryItemData* ItemData =
+	if (const UElementusItemData* ItemData =
 		UElementusInventoryFunctions::GetElementusItemDataById(InItemInfo.ItemId, {"Data"}))
 	{
 		if (MaxWeight >= CurrentWeight + ItemData->ItemWeight * InItemInfo.Quantity)
@@ -187,7 +187,7 @@ void UElementusInventoryComponent::NotifyInventoryChange(const FElementusItemInf
 		CurrentWeight = 0.f;
 		OnInventoryEmpty.Broadcast();
 	}
-	else if (const UInventoryItemData* ItemData =
+	else if (const UElementusItemData* ItemData =
 			UElementusInventoryFunctions::GetElementusItemDataById(Modifier.ItemId, {"Data"});
 		ContainItemInStack(Modifier)
 		&& Operation == EElementusInventoryUpdateOperation::Add)
@@ -205,7 +205,7 @@ void UElementusInventoryComponent::UpdateCurrentWeight()
 	float NewWeigth = 0.f;
 	for (const auto& Iterator : ItemStack)
 	{
-		if (const UInventoryItemData* ItemData =
+		if (const UElementusItemData* ItemData =
 			UElementusInventoryFunctions::GetElementusItemDataById(Iterator.ItemId, {"Data"}))
 		{
 			NewWeigth += ItemData->ItemWeight * Iterator.Quantity;

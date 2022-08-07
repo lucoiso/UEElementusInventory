@@ -20,7 +20,7 @@ void ElementusDetailsPanel::CustomizeHeader(const TSharedRef<IPropertyHandle> Pr
 		.ValueContent()
 		[
 			SNew(SObjectPropertyEntryBox)
-				.AllowedClass(UInventoryItemData::StaticClass())
+				.AllowedClass(UElementusItemData::StaticClass())
 				.PropertyHandle(PropertyHandle)
 				.DisplayThumbnail(true)
 				.ThumbnailPool(CustomizationUtils.GetThumbnailPool())

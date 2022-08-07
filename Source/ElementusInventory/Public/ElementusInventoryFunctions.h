@@ -43,23 +43,23 @@ public:
 
 	/* Check if the id of the passed datas are equal */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	static bool CompareElementusItemDatas(const UInventoryItemData* Data1, const UInventoryItemData* Data2);
+	static bool CompareElementusItemDatas(const UElementusItemData* Data1, const UElementusItemData* Data2);
 
 	/* Return the data of the passed Id */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static UInventoryItemData* GetElementusItemDataById(const FPrimaryElementusItemId& InID,
+	static UElementusItemData* GetElementusItemDataById(const FPrimaryElementusItemId& InID,
 	                                                    const TArray<FName>& InBundles,
 	                                                    const bool bAutoUnload = true);
 
 	/* Return a array of data depending of the given ids */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static TArray<UInventoryItemData*> GetElementusItemDataArrayById(const TArray<FPrimaryElementusItemId> InIDs,
+	static TArray<UElementusItemData*> GetElementusItemDataArrayById(const TArray<FPrimaryElementusItemId> InIDs,
 	                                                                 const TArray<FName>& InBundles,
 	                                                                 const bool bAutoUnload = true);
 
 	/* Search items and return a array of item data */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static TArray<UInventoryItemData*> SearchElementusItemData(const EElementusSearchType SearchType,
+	static TArray<UElementusItemData*> SearchElementusItemData(const EElementusSearchType SearchType,
 	                                                           const FString& SearchString,
 	                                                           const TArray<FName>& InBundles,
 	                                                           const bool bAutoUnload = true);
@@ -78,7 +78,7 @@ public:
 	static bool IsItemValid(const FElementusItemInfo InItemInfo);
 
 private:
-	static TArray<UInventoryItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
+	static TArray<UElementusItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
 	                                                                   const TArray<FPrimaryElementusItemId> InIDs,
 	                                                                   const TArray<FName>& InBundles,
 	                                                                   const bool bAutoUnload);

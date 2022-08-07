@@ -75,7 +75,7 @@ public:
 	bool ContainItemInStack(const FElementusItemInfo InItemInfo) const;
 
 protected:
-	/* Items that this inventory have (UInventoryItemData -> Quantity) */
+	/* Items that this inventory have */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory",
 		meta = (Getter = "GetItemStack"))
 	TArray<FElementusItemInfo> ItemStack;

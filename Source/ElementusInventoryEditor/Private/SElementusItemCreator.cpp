@@ -18,7 +18,7 @@
 #include "Factories/DataAssetFactory.h"
 #include "UObject/SavePackage.h"
 
-void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
+void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 {
 	constexpr float Slot_Padding = 1.f;
 
@@ -159,8 +159,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 				                          .OptionsSource(&ItemTypesArr)
 				                          .OnSelectionChanged(STextComboBox::FOnTextSelectionChanged::CreateLambda(
 					                                             [this](const TSharedPtr<FString>& InStr,
-					                                                    [[maybe_unused]] ESelectInfo::Type
-					                                                    SelectionInfo)
+					                                                    [[maybe_unused]] ESelectInfo::Type)
 					                                             {
 						                                             ItemType = ItemTypesArr.Find(InStr);
 					                                             })))
@@ -231,8 +230,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments& InArgs)
 					                          .OptionsSource(&AssetFoldersArr)
 					                          .OnSelectionChanged(STextComboBox::FOnTextSelectionChanged::CreateLambda(
 						                                             [this](const TSharedPtr<FString>& InStr,
-						                                                    [[maybe_unused]] ESelectInfo::Type
-						                                                    SelectionInfo)
+						                                                    [[maybe_unused]] ESelectInfo::Type)
 						                                             {
 							                                             AssetFolder = FName(*InStr.Get());
 						                                             }))
@@ -327,11 +325,11 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 
 	if (UObject* NewData = AssetToolsModule.Get().CreateAsset(AssetName.ToString(),
 	                                                          FPackageName::GetLongPackagePath(PackageName),
-	                                                          UInventoryItemData::StaticClass(),
+	                                                          UElementusItemData::StaticClass(),
 	                                                          Factory);
 		NewData != nullptr)
 	{
-		UInventoryItemData* ItemData = Cast<UInventoryItemData>(NewData);
+		UElementusItemData* ItemData = Cast<UElementusItemData>(NewData);
 		ItemData->ItemId = ItemId;
 		ItemData->ItemObject = TSoftObjectPtr(Cast<UObject>(ObjectMap.FindRef(0)));
 		ItemData->ItemClass = TSoftClassPtr(ItemClass.Get());

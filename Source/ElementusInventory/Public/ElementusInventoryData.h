@@ -36,12 +36,12 @@ enum class EElementusItemType : uint8
 class UTexture2D;
 
 UCLASS(NotBlueprintable, NotPlaceable, Category = "Elementus Inventory | Classes | Data")
-class ELEMENTUSINVENTORY_API UInventoryItemData final : public UPrimaryDataAsset
+class ELEMENTUSINVENTORY_API UElementusItemData final : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 
 public:
-	explicit UInventoryItemData(const FObjectInitializer& ObjectInitializer);
+	explicit UElementusItemData(const FObjectInitializer& ObjectInitializer);
 
 	FORCEINLINE virtual FPrimaryAssetId GetPrimaryAssetId() const override
 	{
