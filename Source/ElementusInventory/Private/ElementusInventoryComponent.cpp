@@ -9,7 +9,7 @@
 
 UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
-	  MaxWeight(250.f),
+	  MaxWeight(0.f),
 	  CurrentWeight(0.f)
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -67,9 +67,17 @@ void UElementusInventoryComponent::AddElementusItem_Internal_Implementation(cons
 	       *FString(__func__), AddInfo.Quantity, *AddInfo.ItemId.ToString());
 
 	if (int32 InIndex;
-		FindElementusItemInStack(AddInfo, InIndex))
+		UElementusInventoryFunctions::CanStackItem(AddInfo)
+		&& FindElementusItemInStack(AddInfo, InIndex))
 	{
 		ItemStack[InIndex].Quantity += AddInfo.Quantity;
+	}
+	else if (!UElementusInventoryFunctions::CanStackItem(AddInfo))
+	{
+		for (int32 i = 0; i < AddInfo.Quantity; ++i)
+		{
+			ItemStack.Add(FElementusItemInfo(AddInfo.ItemId, 1, AddInfo.Tags));
+		}
 	}
 	else
 	{
@@ -136,8 +144,13 @@ void UElementusInventoryComponent::DebugInventoryStack()
 	UE_LOG(LogElementusInventory, Warning, TEXT("Weight: %d"), CurrentWeight);
 }
 
-bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo& InItemInfo) const
+bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InItemInfo) const
 {
+	if (MaxWeight == 0.f)
+	{
+		return true;
+	}
+
 	if (const UElementusItemData* ItemData =
 		UElementusInventoryFunctions::GetElementusItemDataById(InItemInfo.ItemId, {"Data"}))
 	{
@@ -154,11 +167,11 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo& InIt
 	return false;
 }
 
-bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo& InItemInfo)
+bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo InItemInfo) const
 {
 	int32 InIndex;
-	const bool bOutput = FindElementusItemInStack(InItemInfo, InIndex) && ItemStack[InIndex].Quantity >= InItemInfo.
-		Quantity;
+	const bool bOutput = FindElementusItemInStack(InItemInfo, InIndex)
+		&& ItemStack[InIndex].Quantity >= InItemInfo.Quantity;
 
 	if (!bOutput)
 	{
@@ -175,6 +188,7 @@ void UElementusInventoryComponent::BeginPlay()
 	Super::BeginPlay();
 
 	UpdateCurrentWeight();
+	UpdateInventoryStack();
 }
 
 void UElementusInventoryComponent::NotifyInventoryChange(const FElementusItemInfo& Modifier,
@@ -213,6 +227,32 @@ void UElementusInventoryComponent::UpdateCurrentWeight()
 	}
 
 	CurrentWeight = NewWeigth;
+}
+
+void UElementusInventoryComponent::UpdateInventoryStack()
+{
+	for (int32 i = 0; i < ItemStack.Num(); ++i)
+	{
+		if (ItemStack[i].Quantity <= 0)
+		{
+			ItemStack.RemoveAt(i);
+			--i;
+		}
+
+		else if (const UElementusItemData* ItemData =
+				UElementusInventoryFunctions::GetElementusItemDataById(ItemStack[i].ItemId, {"Data"});
+			IsValid(ItemData) && !ItemData->bIsStackable && ItemStack[i].Quantity > 1)
+		{
+			const int32 Quant = ItemStack[i].Quantity;
+			ItemStack[i].Quantity = 1;
+			for (int32 j = 0; j < Quant - 1; ++j)
+			{
+				ItemStack.Add(FElementusItemInfo(ItemStack[i].ItemId, 1, ItemStack[i].Tags));
+			}
+		}
+	}
+
+	ItemStack.Sort();
 }
 
 bool UElementusInventoryComponent::FindElementusItemInStack(const FElementusItemInfo InItemInfo, int32& OutIndex) const

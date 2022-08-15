@@ -91,6 +91,7 @@ void FElementusInventoryEditorModule::RegisterMenus()
 
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ItemCreatorTabId, ItemCreatorTabSpawnerDelegate)
 	                        .SetDisplayName(FText::FromString("Elementus Item Creator"))
+	                        .SetGroup(Menu.ToSharedRef())
 	                        .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "Icons.PlusCircle"));
 }
 #undef LOCTEXT_NAMESPACE

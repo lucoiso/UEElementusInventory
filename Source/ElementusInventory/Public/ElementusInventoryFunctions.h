@@ -77,6 +77,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static bool IsItemValid(const FElementusItemInfo InItemInfo);
 
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	static bool CanStackItem(const FElementusItemInfo InItemInfo);
+
 private:
 	static TArray<UElementusItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
 	                                                                   const TArray<FPrimaryElementusItemId> InIDs,

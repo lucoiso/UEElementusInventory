@@ -40,6 +40,7 @@ private:
 	FName ItemName;
 	FText ItemDescription;
 	uint8 ItemType = 0;
+	bool bIsStackable = false;
 	float ItemValue = 0.f;
 	float ItemWeight = 0.f;
 };

@@ -62,11 +62,11 @@ public:
 
 	/* Check if this inventory can receive the passed item */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	virtual bool CanReceiveItem(const FElementusItemInfo& InItemInfo) const;
+	virtual bool CanReceiveItem(const FElementusItemInfo InItemInfo) const;
 
 	/* Check if this inventory can give the passed item */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	virtual bool CanGiveItem(const FElementusItemInfo& InItemInfo);
+	virtual bool CanGiveItem(const FElementusItemInfo InItemInfo) const;
 
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool FindElementusItemInStack(const FElementusItemInfo InItemInfo, int32& OutIndex) const;
@@ -98,4 +98,5 @@ private:
 	                           const EElementusInventoryUpdateOperation Operation);
 
 	void UpdateCurrentWeight();
+	void UpdateInventoryStack();
 };

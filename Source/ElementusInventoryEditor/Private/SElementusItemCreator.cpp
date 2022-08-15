@@ -168,6 +168,18 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 			  .Padding(Slot_Padding)
 			  .AutoHeight()
 			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Is Stackable"),
+				                          SNew(SCheckBox)
+					.IsChecked(ECheckBoxState::Checked)
+					.OnCheckStateChanged_Lambda([this](const ECheckBoxState InState)
+				                                         {
+					                                         bIsStackable = InState == ECheckBoxState::Checked;
+				                                         }))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Value"),
 				                          SNew(SNumericEntryBox<float>)
 												.AllowSpin(false)
@@ -336,6 +348,7 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 		ItemData->ItemName = ItemName;
 		ItemData->ItemDescription = ItemDescription;
 		ItemData->ItemType = static_cast<EElementusItemType>(ItemType);
+		ItemData->bIsStackable = bIsStackable;
 		ItemData->ItemValue = ItemValue;
 		ItemData->ItemWeight = ItemWeight;
 		ItemData->ItemIcon = Cast<UTexture2D>(ObjectMap.FindRef(1));

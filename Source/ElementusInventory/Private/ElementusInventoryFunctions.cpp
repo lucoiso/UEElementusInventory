@@ -253,3 +253,13 @@ bool UElementusInventoryFunctions::IsItemValid(const FElementusItemInfo InItemIn
 {
 	return InItemInfo.ItemId.IsValid();
 }
+
+bool UElementusInventoryFunctions::CanStackItem(const FElementusItemInfo InItemInfo)
+{
+	if (const UElementusItemData* ItemData = GetElementusItemDataById(InItemInfo.ItemId, {"Data"}))
+	{
+		return ItemData->bIsStackable;
+	}
+
+	return true;
+}
