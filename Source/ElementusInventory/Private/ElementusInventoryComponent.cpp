@@ -26,6 +26,11 @@ TArray<FElementusItemInfo> UElementusInventoryComponent::GetItemStack() const
 	return ItemStack;
 }
 
+FElementusItemInfo& UElementusInventoryComponent::GetItemReferenceAt(const int32 Index)
+{
+	return ItemStack[Index];
+}
+
 void UElementusInventoryComponent::AddElementusItem(const FElementusItemInfo& InModifier)
 {
 	UE_LOG(LogElementusInventory, Display,
@@ -255,10 +260,23 @@ void UElementusInventoryComponent::UpdateInventoryStack()
 	ItemStack.Sort();
 }
 
-bool UElementusInventoryComponent::FindElementusItemInStack(const FElementusItemInfo InItemInfo, int32& OutIndex) const
+bool UElementusInventoryComponent::FindElementusItemInStack(const FElementusItemInfo InItemInfo,
+                                                            int32& OutIndex,
+                                                            const FGameplayTagContainer IgnoreTags) const
 {
-	OutIndex = ItemStack.IndexOfByPredicate([&InItemInfo](const FElementusItemInfo& InInfo)
+	OutIndex = ItemStack.IndexOfByPredicate([&InItemInfo, &IgnoreTags](const FElementusItemInfo& InInfo)
 	{
+		if (!IgnoreTags.IsEmpty())
+		{
+			FElementusItemInfo InCopy(InItemInfo);
+			InCopy.Tags.RemoveTags(IgnoreTags);
+
+			FElementusItemInfo InLambdaCopy(InItemInfo);
+			InLambdaCopy.Tags.RemoveTags(IgnoreTags);
+
+			return InCopy == InLambdaCopy;
+		}
+
 		return InInfo == InItemInfo;
 	});
 

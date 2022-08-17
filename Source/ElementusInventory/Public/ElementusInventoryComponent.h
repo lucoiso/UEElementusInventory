@@ -48,6 +48,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	TArray<FElementusItemInfo> GetItemStack() const;
 
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	FElementusItemInfo& GetItemReferenceAt(const int32 Index);
+
 	/* Add a item to this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	void AddElementusItem(const FElementusItemInfo& InModifier);
@@ -69,7 +72,9 @@ public:
 	virtual bool CanGiveItem(const FElementusItemInfo InItemInfo) const;
 
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindElementusItemInStack(const FElementusItemInfo InItemInfo, int32& OutIndex) const;
+	bool FindElementusItemInStack(const FElementusItemInfo InItemInfo,
+	                              int32& OutIndex,
+	                              const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
 
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool ContainItemInStack(const FElementusItemInfo InItemInfo) const;
