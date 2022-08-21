@@ -6,7 +6,7 @@ using UnrealBuildTool;
 
 public class ElementusInventory : ModuleRules
 {
-	public ElementusInventory(ReadOnlyTargetRules target) : base(target)
+	public ElementusInventory(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
