@@ -20,15 +20,27 @@ AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer&
 	PackageInventory->SetIsReplicated(true);
 }
 
+void AElementusInventoryPackage::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetDestroyOnEmpty(bDestroyWhenInventoryIsEmpty);
+
+	if (bDestroyWhenInventoryIsEmpty && PackageInventory->GetItemStack().IsEmpty())
+	{
+		Destroy();
+	}
+}
+
 // ReSharper disable once CppUE4BlueprintCallableFunctionMayBeConst
-void AElementusInventoryPackage::PutItemIntoPackage(const TArray<FElementusItemInfo>& ItemInfo,
+void AElementusInventoryPackage::PutItemIntoPackage(TArray<FElementusItemInfo>& ItemInfo,
                                                     UElementusInventoryComponent* FromInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, FromInventory, PackageInventory);
 }
 
 // ReSharper disable once CppUE4BlueprintCallableFunctionMayBeConst
-void AElementusInventoryPackage::GetItemFromPackage(const TArray<FElementusItemInfo>& ItemInfo,
+void AElementusInventoryPackage::GetItemFromPackage(TArray<FElementusItemInfo>& ItemInfo,
                                                     UElementusInventoryComponent* ToInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, PackageInventory, ToInventory);
@@ -44,8 +56,7 @@ void AElementusInventoryPackage::SetDestroyOnEmpty(const bool bDestroy)
 	bDestroyWhenInventoryIsEmpty = bDestroy;
 	FElementusInventoryEmpty& Delegate = PackageInventory->OnInventoryEmpty;
 
-	if (const bool bIsAlreadyBound =
-			Delegate.IsAlreadyBound(this, &AElementusInventoryPackage::BeginPackageDestruction);
+	if (const bool bIsAlreadyBound = Delegate.IsAlreadyBound(this, &AElementusInventoryPackage::BeginPackageDestruction);
 		bDestroy && !bIsAlreadyBound)
 	{
 		Delegate.AddDynamic(this, &AElementusInventoryPackage::BeginPackageDestruction);
@@ -59,18 +70,6 @@ void AElementusInventoryPackage::SetDestroyOnEmpty(const bool bDestroy)
 bool AElementusInventoryPackage::GetDestroyOnEmpty() const
 {
 	return bDestroyWhenInventoryIsEmpty;
-}
-
-void AElementusInventoryPackage::BeginPlay()
-{
-	Super::BeginPlay();
-
-	SetDestroyOnEmpty(bDestroyWhenInventoryIsEmpty);
-
-	if (bDestroyWhenInventoryIsEmpty && PackageInventory->GetItemStack().IsEmpty())
-	{
-		Destroy();
-	}
 }
 
 void AElementusInventoryPackage::BeginPackageDestruction_Implementation()

@@ -11,7 +11,7 @@ class FMenuBuilder;
 
 class FElementusInventoryEditorModule : public IModuleInterface
 {
-public:
+protected:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 

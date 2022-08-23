@@ -7,12 +7,13 @@
 #include "CoreMinimal.h"
 
 class SElementusFrame final : public SCompoundWidget
-{
+{	
+public:
 	SLATE_USER_ARGS(SElementusFrame)
 		{
 		}
 
 	SLATE_END_ARGS()
-
+	
 	void Construct(const FArguments& InArgs);
 };

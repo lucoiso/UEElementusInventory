@@ -287,7 +287,7 @@ FString SElementusItemCreator::GetObjPath(const int32 ObjId) const
 {
 	return ObjectMap.Contains(ObjId) && ObjectMap.FindRef(ObjId).IsValid()
 		       ? ObjectMap.FindRef(ObjId)->GetPathName()
-		       : FString("");
+		       : FString();
 }
 
 void SElementusItemCreator::HandleNewEntryClassSelected(const UClass* Class)
@@ -314,6 +314,16 @@ void SElementusItemCreator::UpdateFolders()
 				AssetFoldersArr.Add(MakeShareable(new FString(Path)));
 			}
 		}
+	}
+
+	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid();
+		IsValid(AssetManager)
+		&& AssetManager->HasInitialScanCompleted()
+		&& AssetFoldersArr.IsEmpty())
+	{
+		FMessageDialog::Open(EAppMsgType::Ok,
+			FText::FromString(TEXT("Asset Manager could not find any folder. "
+										  "Please check your Asset Manager settings.")));
 	}
 }
 

@@ -2,11 +2,11 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
-#include "ElementusDetailsPanel.h"
+#include "SElementusDetailsPanel.h"
 #include "ElementusInventoryData.h"
 #include "Engine/AssetManager.h"
 
-void ElementusDetailsPanel::CustomizeHeader(const TSharedRef<IPropertyHandle> PropertyHandle,
+void SElementusDetailsPanel::CustomizeHeader(const TSharedRef<IPropertyHandle> PropertyHandle,
                                             FDetailWidgetRow& HeaderRow,
                                             IPropertyTypeCustomizationUtils& CustomizationUtils)
 {
@@ -24,8 +24,8 @@ void ElementusDetailsPanel::CustomizeHeader(const TSharedRef<IPropertyHandle> Pr
 				.PropertyHandle(PropertyHandle)
 				.DisplayThumbnail(true)
 				.ThumbnailPool(CustomizationUtils.GetThumbnailPool())
-				.ObjectPath(this, &ElementusDetailsPanel::GetObjPath)
-				.OnObjectChanged(this, &ElementusDetailsPanel::OnObjChanged)
+				.ObjectPath(this, &SElementusDetailsPanel::GetObjPath)
+				.OnObjectChanged(this, &SElementusDetailsPanel::OnObjChanged)
 				.OnShouldFilterAsset_Lambda([](const FAssetData& AssetData) -> bool
 			                             {
 				                             return AssetData.GetPrimaryAssetId().PrimaryAssetType !=
@@ -34,17 +34,16 @@ void ElementusDetailsPanel::CustomizeHeader(const TSharedRef<IPropertyHandle> Pr
 		];
 }
 
-void ElementusDetailsPanel::CustomizeChildren(TSharedRef<IPropertyHandle> StructPropertyHandle,
+void SElementusDetailsPanel::CustomizeChildren(TSharedRef<IPropertyHandle> StructPropertyHandle,
                                               IDetailChildrenBuilder& StructBuilder,
                                               IPropertyTypeCustomizationUtils& CustomizationUtils)
 {
 }
 
-void ElementusDetailsPanel::OnObjChanged(const FAssetData& AssetData) const
+void SElementusDetailsPanel::OnObjChanged(const FAssetData& AssetData) const
 {
 	// (PrimaryAssetType="VALUE",PrimaryAssetName="VALUE")
-	const FString InValue(FString::Printf(
-		TEXT("(PrimaryAssetType=\"%s\",PrimaryAssetName=\"%s\")"),
+	const FString InValue(FString::Printf(TEXT("(PrimaryAssetType=\"%s\",PrimaryAssetName=\"%s\")"),
 		*AssetData.GetPrimaryAssetId().PrimaryAssetType.ToString(),
 		*AssetData.GetPrimaryAssetId().PrimaryAssetName.ToString()
 	));
@@ -52,7 +51,7 @@ void ElementusDetailsPanel::OnObjChanged(const FAssetData& AssetData) const
 	ensure(PropertyHandlePtr->SetValueFromFormattedString(InValue) == FPropertyAccess::Result::Success);
 }
 
-FString ElementusDetailsPanel::GetObjPath() const
+FString SElementusDetailsPanel::GetObjPath() const
 {
 	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid();
 		AssetManager && PropertyHandlePtr.IsValid())
@@ -60,13 +59,25 @@ FString ElementusDetailsPanel::GetObjPath() const
 		FString AssetTypeValueStr;
 		PropertyHandlePtr->GetChildHandle(GET_MEMBER_NAME_CHECKED(FPrimaryAssetId, PrimaryAssetType))->
 		                   GetValueAsDisplayString(AssetTypeValueStr);
+		
 		FString AssetIdValueStr;
 		PropertyHandlePtr->GetChildHandle(GET_MEMBER_NAME_CHECKED(FPrimaryAssetId, PrimaryAssetName))->
 		                   GetValueAsDisplayString(AssetIdValueStr);
 
 		const FPrimaryAssetId AssetId(*AssetTypeValueStr, *AssetIdValueStr);
-		return AssetId.IsValid() ? AssetManager->GetPrimaryAssetPath(AssetId).ToString() : "";
+		const FString Output = AssetId.IsValid() ? AssetManager->GetPrimaryAssetPath(AssetId).ToString() : FString();
+
+		if (AssetId.IsValid() && Output.IsEmpty())
+		{
+			FMessageDialog::Open(EAppMsgType::Ok,
+				FText::FromString(TEXT("Asset Manager could not retrieve asset information: "
+											  "Check if you've added the path to the Asset Manager settings.")));
+
+			PropertyHandlePtr->ResetToDefault();
+		}
+		
+		return Output;
 	}
 
-	return "";
+	return FString();
 }

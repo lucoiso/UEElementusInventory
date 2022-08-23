@@ -41,8 +41,7 @@ UElementusItemData* UElementusInventoryFunctions::GetElementusItemDataById(const
 	UElementusItemData* Output = nullptr;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
-		if (const TSharedPtr<FStreamableHandle> StreamableHandle =
-				AssetManager->LoadPrimaryAsset(InID, InBundles);
+		if (const TSharedPtr<FStreamableHandle> StreamableHandle = AssetManager->LoadPrimaryAsset(InID, InBundles);
 			StreamableHandle.IsValid())
 		{
 			StreamableHandle->WaitUntilComplete(5.f);
@@ -62,10 +61,9 @@ UElementusItemData* UElementusInventoryFunctions::GetElementusItemDataById(const
 	return Output;
 }
 
-TArray<UElementusItemData*> UElementusInventoryFunctions::GetElementusItemDataArrayById(
-	const TArray<FPrimaryElementusItemId> InIDs,
-	const TArray<FName>& InBundles,
-	const bool bAutoUnload)
+TArray<UElementusItemData*> UElementusInventoryFunctions::GetElementusItemDataArrayById(const TArray<FPrimaryElementusItemId>& InIDs,
+																						const TArray<FName>& InBundles,
+																						const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
@@ -76,15 +74,17 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::GetElementusItemDataAr
 }
 
 TArray<UElementusItemData*> UElementusInventoryFunctions::SearchElementusItemData(const EElementusSearchType SearchType,
-	const FString& SearchString,
-	const TArray<FName>& InBundles,
-	const bool bAutoUnload)
+																				  const FString& SearchString,
+																				  const TArray<FName>& InBundles,
+																				  const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
-		TArray<UElementusItemData*> ReturnedValues =
-			LoadElementusItemDatas_Internal(AssetManager, TArray<FPrimaryElementusItemId>(), InBundles, bAutoUnload);
+		TArray<UElementusItemData*> ReturnedValues = LoadElementusItemDatas_Internal(AssetManager,
+																					TArray<FPrimaryElementusItemId>(),
+																					InBundles,
+																					bAutoUnload);
 
 		for (const auto& Iterator : ReturnedValues)
 		{
@@ -122,16 +122,15 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::SearchElementusItemDat
 }
 
 TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
-	const TArray<FPrimaryElementusItemId> InIDs,
-	const TArray<FName>& InBundles,
-	const bool bAutoUnload)
+																						  const TArray<FPrimaryElementusItemId>& InIDs,
+																						  const TArray<FName>& InBundles,
+																						  const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
 	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
 
 	constexpr auto& FuncNam_LambVer = __func__;
-	const auto& CheckAssetValidity_Lambda =
-		[&FuncNam_LambVer](UObject* InAsset) -> bool
+	const auto& CheckAssetValidity_Lambda = [&FuncNam_LambVer](UObject* InAsset) -> bool
 	{
 		const bool bOutput = IsValid(InAsset);
 		if (IsValid(InAsset))
@@ -150,8 +149,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 		return bOutput;
 	};
 
-	const auto& PassItemArr_Lambda =
-		[&CheckAssetValidity_Lambda, &Output](TArray<UObject*>& InArr)
+	const auto& PassItemArr_Lambda = [&CheckAssetValidity_Lambda, &Output](TArray<UObject*>& InArr)
 	{
 		if (InArr.IsEmpty())
 		{
@@ -174,8 +172,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 		}
 	};
 
-	if (const TSharedPtr<FStreamableHandle> StreamableHandle =
-			InAssetManager->LoadPrimaryAssets(PrimaryAssetIds, InBundles);
+	if (const TSharedPtr<FStreamableHandle> StreamableHandle = InAssetManager->LoadPrimaryAssets(PrimaryAssetIds, InBundles);
 		StreamableHandle.IsValid())
 	{
 		StreamableHandle->WaitUntilComplete(5.f);
@@ -232,8 +229,7 @@ void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo>
 {
 	for (auto& Iterator : ItemsToTrade)
 	{
-		Iterator.Quantity =
-			FMath::Clamp(Iterator.Quantity, 0, Iterator.Quantity);
+		Iterator.Quantity = FMath::Clamp(Iterator.Quantity, 0, Iterator.Quantity);
 
 		if (FromInventory->CanGiveItem(Iterator) && ToInventory->CanReceiveItem(Iterator))
 		{
@@ -262,4 +258,19 @@ bool UElementusInventoryFunctions::CanStackItem(const FElementusItemInfo InItemI
 	}
 
 	return true;
+}
+
+FGameplayTagContainer UElementusInventoryFunctions::GetItemTagsFromParent(const FElementusItemInfo InItemInfo,
+																		  const FGameplayTag FromParentTag)
+{
+	FGameplayTagContainer Output;
+	for (const auto& Iterator : InItemInfo.Tags)
+	{
+		if (Iterator.MatchesTag(FromParentTag))
+		{
+			Output.AddTag(Iterator);
+		}
+	}
+
+	return Output;
 }

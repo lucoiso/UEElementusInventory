@@ -53,7 +53,7 @@ public:
 
 	/* Return a array of data depending of the given ids */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static TArray<UElementusItemData*> GetElementusItemDataArrayById(const TArray<FPrimaryElementusItemId> InIDs,
+	static TArray<UElementusItemData*> GetElementusItemDataArrayById(const TArray<FPrimaryElementusItemId>& InIDs,
 	                                                                 const TArray<FName>& InBundles,
 	                                                                 const bool bAutoUnload = true);
 
@@ -79,10 +79,14 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static bool CanStackItem(const FElementusItemInfo InItemInfo);
+	
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	static FGameplayTagContainer GetItemTagsFromParent(const FElementusItemInfo InItemInfo,
+													   const FGameplayTag FromParentTag);
 
 private:
 	static TArray<UElementusItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
-	                                                                   const TArray<FPrimaryElementusItemId> InIDs,
+	                                                                   const TArray<FPrimaryElementusItemId>& InIDs,
 	                                                                   const TArray<FName>& InBundles,
 	                                                                   const bool bAutoUnload);
 };

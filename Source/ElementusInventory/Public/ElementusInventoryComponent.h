@@ -12,6 +12,7 @@
 UENUM(BlueprintType, Category = "Elementus Inventory | Enumerations")
 enum class EElementusInventoryUpdateOperation : uint8
 {
+	None,
 	Add,
 	Remove
 };
@@ -59,10 +60,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	void RemoveElementusItem(const FElementusItemInfo& InModifier);
 
-	/* Print debug informations in the log about this inventory */
-	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	virtual void DebugInventoryStack();
-
 	/* Check if this inventory can receive the passed item */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	virtual bool CanReceiveItem(const FElementusItemInfo InItemInfo) const;
@@ -71,13 +68,25 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	virtual bool CanGiveItem(const FElementusItemInfo InItemInfo) const;
 
+	/*  */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool FindElementusItemInStack(const FElementusItemInfo InItemInfo,
 	                              int32& OutIndex,
 	                              const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
 
+	/*  */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	bool FindElementusItemInStackWithTags(const FGameplayTagContainer WithTags,
+										  int32& OutIndex,
+										  const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+	
+	/*  */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool ContainItemInStack(const FElementusItemInfo InItemInfo) const;
+
+	/* Print debug informations in the log about this inventory */
+	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
+	virtual void DebugInventoryStack();
 
 protected:
 	/* Items that this inventory have */

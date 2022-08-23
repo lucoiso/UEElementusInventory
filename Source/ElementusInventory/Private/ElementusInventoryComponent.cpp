@@ -53,12 +53,14 @@ constexpr void DoMulticastLoggingIdentification(const ENetMode& CurrentNetMode)
 {
 	if (CurrentNetMode == NM_Client)
 	{
-		UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Elementus Inventory - %s: Client logging: "),
+		UE_LOG(LogElementusInventory_Internal, Warning,
+			TEXT("Elementus Inventory - %s: Client logging: "),
 		       *FString(__func__));
 	}
 	else if (CurrentNetMode != NM_Standalone)
 	{
-		UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Elementus Inventory - %s: Server logging: "),
+		UE_LOG(LogElementusInventory_Internal, Warning,
+			TEXT("Elementus Inventory - %s: Server logging: "),
 		       *FString(__func__));
 	}
 }
@@ -130,25 +132,6 @@ void UElementusInventoryComponent::RemoveElementusItem_Internal_Implementation(c
 	}
 }
 
-void UElementusInventoryComponent::DebugInventoryStack()
-{
-	UE_LOG(LogElementusInventory, Warning, TEXT("Elementus Inventory - %s"), *FString(__func__));
-	UE_LOG(LogElementusInventory, Warning, TEXT("Owning Actor: %s"), *GetOwner()->GetName());
-
-	for (const auto& Iterator : ItemStack)
-	{
-		UE_LOG(LogElementusInventory, Warning, TEXT("Item: %s"), *Iterator.ItemId.ToString());
-		UE_LOG(LogElementusInventory, Warning, TEXT("Quantity: %d"), Iterator.Quantity);
-
-		for (const auto& Tag : Iterator.Tags)
-		{
-			UE_LOG(LogElementusInventory, Warning, TEXT("Tag: %s"), *Tag.ToString());
-		}
-	}
-
-	UE_LOG(LogElementusInventory, Warning, TEXT("Weight: %d"), CurrentWeight);
-}
-
 bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InItemInfo) const
 {
 	if (MaxWeight == 0.f)
@@ -175,8 +158,7 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo InItemInfo) const
 {
 	int32 InIndex;
-	const bool bOutput = FindElementusItemInStack(InItemInfo, InIndex)
-		&& ItemStack[InIndex].Quantity >= InItemInfo.Quantity;
+	const bool bOutput = FindElementusItemInStack(InItemInfo, InIndex) && ItemStack[InIndex].Quantity >= InItemInfo.Quantity;
 
 	if (!bOutput)
 	{
@@ -207,7 +189,7 @@ void UElementusInventoryComponent::NotifyInventoryChange(const FElementusItemInf
 		OnInventoryEmpty.Broadcast();
 	}
 	else if (const UElementusItemData* ItemData =
-			UElementusInventoryFunctions::GetElementusItemDataById(Modifier.ItemId, {"Data"});
+		UElementusInventoryFunctions::GetElementusItemDataById(Modifier.ItemId, {"Data"});
 		ContainItemInStack(Modifier)
 		&& Operation == EElementusInventoryUpdateOperation::Add)
 	{
@@ -246,7 +228,8 @@ void UElementusInventoryComponent::UpdateInventoryStack()
 
 		else if (const UElementusItemData* ItemData =
 				UElementusInventoryFunctions::GetElementusItemDataById(ItemStack[i].ItemId, {"Data"});
-			IsValid(ItemData) && !ItemData->bIsStackable && ItemStack[i].Quantity > 1)
+			IsValid(ItemData)
+			&& !ItemData->bIsStackable && ItemStack[i].Quantity > 1)
 		{
 			const int32 Quant = ItemStack[i].Quantity;
 			ItemStack[i].Quantity = 1;
@@ -266,18 +249,36 @@ bool UElementusInventoryComponent::FindElementusItemInStack(const FElementusItem
 {
 	OutIndex = ItemStack.IndexOfByPredicate([&InItemInfo, &IgnoreTags](const FElementusItemInfo& InInfo)
 	{
+		if (IgnoreTags.IsEmpty())
+		{
+			return InInfo == InItemInfo;
+		}
+		
+		FElementusItemInfo InCopy(InItemInfo);
+		InCopy.Tags.RemoveTags(IgnoreTags);
+
+		FElementusItemInfo InLambdaCopy(InItemInfo);
+		InLambdaCopy.Tags.RemoveTags(IgnoreTags);
+
+		return InCopy == InLambdaCopy;
+	});
+
+	return OutIndex != INDEX_NONE;
+}
+
+bool UElementusInventoryComponent::FindElementusItemInStackWithTags(const FGameplayTagContainer WithTags,
+																	int32& OutIndex,
+																	const FGameplayTagContainer IgnoreTags) const
+{
+	OutIndex = ItemStack.IndexOfByPredicate([&WithTags, &IgnoreTags](const FElementusItemInfo& InInfo)
+	{
+		FElementusItemInfo InCopy(InInfo);
 		if (!IgnoreTags.IsEmpty())
 		{
-			FElementusItemInfo InCopy(InItemInfo);
 			InCopy.Tags.RemoveTags(IgnoreTags);
-
-			FElementusItemInfo InLambdaCopy(InItemInfo);
-			InLambdaCopy.Tags.RemoveTags(IgnoreTags);
-
-			return InCopy == InLambdaCopy;
 		}
-
-		return InInfo == InItemInfo;
+		
+		return InCopy.Tags.HasAll(WithTags);
 	});
 
 	return OutIndex != INDEX_NONE;
@@ -289,4 +290,23 @@ bool UElementusInventoryComponent::ContainItemInStack(const FElementusItemInfo I
 	{
 		return InInfo == InItemInfo;
 	}) != nullptr;
+}
+
+void UElementusInventoryComponent::DebugInventoryStack()
+{
+	UE_LOG(LogElementusInventory, Warning, TEXT("Elementus Inventory - %s"), *FString(__func__));
+	UE_LOG(LogElementusInventory, Warning, TEXT("Owning Actor: %s"), *GetOwner()->GetName());
+
+	for (const auto& Iterator : ItemStack)
+	{
+		UE_LOG(LogElementusInventory, Warning, TEXT("Item: %s"), *Iterator.ItemId.ToString());
+		UE_LOG(LogElementusInventory, Warning, TEXT("Quantity: %d"), Iterator.Quantity);
+
+		for (const auto& Tag : Iterator.Tags)
+		{
+			UE_LOG(LogElementusInventory, Warning, TEXT("Tag: %s"), *Tag.ToString());
+		}
+	}
+
+	UE_LOG(LogElementusInventory, Warning, TEXT("Weight: %d"), CurrentWeight);
 }

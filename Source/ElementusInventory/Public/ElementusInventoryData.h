@@ -11,7 +11,7 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory, Display, Verbose);
 
-DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory_Internal, Display, Verbose);
+DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory_Internal, Display, NoLogging);
 
 constexpr auto& ElementusItemDataType = TEXT("ElementusInventory_ItemData");
 
@@ -132,7 +132,8 @@ struct FElementusItemInfo
 	{
 	}
 
-	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId, const int32& InQuant,
+	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId,
+	                            const int32& InQuant,
 	                            const FGameplayTagContainer& InTags)
 		: ItemId(InItemId), Quantity(InQuant), Tags(InTags)
 	{
