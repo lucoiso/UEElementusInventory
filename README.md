@@ -9,6 +9,9 @@ A Unreal Engine plugin that provides a Data-Driven Inventory & Items system base
 ## Links
 * [Project Elementus](https://github.com/lucoiso/UEProject_Elementus)
 * [Unreal Engine Forum](https://forums.unrealengine.com/t/free-elementus-inventory-data-driven-inventory-system/617474?u=lucoiso)
+* [Email](mailto:contatolukevboas@gmail.com)  
+
+## Pictures
 
 > ## Tab Invoker
 > <img src="https://user-images.githubusercontent.com/77353979/182725151-524435d1-e4d4-42d1-b0cd-c013dc2c8963.png" width="500" />
