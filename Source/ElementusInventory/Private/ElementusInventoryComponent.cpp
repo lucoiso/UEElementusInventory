@@ -21,115 +21,19 @@ float UElementusInventoryComponent::GetCurrentWeight() const
 	return CurrentWeight;
 }
 
-TArray<FElementusItemInfo> UElementusInventoryComponent::GetItemStack() const
+TArray<FElementusItemInfo> UElementusInventoryComponent::GetItemsArray() const
 {
-	return ItemStack;
+	return ElementusItems;
 }
 
 FElementusItemInfo& UElementusInventoryComponent::GetItemReferenceAt(const int32 Index)
 {
-	return ItemStack[Index];
+	return ElementusItems[Index];
 }
 
-void UElementusInventoryComponent::AddElementusItem(const FElementusItemInfo& InModifier)
+FElementusItemInfo UElementusInventoryComponent::GetItemCopyAt(const int32 Index) const
 {
-	UE_LOG(LogElementusInventory, Display,
-	       TEXT("Elementus Inventory - %s: Adding %d item(s) with name '%s' to inventory"),
-	       *FString(__func__), InModifier.Quantity, *InModifier.ItemId.ToString());
-
-	AddElementusItem_Internal(InModifier);
-}
-
-void UElementusInventoryComponent::RemoveElementusItem(const FElementusItemInfo& InModifier)
-{
-	UE_LOG(LogElementusInventory, Display,
-	       TEXT("Elementus Inventory - %s: Discarding %d item(s) with name '%s' from inventory"),
-	       *FString(__func__), InModifier.Quantity, *InModifier.ItemId.ToString());
-
-	RemoveElementusItem_Internal(InModifier);
-}
-
-constexpr void DoMulticastLoggingIdentification(const ENetMode& CurrentNetMode)
-{
-	if (CurrentNetMode == NM_Client)
-	{
-		UE_LOG(LogElementusInventory_Internal, Warning,
-			TEXT("Elementus Inventory - %s: Client logging: "),
-		       *FString(__func__));
-	}
-	else if (CurrentNetMode != NM_Standalone)
-	{
-		UE_LOG(LogElementusInventory_Internal, Warning,
-			TEXT("Elementus Inventory - %s: Server logging: "),
-		       *FString(__func__));
-	}
-}
-
-void UElementusInventoryComponent::AddElementusItem_Internal_Implementation(const FElementusItemInfo& AddInfo)
-{
-	DoMulticastLoggingIdentification(GetOwner()->GetNetMode());
-
-	UE_LOG(LogElementusInventory_Internal, Display,
-	       TEXT("Elementus Inventory - %s: Adding %d item(s) with name '%s' to inventory"),
-	       *FString(__func__), AddInfo.Quantity, *AddInfo.ItemId.ToString());
-
-	if (int32 InIndex;
-		UElementusInventoryFunctions::CanStackItem(AddInfo)
-		&& FindElementusItemInStack(AddInfo, InIndex))
-	{
-		ItemStack[InIndex].Quantity += AddInfo.Quantity;
-	}
-	else if (!UElementusInventoryFunctions::CanStackItem(AddInfo))
-	{
-		for (int32 i = 0; i < AddInfo.Quantity; ++i)
-		{
-			ItemStack.Add(FElementusItemInfo(AddInfo.ItemId, 1, AddInfo.Tags));
-		}
-	}
-	else
-	{
-		ItemStack.Add(AddInfo);
-	}
-
-	NotifyInventoryChange(AddInfo, EElementusInventoryUpdateOperation::Add);
-}
-
-void UElementusInventoryComponent::RemoveElementusItem_Internal_Implementation(const FElementusItemInfo& RemoveInfo)
-{
-	DoMulticastLoggingIdentification(GetOwner()->GetNetMode());
-
-	UE_LOG(LogElementusInventory_Internal, Display,
-	       TEXT("Elementus Inventory - %s: Removing %d item(s) with name '%s' from inventory"),
-	       *FString(__func__), RemoveInfo.Quantity, *RemoveInfo.ItemId.ToString());
-
-	bool bNotify = false;
-	int32 Residue = 0;
-	do
-	{
-		if (int32 InIndex;
-			FindElementusItemInStack(RemoveInfo, InIndex))
-		{
-			Residue = RemoveInfo.Quantity - ItemStack[InIndex].Quantity;
-
-			ItemStack[InIndex].Quantity =
-				FMath::Clamp<int32>(ItemStack[InIndex].Quantity - RemoveInfo.Quantity,
-				                    0,
-				                    ItemStack[InIndex].Quantity);
-
-			if (ItemStack[InIndex].Quantity <= 0)
-			{
-				ItemStack.RemoveAt(InIndex);
-			}
-
-			bNotify = true;
-		}
-	}
-	while (Residue > 0);
-
-	if (bNotify)
-	{
-		NotifyInventoryChange(RemoveInfo, EElementusInventoryUpdateOperation::Remove);
-	}
+	return ElementusItems[Index];
 }
 
 bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InItemInfo) const
@@ -140,7 +44,7 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 	}
 
 	if (const UElementusItemData* ItemData =
-		UElementusInventoryFunctions::GetElementusItemDataById(InItemInfo.ItemId, {"Data"}))
+		UElementusInventoryFunctions::GetSingleItemDataById(InItemInfo.ItemId, {"Data"}))
 	{
 		if (MaxWeight >= CurrentWeight + ItemData->ItemWeight * InItemInfo.Quantity)
 		{
@@ -158,7 +62,7 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo InItemInfo) const
 {
 	int32 InIndex;
-	const bool bOutput = FindElementusItemInStack(InItemInfo, InIndex) && ItemStack[InIndex].Quantity >= InItemInfo.Quantity;
+	const bool bOutput = FindFirstItemIndexWithInfo(InItemInfo, InIndex) && ElementusItems[InIndex].Quantity >= InItemInfo.Quantity;
 
 	if (!bOutput)
 	{
@@ -174,40 +78,22 @@ void UElementusInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UpdateCurrentWeight();
-	UpdateInventoryStack();
+	RefreshInventory();
 }
 
-void UElementusInventoryComponent::NotifyInventoryChange(const FElementusItemInfo& Modifier,
-                                                         const EElementusInventoryUpdateOperation Operation)
+void UElementusInventoryComponent::RefreshInventory()
 {
-	OnInventoryUpdate.Broadcast(Modifier, Operation);
-
-	if (ItemStack.IsEmpty())
-	{
-		CurrentWeight = 0.f;
-		OnInventoryEmpty.Broadcast();
-	}
-	else if (const UElementusItemData* ItemData =
-		UElementusInventoryFunctions::GetElementusItemDataById(Modifier.ItemId, {"Data"});
-		ContainItemInStack(Modifier)
-		&& Operation == EElementusInventoryUpdateOperation::Add)
-	{
-		CurrentWeight += ItemData->ItemWeight * Modifier.Quantity;
-	}
-	else
-	{
-		UpdateCurrentWeight();
-	}
+	ForceWeightUpdate();
+	ForceInventoryValidation();
 }
 
-void UElementusInventoryComponent::UpdateCurrentWeight()
+void UElementusInventoryComponent::ForceWeightUpdate()
 {
 	float NewWeigth = 0.f;
-	for (const auto& Iterator : ItemStack)
+	for (const auto& Iterator : ElementusItems)
 	{
 		if (const UElementusItemData* ItemData =
-			UElementusInventoryFunctions::GetElementusItemDataById(Iterator.ItemId, {"Data"}))
+			UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId, {"Data"}))
 		{
 			NewWeigth += ItemData->ItemWeight * Iterator.Quantity;
 		}
@@ -216,38 +102,49 @@ void UElementusInventoryComponent::UpdateCurrentWeight()
 	CurrentWeight = NewWeigth;
 }
 
-void UElementusInventoryComponent::UpdateInventoryStack()
+void UElementusInventoryComponent::ForceInventoryValidation()
 {
-	for (int32 i = 0; i < ItemStack.Num(); ++i)
+	TArray<FElementusItemInfo> NewItems;
+	TArray<FElementusItemInfo> ItemsToRemove;
+	
+	for (int32 i = 0; i < ElementusItems.Num(); ++i)
 	{
-		if (ItemStack[i].Quantity <= 0)
+		if (ElementusItems[i].Quantity <= 0)
 		{
-			ItemStack.RemoveAt(i);
-			--i;
+			ItemsToRemove.Add(ElementusItems[i]);
 		}
 
 		else if (const UElementusItemData* ItemData =
-				UElementusInventoryFunctions::GetElementusItemDataById(ItemStack[i].ItemId, {"Data"});
+				UElementusInventoryFunctions::GetSingleItemDataById(ElementusItems[i].ItemId, {"Data"});
 			IsValid(ItemData)
-			&& !ItemData->bIsStackable && ItemStack[i].Quantity > 1)
+			&& !ItemData->bIsStackable && ElementusItems[i].Quantity > 1)
 		{
-			const int32 Quant = ItemStack[i].Quantity;
-			ItemStack[i].Quantity = 1;
-			for (int32 j = 0; j < Quant - 1; ++j)
+			for (int32 j = 0; j < ElementusItems[i].Quantity; ++j)
 			{
-				ItemStack.Add(FElementusItemInfo(ItemStack[i].ItemId, 1, ItemStack[i].Tags));
+				NewItems.Add(FElementusItemInfo(ElementusItems[i].ItemId, 1, ElementusItems[i].Tags));
 			}
+			
+			ItemsToRemove.Add(ElementusItems[i]);
 		}
 	}
 
-	ItemStack.Sort();
+	if (!ItemsToRemove.IsEmpty())
+	{
+		Multicast_ProcessGroupItemUpdate(ItemsToRemove.Top(), EElementusInventoryUpdateOperation::Remove, ItemsToRemove, false);
+	}
+	if (!NewItems.IsEmpty())
+	{
+		Multicast_ProcessGroupItemUpdate(NewItems.Top(), EElementusInventoryUpdateOperation::Add, NewItems, false);
+	}
+	
+	ElementusItems.Sort();
 }
 
-bool UElementusInventoryComponent::FindElementusItemInStack(const FElementusItemInfo InItemInfo,
+bool UElementusInventoryComponent::FindFirstItemIndexWithInfo(const FElementusItemInfo InItemInfo,
                                                             int32& OutIndex,
                                                             const FGameplayTagContainer IgnoreTags) const
 {
-	OutIndex = ItemStack.IndexOfByPredicate([&InItemInfo, &IgnoreTags](const FElementusItemInfo& InInfo)
+	OutIndex = ElementusItems.IndexOfByPredicate([&InItemInfo, &IgnoreTags](const FElementusItemInfo& InInfo)
 	{
 		if (IgnoreTags.IsEmpty())
 		{
@@ -266,11 +163,11 @@ bool UElementusInventoryComponent::FindElementusItemInStack(const FElementusItem
 	return OutIndex != INDEX_NONE;
 }
 
-bool UElementusInventoryComponent::FindElementusItemInStackWithTags(const FGameplayTagContainer WithTags,
+bool UElementusInventoryComponent::FindFirstItemIndexWithTags(const FGameplayTagContainer WithTags,
 																	int32& OutIndex,
 																	const FGameplayTagContainer IgnoreTags) const
 {
-	OutIndex = ItemStack.IndexOfByPredicate([&WithTags, &IgnoreTags](const FElementusItemInfo& InInfo)
+	OutIndex = ElementusItems.IndexOfByPredicate([&WithTags, &IgnoreTags](const FElementusItemInfo& InInfo)
 	{
 		FElementusItemInfo InCopy(InInfo);
 		if (!IgnoreTags.IsEmpty())
@@ -284,20 +181,95 @@ bool UElementusInventoryComponent::FindElementusItemInStackWithTags(const FGamep
 	return OutIndex != INDEX_NONE;
 }
 
-bool UElementusInventoryComponent::ContainItemInStack(const FElementusItemInfo InItemInfo) const
+bool UElementusInventoryComponent::FindFirstItemIndexWithId(const FPrimaryElementusItemId InId,
+																int32& OutIndex,
+																const FGameplayTagContainer IgnoreTags) const
 {
-	return ItemStack.FindByPredicate([&InItemInfo](const FElementusItemInfo& InInfo)
+	OutIndex = ElementusItems.IndexOfByPredicate([&InId, &IgnoreTags](const FElementusItemInfo& InInfo)
+	{
+		return !InInfo.Tags.HasAll(IgnoreTags) && InInfo.ItemId == InId;
+	});
+
+	return OutIndex != INDEX_NONE;
+}
+
+bool UElementusInventoryComponent::FindAllItemIndexesWithInfo(const FElementusItemInfo InItemInfo,
+																		TArray<int32>& OutIndexes,
+																		const FGameplayTagContainer IgnoreTags) const
+{
+	for (auto Iterator = ElementusItems.CreateConstIterator(); Iterator; ++Iterator)
+	{
+		if (IgnoreTags.IsEmpty() && *Iterator == InItemInfo)
+		{
+			OutIndexes.Add(Iterator.GetIndex());
+			continue;
+		}
+		
+		FElementusItemInfo InItCopy(*Iterator);
+		InItCopy.Tags.RemoveTags(IgnoreTags);
+
+		FElementusItemInfo InParamCopy(InItemInfo);
+		InParamCopy.Tags.RemoveTags(IgnoreTags);
+		
+		if (InItCopy == InParamCopy)
+		{	
+			OutIndexes.Add(Iterator.GetIndex());
+		}
+	}
+
+	return !OutIndexes.IsEmpty();
+}
+
+bool UElementusInventoryComponent::FindAllItemIndexesWithTags(const FGameplayTagContainer WithTags,
+																		TArray<int32>& OutIndexes,
+																		const FGameplayTagContainer IgnoreTags) const
+{
+	for (auto Iterator = ElementusItems.CreateConstIterator(); Iterator; ++Iterator)
+	{
+		FElementusItemInfo InCopy(*Iterator);
+		if (!IgnoreTags.IsEmpty())
+		{
+			InCopy.Tags.RemoveTags(IgnoreTags);
+		}
+		
+		if (InCopy.Tags.HasAll(WithTags))
+		{	
+			OutIndexes.Add(Iterator.GetIndex());
+		}
+	}
+
+	return !OutIndexes.IsEmpty();
+}
+
+bool UElementusInventoryComponent::FindAllItemIndexesWithId(const FPrimaryElementusItemId InId,
+																	TArray<int32>& OutIndexes,
+																	const FGameplayTagContainer IgnoreTags) const
+{
+	for (auto Iterator = ElementusItems.CreateConstIterator(); Iterator; ++Iterator)
+	{
+		if (!Iterator->Tags.HasAll(IgnoreTags) && Iterator->ItemId == InId)
+		{	
+			OutIndexes.Add(Iterator.GetIndex());
+		}
+	}
+
+	return !OutIndexes.IsEmpty();
+}
+
+bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemInfo) const
+{
+	return ElementusItems.FindByPredicate([&InItemInfo](const FElementusItemInfo& InInfo)
 	{
 		return InInfo == InItemInfo;
 	}) != nullptr;
 }
 
-void UElementusInventoryComponent::DebugInventoryStack()
+void UElementusInventoryComponent::DebugInventory()
 {
 	UE_LOG(LogElementusInventory, Warning, TEXT("Elementus Inventory - %s"), *FString(__func__));
 	UE_LOG(LogElementusInventory, Warning, TEXT("Owning Actor: %s"), *GetOwner()->GetName());
 
-	for (const auto& Iterator : ItemStack)
+	for (const auto& Iterator : ElementusItems)
 	{
 		UE_LOG(LogElementusInventory, Warning, TEXT("Item: %s"), *Iterator.ItemId.ToString());
 		UE_LOG(LogElementusInventory, Warning, TEXT("Quantity: %d"), Iterator.Quantity);
@@ -309,4 +281,175 @@ void UElementusInventoryComponent::DebugInventoryStack()
 	}
 
 	UE_LOG(LogElementusInventory, Warning, TEXT("Weight: %d"), CurrentWeight);
+}
+
+void UElementusInventoryComponent::ClearInventory_Implementation()
+{
+	UE_LOG(LogElementusInventory, Display,
+		TEXT("Elementus Inventory - %s: Cleaning %s's inventory"),
+		*FString(__func__), *GetOwner()->GetName());
+	
+	ElementusItems.Empty();
+	CurrentWeight = 0.f;
+}
+
+void UElementusInventoryComponent::AddElementusItem(const FElementusItemInfo& InModifier)
+{
+	UE_LOG(LogElementusInventory, Display,
+		   TEXT("Elementus Inventory - %s: Adding %d item(s) with name '%s' to inventory"),
+		   *FString(__func__), InModifier.Quantity, *InModifier.ItemId.ToString());
+
+	if (const bool bIsStackable = UElementusInventoryFunctions::IsItemStackable(InModifier);
+		InModifier.Quantity > 1 && !bIsStackable)
+	{
+		TArray<FElementusItemInfo> NewItems;
+		for (int32 i = 0; i < InModifier.Quantity; ++i)
+		{
+			NewItems.Add(FElementusItemInfo(InModifier.ItemId, 1, InModifier.Tags));
+		}
+
+		Multicast_ProcessGroupItemUpdate(InModifier, EElementusInventoryUpdateOperation::Add, NewItems);
+	}	
+	else if (int32 InIndex;
+			 bIsStackable && FindFirstItemIndexWithInfo(InModifier, InIndex))
+	{
+		Multicast_ProcessSingleItemUpdate(InModifier, EElementusInventoryUpdateOperation::Add, InIndex);
+	}
+	else
+	{
+		Multicast_ProcessSingleItemUpdate(InModifier, EElementusInventoryUpdateOperation::Add, INDEX_NONE, true);
+	}
+}
+
+void UElementusInventoryComponent::RemoveElementusItem(const FElementusItemInfo& InModifier)
+{
+	UE_LOG(LogElementusInventory, Display,
+		   TEXT("Elementus Inventory - %s: Removing %d item(s) with name '%s' from inventory"),
+		   *FString(__func__), InModifier.Quantity, *InModifier.ItemId.ToString());
+
+	if (InModifier.Quantity > 1 && !UElementusInventoryFunctions::IsItemStackable(InModifier))
+	{
+		TArray<FElementusItemInfo> ItemsToRemove;	
+		int32 Residue = 0;
+		do
+		{
+			if (int32 InIndex;
+				FindFirstItemIndexWithInfo(InModifier, InIndex))
+			{
+				Residue = ElementusItems[InIndex].Quantity - InModifier.Quantity;
+
+				if (Residue <= 0)
+				{
+					ItemsToRemove.Add(ElementusItems[InIndex]);
+				}
+				else
+				{
+					const FElementusItemInfo ResidueModifier
+					{
+						InModifier.ItemId,
+						Residue,
+						InModifier.Tags
+					};
+				
+					Multicast_ProcessSingleItemUpdate(ResidueModifier, EElementusInventoryUpdateOperation::Remove, InIndex);
+					break;
+				}
+			}
+		}
+		while (Residue > 0);
+
+		if (!ItemsToRemove.IsEmpty())
+		{
+			Multicast_ProcessGroupItemUpdate(InModifier, EElementusInventoryUpdateOperation::Remove, ItemsToRemove);
+		}
+	}
+	else if (int32 InIndex;		
+			 FindFirstItemIndexWithInfo(InModifier, InIndex))
+	{
+		Multicast_ProcessSingleItemUpdate(InModifier, EElementusInventoryUpdateOperation::Remove, InIndex);
+	}
+}
+
+void UElementusInventoryComponent::Multicast_ProcessSingleItemUpdate_Implementation(const FElementusItemInfo& Modifier,
+																					const EElementusInventoryUpdateOperation Operation,
+																					const uint8 InIndex,
+																					const bool bAddNewOrRemoveAll,
+																					const bool bNotify)
+{
+	switch (Operation)
+	{
+		case EElementusInventoryUpdateOperation::Add :
+			bAddNewOrRemoveAll ? ElementusItems.Add(Modifier) : ElementusItems[InIndex].Quantity += Modifier.Quantity;
+			break;
+			
+		case EElementusInventoryUpdateOperation::Remove :
+			ElementusItems[InIndex].Quantity = FMath::Clamp<int32>(ElementusItems[InIndex].Quantity - Modifier.Quantity,
+							   								  0,
+							   								  ElementusItems[InIndex].Quantity);
+
+			if (ElementusItems[InIndex].Quantity <= 0 || bAddNewOrRemoveAll)
+			{
+				ElementusItems.RemoveAt(InIndex);
+			}
+			break;
+			
+		default:
+			break;
+	}
+	
+	if (bNotify)
+	{
+		NotifyInventoryChange(Modifier, Operation);
+	}	
+}
+
+void UElementusInventoryComponent::Multicast_ProcessGroupItemUpdate_Implementation(const FElementusItemInfo& Modifier,
+																				   const EElementusInventoryUpdateOperation Operation,
+																				   const TArray<FElementusItemInfo>& InGroup,
+																				   const bool bNotify)
+{	
+	switch (Operation)
+	{
+		case EElementusInventoryUpdateOperation::Add :
+			ElementusItems.Append(InGroup);
+			break;
+				
+		case EElementusInventoryUpdateOperation::Remove :
+			ElementusItems.RemoveAll([&InGroup, this](const FElementusItemInfo& InInfo)
+			{
+				return InGroup.Contains(InInfo);
+			});
+		
+			break;
+				
+		default:
+			break;
+	}
+	
+	if (bNotify)
+	{
+		NotifyInventoryChange(Modifier, Operation);
+	}
+}
+
+void UElementusInventoryComponent::NotifyInventoryChange(const FElementusItemInfo& Modifier,
+                                                         const EElementusInventoryUpdateOperation Operation)
+{
+	OnInventoryUpdate.Broadcast(Modifier, Operation);
+
+	if (ElementusItems.IsEmpty())
+	{
+		CurrentWeight = 0.f;
+		OnInventoryEmpty.Broadcast();
+	}
+	else if (const UElementusItemData* ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Modifier.ItemId,
+																										 {"Data"});
+		Operation == EElementusInventoryUpdateOperation::Add && ContainsItem(Modifier))
+	{
+		CurrentWeight += ItemData->ItemWeight * Modifier.Quantity;
+	}
+	else
+	{
+		CurrentWeight -= ItemData->ItemWeight * Modifier.Quantity;
+	}
 }

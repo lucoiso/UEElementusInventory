@@ -39,30 +39,30 @@ public:
 
 	/* Check if the ids are equal */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	static bool CompareElementusItems(const FElementusItemInfo& Info1, const FElementusItemInfo& Info2);
+	static bool CompareItemInfo(const FElementusItemInfo& Info1, const FElementusItemInfo& Info2);
 
 	/* Check if the id of the passed datas are equal */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	static bool CompareElementusItemDatas(const UElementusItemData* Data1, const UElementusItemData* Data2);
+	static bool CompareItemData(const UElementusItemData* Data1, const UElementusItemData* Data2);
 
 	/* Return the data of the passed Id */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static UElementusItemData* GetElementusItemDataById(const FPrimaryElementusItemId& InID,
-	                                                    const TArray<FName>& InBundles,
-	                                                    const bool bAutoUnload = true);
+	static UElementusItemData* GetSingleItemDataById(const FPrimaryElementusItemId& InID,
+	                                                 const TArray<FName>& InBundles,
+	                                                 const bool bAutoUnload = true);
 
 	/* Return a array of data depending of the given ids */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static TArray<UElementusItemData*> GetElementusItemDataArrayById(const TArray<FPrimaryElementusItemId>& InIDs,
-	                                                                 const TArray<FName>& InBundles,
-	                                                                 const bool bAutoUnload = true);
+	static TArray<UElementusItemData*> GetItemDataArrayById(const TArray<FPrimaryElementusItemId>& InIDs,
+	                                                        const TArray<FName>& InBundles,
+	                                                        const bool bAutoUnload = true);
 
 	/* Search items and return a array of item data */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static TArray<UElementusItemData*> SearchElementusItemData(const EElementusSearchType SearchType,
-	                                                           const FString& SearchString,
-	                                                           const TArray<FName>& InBundles,
-	                                                           const bool bAutoUnload = true);
+	static TArray<UElementusItemData*> SearchItemData(const EElementusSearchType SearchType,
+	                                                  const FString& SearchString,
+	                                                  const TArray<FName>& InBundles,
+	                                                  const bool bAutoUnload = true);
 
 	/* Get ids of all registered items */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
@@ -78,11 +78,11 @@ public:
 	static bool IsItemValid(const FElementusItemInfo InItemInfo);
 
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	static bool CanStackItem(const FElementusItemInfo InItemInfo);
+	static bool IsItemStackable(const FElementusItemInfo InItemInfo);
 	
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	static FGameplayTagContainer GetItemTagsFromParent(const FElementusItemInfo InItemInfo,
-													   const FGameplayTag FromParentTag);
+	static FGameplayTagContainer GetItemTagsWithParentTag(const FElementusItemInfo InItemInfo,
+														  const FGameplayTag FromParentTag);
 
 private:
 	static TArray<UElementusItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,

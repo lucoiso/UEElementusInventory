@@ -10,7 +10,10 @@ AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer&
 	: Super(ObjectInitializer),
 	  bDestroyWhenInventoryIsEmpty(false)
 {
+	bNetStartup = false;
+	bNetLoadOnClient = false;
 	bReplicates = true;
+	
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
@@ -26,21 +29,21 @@ void AElementusInventoryPackage::BeginPlay()
 
 	SetDestroyOnEmpty(bDestroyWhenInventoryIsEmpty);
 
-	if (bDestroyWhenInventoryIsEmpty && PackageInventory->GetItemStack().IsEmpty())
+	if (bDestroyWhenInventoryIsEmpty && PackageInventory->GetItemsArray().IsEmpty())
 	{
 		Destroy();
 	}
 }
 
 // ReSharper disable once CppUE4BlueprintCallableFunctionMayBeConst
-void AElementusInventoryPackage::PutItemIntoPackage(TArray<FElementusItemInfo>& ItemInfo,
+void AElementusInventoryPackage::PutItemIntoPackage(const TArray<FElementusItemInfo> ItemInfo,
                                                     UElementusInventoryComponent* FromInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, FromInventory, PackageInventory);
 }
 
 // ReSharper disable once CppUE4BlueprintCallableFunctionMayBeConst
-void AElementusInventoryPackage::GetItemFromPackage(TArray<FElementusItemInfo>& ItemInfo,
+void AElementusInventoryPackage::GetItemFromPackage(const TArray<FElementusItemInfo> ItemInfo,
                                                     UElementusInventoryComponent* ToInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, PackageInventory, ToInventory);

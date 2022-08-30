@@ -22,19 +22,19 @@ void UElementusInventoryFunctions::UnloadElementusItem(const FPrimaryElementusIt
 	}
 }
 
-bool UElementusInventoryFunctions::CompareElementusItems(const FElementusItemInfo& Info1,
+bool UElementusInventoryFunctions::CompareItemInfo(const FElementusItemInfo& Info1,
                                                          const FElementusItemInfo& Info2)
 {
 	return Info1 == Info2;
 }
 
-bool UElementusInventoryFunctions::CompareElementusItemDatas(const UElementusItemData* Data1,
+bool UElementusInventoryFunctions::CompareItemData(const UElementusItemData* Data1,
                                                              const UElementusItemData* Data2)
 {
 	return Data1->GetPrimaryAssetId() == Data2->GetPrimaryAssetId();
 }
 
-UElementusItemData* UElementusInventoryFunctions::GetElementusItemDataById(const FPrimaryElementusItemId& InID,
+UElementusItemData* UElementusInventoryFunctions::GetSingleItemDataById(const FPrimaryElementusItemId& InID,
                                                                            const TArray<FName>& InBundles,
                                                                            const bool bAutoUnload)
 {
@@ -61,7 +61,7 @@ UElementusItemData* UElementusInventoryFunctions::GetElementusItemDataById(const
 	return Output;
 }
 
-TArray<UElementusItemData*> UElementusInventoryFunctions::GetElementusItemDataArrayById(const TArray<FPrimaryElementusItemId>& InIDs,
+TArray<UElementusItemData*> UElementusInventoryFunctions::GetItemDataArrayById(const TArray<FPrimaryElementusItemId>& InIDs,
 																						const TArray<FName>& InBundles,
 																						const bool bAutoUnload)
 {
@@ -73,7 +73,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::GetElementusItemDataAr
 	return Output;
 }
 
-TArray<UElementusItemData*> UElementusInventoryFunctions::SearchElementusItemData(const EElementusSearchType SearchType,
+TArray<UElementusItemData*> UElementusInventoryFunctions::SearchItemData(const EElementusSearchType SearchType,
 																				  const FString& SearchString,
 																				  const TArray<FName>& InBundles,
 																				  const bool bAutoUnload)
@@ -122,9 +122,9 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::SearchElementusItemDat
 }
 
 TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
-																						  const TArray<FPrimaryElementusItemId>& InIDs,
-																						  const TArray<FName>& InBundles,
-																						  const bool bAutoUnload)
+                                                                                          const TArray<FPrimaryElementusItemId>& InIDs,
+                                                                                          const TArray<FName>& InBundles,
+                                                                                          const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
 	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
@@ -250,9 +250,9 @@ bool UElementusInventoryFunctions::IsItemValid(const FElementusItemInfo InItemIn
 	return InItemInfo.ItemId.IsValid();
 }
 
-bool UElementusInventoryFunctions::CanStackItem(const FElementusItemInfo InItemInfo)
+bool UElementusInventoryFunctions::IsItemStackable(const FElementusItemInfo InItemInfo)
 {
-	if (const UElementusItemData* ItemData = GetElementusItemDataById(InItemInfo.ItemId, {"Data"}))
+	if (const UElementusItemData* ItemData = GetSingleItemDataById(InItemInfo.ItemId, {"Data"}))
 	{
 		return ItemData->bIsStackable;
 	}
@@ -260,7 +260,7 @@ bool UElementusInventoryFunctions::CanStackItem(const FElementusItemInfo InItemI
 	return true;
 }
 
-FGameplayTagContainer UElementusInventoryFunctions::GetItemTagsFromParent(const FElementusItemInfo InItemInfo,
+FGameplayTagContainer UElementusInventoryFunctions::GetItemTagsWithParentTag(const FElementusItemInfo InItemInfo,
 																		  const FGameplayTag FromParentTag)
 {
 	FGameplayTagContainer Output;

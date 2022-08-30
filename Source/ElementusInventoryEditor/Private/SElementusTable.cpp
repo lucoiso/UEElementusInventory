@@ -136,7 +136,10 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments&)
 		]
 	];
 
-	UpdateItemList();
+	UAssetManager::CallOrRegister_OnCompletedInitialScan(FSimpleMulticastDelegate::FDelegate::CreateLambda([this]
+	{
+		UpdateItemList();
+	}));
 }
 
 TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusItemPtr InItem,

@@ -57,8 +57,8 @@ void SElementusUtils::Construct(const FArguments& InArgs)
 			+ SUniformGridPanel::Slot(0, 1)
 			[
 				ButtonCreator_Lambda("Update Table",
-				                     "Update the items table",
-				                     2)
+									 "Update the items table",
+									 2)
 			]
 		]
 	];
