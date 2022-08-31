@@ -21,7 +21,7 @@ public:
 	explicit AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer);
 
 	/* The inventory of this package actor */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory")
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory")
 	TObjectPtr<UElementusInventoryComponent> PackageInventory;
 
 	/* Put a item in this package */
@@ -42,6 +42,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	/* Will this package auto destroy when empty? */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",

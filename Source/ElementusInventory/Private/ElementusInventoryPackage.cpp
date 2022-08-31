@@ -5,6 +5,7 @@
 #include "ElementusInventoryPackage.h"
 #include "ElementusInventoryComponent.h"
 #include "ElementusInventoryFunctions.h"
+#include "Net/UnrealNetwork.h"
 
 AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
@@ -33,6 +34,13 @@ void AElementusInventoryPackage::BeginPlay()
 	{
 		Destroy();
 	}
+}
+
+void AElementusInventoryPackage::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AElementusInventoryPackage, PackageInventory);
 }
 
 // ReSharper disable once CppUE4BlueprintCallableFunctionMayBeConst

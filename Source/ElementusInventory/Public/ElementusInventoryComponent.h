@@ -9,7 +9,7 @@
 #include "Components/ActorComponent.h"
 #include "ElementusInventoryComponent.generated.h"
 
-UENUM(BlueprintType, Category = "Elementus Inventory | Enumerations")
+UENUM(Category = "Elementus Inventory | Enumerations")
 enum class EElementusInventoryUpdateOperation : uint8
 {
 	None,
@@ -17,10 +17,28 @@ enum class EElementusInventoryUpdateOperation : uint8
 	Remove
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FElementusInventoryUpdate,
-                                             const FElementusItemInfo, Modifier,
-                                             const EElementusInventoryUpdateOperation, Operation);
+USTRUCT(Category = "Elementus Inventory | Structures")
+struct FItemModifierData
+{
+	GENERATED_USTRUCT_BODY()
 
+	FItemModifierData() = default;
+	
+	explicit FItemModifierData(const FElementusItemInfo& InItemInfo)
+		: ItemInfo(InItemInfo)
+	{
+	}
+	
+	explicit FItemModifierData(const FElementusItemInfo& InItemInfo, const int32& InIndex)
+		: ItemInfo(InItemInfo), Index(InIndex)
+	{
+	}
+
+	FElementusItemInfo ItemInfo = FElementusItemInfo();	
+	int8 Index = INDEX_NONE;
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FElementusInventoryUpdate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FElementusInventoryEmpty);
 
 UCLASS(Blueprintable, ClassGroup=(Custom), Category = "Elementus Inventory | Classes", meta = (BlueprintSpawnableComponent))
@@ -34,10 +52,10 @@ public:
 	/* Get the current inventory weight */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	float GetCurrentWeight() const;
-
-	/* Max weight allowed for this inventory */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
-	float MaxWeight;
+	
+	/* Get the current num of items in this inventory */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	int32 GetCurrentNumItems() const;
 
 	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
 	FElementusInventoryUpdate OnInventoryUpdate;
@@ -67,19 +85,22 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool FindFirstItemIndexWithInfo(const FElementusItemInfo InItemInfo,
 									int32& OutIndex,
-									const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+									const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(),
+									const int32 Offset = 0) const;
 
 	/* Find the first elementus item that matches the specified tag container */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool FindFirstItemIndexWithTags(const FGameplayTagContainer WithTags,
 									int32& OutIndex,
-									const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+									const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(),
+									const int32 Offset = 0) const;
 
 	/* Find the first elementus item that matches the specified id */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool FindFirstItemIndexWithId(const FPrimaryElementusItemId InId,
 								  int32& OutIndex,
-								  const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+								  const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(),
+								  const int32 Offset = 0) const;
 	
 
 	/* Find the first elementus item that matches the specified info */
@@ -110,11 +131,23 @@ public:
 	
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "Elementus Inventory")
 	void ClearInventory();
+	
+	UFUNCTION(Client, Unreliable, BlueprintCallable, Category = "Elementus Inventory")
+	void UpdateWeight();
+	
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void GetItemsFrom(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+	
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void GiveItemsTo(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+	
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void DiscardItems(const TArray<int32>& ItemIndexes);
 
 protected:
 	/* Items that this inventory have */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (Getter = "GetItemsArray"))
+	UPROPERTY(ReplicatedUsing=NotifyInventoryChange, EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory",
+		meta = (Getter = "GetItemsArray", ArrayClamp = "MaxNumItems"))
 	TArray<FElementusItemInfo> ElementusItems;
 
 	/* Current weight of this inventory */
@@ -123,36 +156,36 @@ protected:
 	float CurrentWeight;
 
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void RefreshInventory();
 
 private:
+	/* Max weight allowed for this inventory */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Elementus Inventory",
+		meta=(AllowPrivateAccess = "true", ClampMin = "0", UIMin = "0"))
+	float MaxWeight;
+	
+	/* Max num of items allowed for this inventory */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Elementus Inventory",
+		meta=(AllowPrivateAccess = "true", ClampMax = "100", UIMax = "100", ClampMin = "1", UIMin = "1"))
+	int32 MaxNumItems;
+	
 	void ForceWeightUpdate();
 	void ForceInventoryValidation();
 
-public:	
+public:
 	/* Add a item to this inventory */
-	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void AddElementusItem(const FElementusItemInfo& InModifier);
-
-	/* Remove a item from this inventory */
-	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void RemoveElementusItem(const FElementusItemInfo& InModifier);
+	void UpdateElementusItems(const TArray<FElementusItemInfo>& Modifiers,
+							  const EElementusInventoryUpdateOperation Operation);
 	
 private:
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_ProcessSingleItemUpdate(const FElementusItemInfo& Modifier,
-										   const EElementusInventoryUpdateOperation Operation,
-										   const uint8 InIndex = INDEX_NONE,
-										   const bool bAddNewOrRemoveAll = false,
-										   const bool bNotify = true);
+	UFUNCTION(Server, Reliable)
+	void Server_ProcessInventoryAddition_Internal(const TArray<FItemModifierData>& Modifiers);
 	
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_ProcessGroupItemUpdate(const FElementusItemInfo& Modifier,
-										  const EElementusInventoryUpdateOperation Operation,
-										  const TArray<FElementusItemInfo>& InGroup,
-										  const bool bNotify = true);
+	UFUNCTION(Server, Reliable)
+	void Server_ProcessInventoryRemoval_Internal(const TArray<FItemModifierData>& Modifiers);
 
-	void NotifyInventoryChange(const FElementusItemInfo& Modifier,
-	                           const EElementusInventoryUpdateOperation Operation);
+	UFUNCTION(Category = "Elementus Inventory")
+	void NotifyInventoryChange();
 };

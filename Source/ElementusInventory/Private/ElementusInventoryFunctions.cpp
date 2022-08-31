@@ -227,22 +227,18 @@ void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo>
                                                       UElementusInventoryComponent* FromInventory,
                                                       UElementusInventoryComponent* ToInventory)
 {
-	for (auto& Iterator : ItemsToTrade)
+	ItemsToTrade.RemoveAll([&FromInventory, &ToInventory](const FElementusItemInfo& InInfo)
 	{
-		Iterator.Quantity = FMath::Clamp(Iterator.Quantity, 0, Iterator.Quantity);
+		return !FromInventory->CanGiveItem(InInfo) || !ToInventory->CanReceiveItem(InInfo);
+	});
 
-		if (FromInventory->CanGiveItem(Iterator) && ToInventory->CanReceiveItem(Iterator))
-		{
-			FromInventory->RemoveElementusItem(Iterator);
-			ToInventory->AddElementusItem(Iterator);
-		}
-		else
-		{
-			UE_LOG(LogElementusInventory_Internal, Error,
-			       TEXT("Elementus Inventory - %s: Failed to trade item %s"),
-			       *FString(__func__), *Iterator.ItemId.ToString());
-		}
+	if (ItemsToTrade.IsEmpty())
+	{
+		return;
 	}
+	
+	FromInventory->UpdateElementusItems(ItemsToTrade, EElementusInventoryUpdateOperation::Remove);
+	ToInventory->UpdateElementusItems(ItemsToTrade, EElementusInventoryUpdateOperation::Add);
 }
 
 bool UElementusInventoryFunctions::IsItemValid(const FElementusItemInfo InItemInfo)

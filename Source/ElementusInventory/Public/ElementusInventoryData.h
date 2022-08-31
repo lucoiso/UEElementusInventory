@@ -11,7 +11,7 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory, Display, Verbose);
 
-DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory_Internal, Display, NoLogging);
+DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory_Internal, Display, Verbose);
 
 constexpr auto& ElementusItemDataType = TEXT("ElementusInventory_ItemData");
 
@@ -141,7 +141,12 @@ struct FElementusItemInfo
 
 	bool operator==(const FElementusItemInfo& Other) const
 	{
-		return ItemId == Other.ItemId && Tags.HasAllExact(Other.Tags) && Other.Tags.HasAllExact(Tags);
+		return ItemId == Other.ItemId && Tags == Other.Tags;
+	}
+
+	bool operator!=(const FElementusItemInfo& Other) const
+	{
+		return !(ItemId == Other.ItemId && Tags == Other.Tags);
 	}
 
 	bool operator<(const FElementusItemInfo& Other) const
