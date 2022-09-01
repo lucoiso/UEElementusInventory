@@ -100,7 +100,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::SearchItemData(const E
 				break;
 
 			case EElementusSearchType::Type:
-				bAddItem = static_cast<int8>(Iterator->ItemType) == FCString::Atoi(*SearchString);
+				bAddItem = static_cast<uint8>(Iterator->ItemType) == FCString::Atoi(*SearchString);
 				break;
 
 			default:

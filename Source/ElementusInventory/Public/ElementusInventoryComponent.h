@@ -35,7 +35,7 @@ struct FItemModifierData
 	}
 
 	FElementusItemInfo ItemInfo = FElementusItemInfo();	
-	int8 Index = INDEX_NONE;
+	int32 Index = INDEX_NONE;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FElementusInventoryUpdate);
