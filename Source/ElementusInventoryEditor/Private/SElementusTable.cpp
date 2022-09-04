@@ -152,7 +152,7 @@ TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusI
 
 void SElementusTable::OnTableItemDoubleClicked(const TSharedPtr<FElementusItemRowData> ElementusItemRowData) const
 {
-	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		UAssetEditorSubsystem* AssetEditorSubsystem = NewObject<UAssetEditorSubsystem>();
 		const FSoftObjectPath AssetPath = AssetManager->GetPrimaryAssetPath(ElementusItemRowData->PrimaryAssetId);
@@ -216,14 +216,14 @@ void SElementusTable::UpdateItemList()
 {
 	ItemArr.Empty();
 
-	for (const auto& Iterator : UElementusInventoryFunctions::GetAllElementusItemIds())
+	for (const FPrimaryElementusItemId& Iterator : UElementusInventoryFunctions::GetAllElementusItemIds())
 	{
 		ItemArr.Add(MakeShareable<FElementusItemRowData>(new FElementusItemRowData(Iterator)));
 	}
 
 	EdListView->RequestListRefresh();
 
-	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid();
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid();
 		IsValid(AssetManager)
 		&& AssetManager->HasInitialScanCompleted()
 		&& ItemArr.IsEmpty())

@@ -86,7 +86,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::SearchItemData(const E
 																					InBundles,
 																					bAutoUnload);
 
-		for (const auto& Iterator : ReturnedValues)
+		for (UElementusItemData* const& Iterator : ReturnedValues)
 		{
 			bool bAddItem = false;
 			switch (SearchType)
@@ -158,7 +158,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 			       *FString(__func__));
 		}
 
-		for (UObject* Iterator : InArr)
+		for (UObject* const& Iterator : InArr)
 		{
 			if (!CheckAssetValidity_Lambda(Iterator))
 			{
@@ -191,7 +191,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 
 		if (!Output.IsEmpty())
 		{
-			for (int Iterator = 0; Iterator < InIDs.Num(); ++Iterator)
+			for (int32 Iterator = 0; Iterator < InIDs.Num(); ++Iterator)
 			{
 				if (!InIDs.Contains(Output[Iterator]->GetPrimaryAssetId()))
 				{
@@ -212,7 +212,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 
 TArray<FPrimaryElementusItemId> UElementusInventoryFunctions::GetAllElementusItemIds()
 {
-	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		if (TArray<FPrimaryAssetId> IdList;
 			AssetManager->GetPrimaryAssetIdList(FPrimaryAssetType(ElementusItemDataType), IdList))
@@ -248,7 +248,7 @@ bool UElementusInventoryFunctions::IsItemValid(const FElementusItemInfo InItemIn
 
 bool UElementusInventoryFunctions::IsItemStackable(const FElementusItemInfo InItemInfo)
 {
-	if (const UElementusItemData* ItemData = GetSingleItemDataById(InItemInfo.ItemId, {"Data"}))
+	if (const UElementusItemData* const ItemData = GetSingleItemDataById(InItemInfo.ItemId, {"Data"}))
 	{
 		return ItemData->bIsStackable;
 	}
@@ -257,10 +257,10 @@ bool UElementusInventoryFunctions::IsItemStackable(const FElementusItemInfo InIt
 }
 
 FGameplayTagContainer UElementusInventoryFunctions::GetItemTagsWithParentTag(const FElementusItemInfo InItemInfo,
-																		  const FGameplayTag FromParentTag)
+																			 const FGameplayTag FromParentTag)
 {
 	FGameplayTagContainer Output;
-	for (const auto& Iterator : InItemInfo.Tags)
+	for (const FGameplayTag& Iterator : InItemInfo.Tags)
 	{
 		if (Iterator.MatchesTag(FromParentTag))
 		{

@@ -52,7 +52,7 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 
 	bool bOutput = MaxNumItems > ElementusItems.Num();
 	
-	if (const UElementusItemData* ItemData =
+	if (const UElementusItemData* const ItemData =
 		UElementusInventoryFunctions::GetSingleItemDataById(InItemInfo.ItemId, {"Data"}))
 	{
 		bOutput = bOutput && (MaxWeight == 0.f || MaxWeight >= CurrentWeight + ItemData->ItemWeight * InItemInfo.Quantity);
@@ -112,9 +112,9 @@ void UElementusInventoryComponent::RefreshInventory()
 void UElementusInventoryComponent::ForceWeightUpdate()
 {
 	float NewWeigth = 0.f;
-	for (const auto& Iterator : ElementusItems)
+	for (const FElementusItemInfo& Iterator : ElementusItems)
 	{
-		if (const UElementusItemData* ItemData =
+		if (const UElementusItemData* const ItemData =
 			UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId, {"Data"}))
 		{
 			NewWeigth += ItemData->ItemWeight * Iterator.Quantity;
@@ -152,7 +152,7 @@ void UElementusInventoryComponent::ForceInventoryValidation()
 
 	if (!IndexesToRemove.IsEmpty())
 	{
-		for (const auto& Iterator : IndexesToRemove)
+		for (const int32& Iterator : IndexesToRemove)
 		{
 			ElementusItems.RemoveAt(Iterator, 1, false);
 		}
@@ -307,12 +307,12 @@ void UElementusInventoryComponent::DebugInventory()
 	UE_LOG(LogElementusInventory, Warning, TEXT("Elementus Inventory - %s"), *FString(__func__));
 	UE_LOG(LogElementusInventory, Warning, TEXT("Owning Actor: %s"), *GetOwner()->GetName());
 
-	for (const auto& Iterator : ElementusItems)
+	for (const FElementusItemInfo& Iterator : ElementusItems)
 	{
 		UE_LOG(LogElementusInventory, Warning, TEXT("Item: %s"), *Iterator.ItemId.ToString());
 		UE_LOG(LogElementusInventory, Warning, TEXT("Quantity: %d"), Iterator.Quantity);
 
-		for (const auto& Tag : Iterator.Tags)
+		for (const FGameplayTag& Tag : Iterator.Tags)
 		{
 			UE_LOG(LogElementusInventory, Warning, TEXT("Tag: %s"), *Tag.ToString());
 		}
@@ -344,7 +344,7 @@ void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInvento
 	}
 	
 	TArray<FElementusItemInfo> Modifiers;
-	for (const auto& Iterator : ItemIndexes)
+	for (const int32& Iterator : ItemIndexes)
 	{
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
@@ -366,7 +366,7 @@ void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventor
 	}
 	
 	TArray<FElementusItemInfo> Modifiers;
-	for (const auto& Iterator : ItemIndexes)
+	for (const int32& Iterator : ItemIndexes)
 	{
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
@@ -408,7 +408,7 @@ void UElementusInventoryComponent::UpdateElementusItems(const TArray<FElementusI
 	
 	int32 SearchOffset = 0;
 	FElementusItemInfo LastCheckedItem;
-	for (const auto& Iterator : Modifiers)
+	for (const FElementusItemInfo& Iterator : Modifiers)
 	{		
 		UE_LOG(LogElementusInventory_Internal, Display,
 			   TEXT("Elementus Inventory - %s: %s %d item(s) with name '%s' %s inventory"),
@@ -452,7 +452,7 @@ void UElementusInventoryComponent::Server_ProcessInventoryAddition_Internal_Impl
 		return;
 	}
 	
-	for (const auto& Iterator : Modifiers)
+	for (const FItemModifierData& Iterator : Modifiers)
 	{
 		if(const bool bIsStackable = UElementusInventoryFunctions::IsItemStackable(Iterator.ItemInfo);
 			bIsStackable && Iterator.Index != INDEX_NONE)
@@ -489,7 +489,7 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 		return;
 	}
 	
-	for (const auto& Iterator : Modifiers)
+	for (const FItemModifierData& Iterator : Modifiers)
 	{
 		if (Iterator.Index == INDEX_NONE || Iterator.Index > ElementusItems.Num())
 		{
@@ -532,9 +532,9 @@ void UElementusInventoryComponent::NotifyInventoryChange()
 void UElementusInventoryComponent::UpdateWeight_Implementation()
 {
 	float NewWeight = 0.f;
-	for (const auto& Iterator : ElementusItems)
+	for (const FElementusItemInfo& Iterator : ElementusItems)
 	{
-		if (const UElementusItemData* ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId,
+		if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId,
 																									 {"Data"}))
 		{
 			NewWeight += ItemData->ItemWeight * Iterator.Quantity;

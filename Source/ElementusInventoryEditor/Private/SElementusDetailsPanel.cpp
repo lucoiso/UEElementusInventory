@@ -53,7 +53,7 @@ void SElementusDetailsPanel::OnObjChanged(const FAssetData& AssetData) const
 
 FString SElementusDetailsPanel::GetObjPath() const
 {
-	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid();
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid();
 		AssetManager && PropertyHandlePtr.IsValid())
 	{
 		FString AssetTypeValueStr;

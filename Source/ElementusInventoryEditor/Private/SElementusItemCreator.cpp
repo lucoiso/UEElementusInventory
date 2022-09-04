@@ -304,19 +304,19 @@ void SElementusItemCreator::UpdateFolders()
 {
 	AssetFoldersArr.Empty();
 
-	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		if (FPrimaryAssetTypeInfo Info;
 			AssetManager->GetPrimaryAssetTypeInfo(FPrimaryAssetType(ElementusItemDataType), Info))
 		{
-			for (const auto& Path : Info.AssetScanPaths)
+			for (const FString& Path : Info.AssetScanPaths)
 			{
 				AssetFoldersArr.Add(MakeShareable(new FString(Path)));
 			}
 		}
 	}
 
-	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid();
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid();
 		IsValid(AssetManager)
 		&& AssetManager->HasInitialScanCompleted()
 		&& AssetFoldersArr.IsEmpty())
@@ -381,7 +381,7 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 
 bool SElementusItemCreator::IsCreateEnabled() const
 {
-	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		const FPrimaryAssetId& InId = FPrimaryAssetId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)));
 		return ItemId != 0 && !AssetManager->GetPrimaryAssetPath(InId).IsValid();
