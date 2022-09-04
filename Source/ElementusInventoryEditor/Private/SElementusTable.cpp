@@ -7,14 +7,14 @@
 #include "Engine/AssetManager.h"
 #include "Subsystems/AssetEditorSubsystem.h"
 
-static const FName& ColumnId_PrimaryIdLabel = TEXT("PrimaryAssetId");
-static const FName& ColumnId_ItemIdLabel = TEXT("Id");
-static const FName& ColumnId_NameLabel = TEXT("Name");
-static const FName& ColumnId_TypeLabel = TEXT("Type");
-static const FName& ColumnId_ObjectLabel = TEXT("Object");
-static const FName& ColumnId_ClassLabel = TEXT("Class");
-static const FName& ColumnId_ValueLabel = TEXT("Value");
-static const FName& ColumnId_WeightLabel = TEXT("Weight");
+static const FName ColumnId_PrimaryIdLabel("PrimaryAssetId");
+static const FName ColumnId_ItemIdLabel("Id");
+static const FName ColumnId_NameLabel("Name");
+static const FName ColumnId_TypeLabel("Type");
+static const FName ColumnId_ObjectLabel("Object");
+static const FName ColumnId_ClassLabel("Class");
+static const FName ColumnId_ValueLabel("Value");
+static const FName ColumnId_WeightLabel("Weight");
 
 class SElementusItemTableRow final : public SMultiColumnTableRow<FElementusItemPtr>
 {
@@ -40,10 +40,10 @@ public:
 protected:
 	virtual TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName) override
 	{
-		const FSlateFontInfo& CellFont = FCoreStyle::GetDefaultFontStyle("Regular", 10);
-		const FMargin& CellMargin = FMargin(4.f);
+		const FSlateFontInfo CellFont = FCoreStyle::GetDefaultFontStyle("Regular", 10);
+		const FMargin CellMargin = FMargin(4.f);
 
-		const auto& TextBlockCreator_Lambda =
+		const auto TextBlockCreator_Lambda =
 			[this, &CellFont, &CellMargin](const FText& InText) -> TSharedRef<STextBlock>
 		{
 			return SNew(STextBlock)
@@ -99,7 +99,7 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments&)
 {
 	const TSharedPtr<SHeaderRow> HeaderRow = SNew(SHeaderRow);
 
-	const auto& HeaderColumnCreator_Lambda = [&](const FName& ColumnId,
+	const auto HeaderColumnCreator_Lambda = [&](const FName& ColumnId,
 												 const FString& ColumnText,
 		    									 const float InWidth = 1.f) -> const SHeaderRow::FColumn::FArguments
 	{
@@ -246,7 +246,7 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 	ColumnBeingSorted = ColumnName;
 	CurrentSortMode = SortMode;
 
-	const auto& CompareLambda = [&](const auto& Val1, const auto& Val2) -> bool
+	const auto CompareLambda = [&](const auto& Val1, const auto& Val2) -> bool
 	{
 		switch (SortMode)
 		{
@@ -264,7 +264,7 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 		}
 	};
 
-	const auto& SortLambda =
+	const auto Sort_Lambda =
 		[&](const TSharedPtr<FElementusItemRowData>& Val1, const TSharedPtr<FElementusItemRowData>& Val2) -> bool
 	{
 		if (ColumnName == ColumnId_PrimaryIdLabel)
@@ -284,7 +284,7 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 
 		if (ColumnName == ColumnId_TypeLabel)
 		{
-			const auto& ItemTypeToString_Lambda = [&](const EElementusItemType& InType) -> FString
+			const auto ItemTypeToString_Lambda = [&](const EElementusItemType& InType) -> FString
 			{
 				return *ElementusEdHelper::EnumToString(TEXT("EElementusItemType"), static_cast<uint8>(InType));
 			};
@@ -309,7 +309,7 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 		return false;
 	};
 
-	Algo::Sort(ItemArr, SortLambda);
+	Algo::Sort(ItemArr, Sort_Lambda);
 	EdListView->RequestListRefresh();
 }
 

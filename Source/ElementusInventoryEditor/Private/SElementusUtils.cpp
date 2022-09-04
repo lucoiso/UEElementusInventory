@@ -15,7 +15,7 @@ void SElementusUtils::Construct(const FArguments& InArgs)
 
 	constexpr float Slot_Padding = 2.f;
 
-	const auto& ButtonCreator_Lambda =
+	const auto ButtonCreator_Lambda =
 		[this](const FString& InStr, const FString& Tooltip, const uint32& ButtonId) -> TSharedRef<SButton>
 	{
 		return SNew(SButton)

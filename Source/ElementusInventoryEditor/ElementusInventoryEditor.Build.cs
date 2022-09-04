@@ -24,6 +24,7 @@ public class ElementusInventoryEditor : ModuleRules
 				"InputCore",
 				"EditorFramework",
 				"UnrealEd",
+				"AssetTools",
 				"ToolMenus",
 				"CoreUObject",
 				"Engine",

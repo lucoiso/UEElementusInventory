@@ -18,12 +18,12 @@
 
 void FElementusInventoryEditorModule::StartupModule()
 {
-	const auto& RegisterDelegate =
+	const auto RegisterDelegate =
 		FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FElementusInventoryEditorModule::RegisterMenus);
 
 	UToolMenus::RegisterStartupCallback(RegisterDelegate);
 
-	const auto& MakeInstanceDelegate =
+	const auto MakeInstanceDelegate =
 		FOnGetPropertyTypeCustomizationInstance::CreateStatic(&SElementusDetailsPanel::MakeInstance);
 
 	PropertyEditorModule = &FModuleManager::LoadModuleChecked<FPropertyEditorModule>(TEXT("PropertyEditor"));
@@ -75,7 +75,7 @@ void FElementusInventoryEditorModule::RegisterMenus()
 		NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategoryTooltip", "Elementus Plugins Tabs"),
 		FSlateIcon(FEditorStyle::GetStyleSetName(), "InputBindingEditor.LevelViewport"));
 
-	const auto& EditorTabSpawnerDelegate =
+	const auto EditorTabSpawnerDelegate =
 		FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ElementusEditorTabId);
 
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ElementusEditorTabId, EditorTabSpawnerDelegate)
@@ -85,7 +85,7 @@ void FElementusInventoryEditorModule::RegisterMenus()
 	                        .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "Icons.Package"));
 
 
-	const auto& ItemCreatorTabSpawnerDelegate =
+	const auto ItemCreatorTabSpawnerDelegate =
 		FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ItemCreatorTabId);
 
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ItemCreatorTabId, ItemCreatorTabSpawnerDelegate)

@@ -16,7 +16,7 @@ void SElementusSearch::Construct(const FArguments& InArgs)
 	constexpr float CheckBox_Padding = 2.f;
 	constexpr float Slot_Padding = 4.f;
 
-	const auto& CheckBoxCreator_Lambda =
+	const auto CheckBoxCreator_Lambda =
 		[this, &CheckBox_Padding](const EElementusItemType& InType) -> const TSharedRef<SCheckBox>
 	{
 		const int32 Index = static_cast<int32>(InType);

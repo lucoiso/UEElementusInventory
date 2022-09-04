@@ -129,8 +129,8 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 	TArray<UElementusItemData*> Output;
 	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
 
-	constexpr auto& FuncNam_LambVer = __func__;
-	const auto& CheckAssetValidity_Lambda = [&FuncNam_LambVer](UObject* InAsset) -> bool
+	constexpr auto FuncNam_LambVer = __func__;
+	const auto CheckAssetValidity_Lambda = [&FuncNam_LambVer](UObject* InAsset) -> bool
 	{
 		const bool bOutput = IsValid(InAsset);
 		if (IsValid(InAsset))
@@ -149,7 +149,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 		return bOutput;
 	};
 
-	const auto& PassItemArr_Lambda = [&CheckAssetValidity_Lambda, &Output](TArray<UObject*>& InArr)
+	const auto PassItemArr_Lambda = [&CheckAssetValidity_Lambda, &Output](TArray<UObject*>& InArr)
 	{
 		if (InArr.IsEmpty())
 		{

@@ -11,12 +11,12 @@ struct FElementusItemRowData
 {
 	explicit FElementusItemRowData(const FPrimaryElementusItemId& InPrimaryAssetId)
 	{
-		const auto& ItemData =
+		const auto ItemData =
 			UElementusInventoryFunctions::GetSingleItemDataById(InPrimaryAssetId,
-			                                                       {
-				                                                       TEXT("Data"),
-				                                                       TEXT("SoftData"),
-			                                                       }, false);
+			                                                    {
+				                                                    TEXT("Data"),
+				                                                    TEXT("SoftData"),
+			                                                    }, false);
 
 		PrimaryAssetId = InPrimaryAssetId;
 		Id = ItemData->ItemId;

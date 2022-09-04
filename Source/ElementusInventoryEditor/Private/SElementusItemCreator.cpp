@@ -6,6 +6,7 @@
 #include "PropertyCustomizationHelpers.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "AssetThumbnail.h"
+#include "AssetToolsModule.h"
 #include "ElementusInventoryData.h"
 #include "ElementusInventoryEditorFunctions.h"
 #include "Engine/AssetManager.h"
@@ -14,7 +15,6 @@
 #include "Widgets/Input/SMultiLineEditableTextBox.h"
 #include "Widgets/Input/STextComboBox.h"
 #include "PackageTools.h"
-#include "AssetToolsModule.h"
 #include "Factories/DataAssetFactory.h"
 #include "UObject/SavePackage.h"
 
@@ -24,7 +24,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 
 	ImageIcon_ThumbnailPool = MakeShareable(new FAssetThumbnailPool(1024));
 
-	const auto& CenterTextCreator_Lambda =
+	const auto CenterTextCreator_Lambda =
 		[](const FString& InStr) -> const TSharedRef<STextBlock>
 	{
 		return SNew(STextBlock)
@@ -35,7 +35,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 							.Margin(4.f);
 	};
 
-	const auto& ObjEntryBoxCreator_Lambda =
+	const auto ObjEntryBoxCreator_Lambda =
 		[this](UClass* ObjClass, const int32 ObjId) -> const TSharedRef<SObjectPropertyEntryBox>
 	{
 		return SNew(SObjectPropertyEntryBox)
@@ -50,7 +50,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 							.OnObjectChanged(this, &SElementusItemCreator::OnObjChanged, ObjId);
 	};
 
-	const auto& ContentPairCreator_Lambda =
+	const auto ContentPairCreator_Lambda =
 		[this](const TSharedRef<SWidget> Content1,
 		       const TSharedRef<SWidget> Content2) -> const TSharedRef<SBorder>
 	{
@@ -340,7 +340,7 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 	const FAssetToolsModule& AssetToolsModule =
 		FModuleManager::Get().LoadModuleChecked<FAssetToolsModule>("AssetTools");
 
-	const FString& PackageName =
+	const FString PackageName =
 		UPackageTools::SanitizePackageName(AssetFolder.ToString() + TEXT("/") + AssetName.ToString());
 
 	UDataAssetFactory* Factory = NewObject<UDataAssetFactory>();
@@ -383,7 +383,7 @@ bool SElementusItemCreator::IsCreateEnabled() const
 {
 	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		const FPrimaryAssetId& InId = FPrimaryAssetId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)));
+		const FPrimaryAssetId InId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)));
 		return ItemId != 0 && !AssetManager->GetPrimaryAssetPath(InId).IsValid();
 	}
 
