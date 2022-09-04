@@ -23,20 +23,20 @@ void UElementusInventoryFunctions::UnloadElementusItem(const FPrimaryElementusIt
 }
 
 bool UElementusInventoryFunctions::CompareItemInfo(const FElementusItemInfo& Info1,
-                                                         const FElementusItemInfo& Info2)
+                                                   const FElementusItemInfo& Info2)
 {
 	return Info1 == Info2;
 }
 
 bool UElementusInventoryFunctions::CompareItemData(const UElementusItemData* Data1,
-                                                             const UElementusItemData* Data2)
+                                                   const UElementusItemData* Data2)
 {
 	return Data1->GetPrimaryAssetId() == Data2->GetPrimaryAssetId();
 }
 
 UElementusItemData* UElementusInventoryFunctions::GetSingleItemDataById(const FPrimaryElementusItemId& InID,
-                                                                           const TArray<FName>& InBundles,
-                                                                           const bool bAutoUnload)
+                                                                        const TArray<FName>& InBundles,
+                                                                        const bool bAutoUnload)
 {
 	UElementusItemData* Output = nullptr;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
@@ -62,8 +62,8 @@ UElementusItemData* UElementusInventoryFunctions::GetSingleItemDataById(const FP
 }
 
 TArray<UElementusItemData*> UElementusInventoryFunctions::GetItemDataArrayById(const TArray<FPrimaryElementusItemId>& InIDs,
-																						const TArray<FName>& InBundles,
-																						const bool bAutoUnload)
+																			   const TArray<FName>& InBundles,
+																			   const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
@@ -74,17 +74,17 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::GetItemDataArrayById(c
 }
 
 TArray<UElementusItemData*> UElementusInventoryFunctions::SearchItemData(const EElementusSearchType SearchType,
-																				  const FString& SearchString,
-																				  const TArray<FName>& InBundles,
-																				  const bool bAutoUnload)
+																		 const FString& SearchString,
+																		 const TArray<FName>& InBundles,
+																		 const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
 	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
 	{
 		TArray<UElementusItemData*> ReturnedValues = LoadElementusItemDatas_Internal(AssetManager,
-																					TArray<FPrimaryElementusItemId>(),
-																					InBundles,
-																					bAutoUnload);
+																					 TArray<FPrimaryElementusItemId>(),
+																					 InBundles,
+																					 bAutoUnload);
 
 		for (UElementusItemData* const& Iterator : ReturnedValues)
 		{
