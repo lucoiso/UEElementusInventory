@@ -6,7 +6,7 @@ using UnrealBuildTool;
 
 public class ElementusInventoryEditor : ModuleRules
 {
-	public ElementusInventoryEditor(ReadOnlyTargetRules target) : base(target)
+	public ElementusInventoryEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
@@ -24,6 +24,7 @@ public class ElementusInventoryEditor : ModuleRules
 				"InputCore",
 				"EditorFramework",
 				"UnrealEd",
+				"AssetTools",
 				"ToolMenus",
 				"CoreUObject",
 				"Engine",

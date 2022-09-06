@@ -13,7 +13,7 @@ namespace ElementusEdHelper
 
 	static FString EnumToString(const TCHAR* InEnumName, const int32 InEnumValue)
 	{
-		const auto& EnumPtr = GetUEnum(InEnumName);
+		const auto EnumPtr = GetUEnum(InEnumName);
 		if (EnumPtr == nullptr)
 		{
 			return "Invalid";
@@ -28,7 +28,7 @@ namespace ElementusEdHelper
 
 	static TArray<TSharedPtr<FString>> GetEnumValuesAsStringArray(const TCHAR* InEnumName)
 	{
-		const auto& EnumPtr = GetUEnum(InEnumName);
+		const auto EnumPtr = GetUEnum(InEnumName);
 		if (EnumPtr == nullptr)
 		{
 			return TArray<TSharedPtr<FString>>();

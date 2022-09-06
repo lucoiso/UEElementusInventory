@@ -5,12 +5,16 @@
 #include "ElementusInventoryPackage.h"
 #include "ElementusInventoryComponent.h"
 #include "ElementusInventoryFunctions.h"
+#include "Net/UnrealNetwork.h"
 
 AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
 	  bDestroyWhenInventoryIsEmpty(false)
 {
+	bNetStartup = false;
+	bNetLoadOnClient = false;
 	bReplicates = true;
+	
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
@@ -20,15 +24,34 @@ AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer&
 	PackageInventory->SetIsReplicated(true);
 }
 
+void AElementusInventoryPackage::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetDestroyOnEmpty(bDestroyWhenInventoryIsEmpty);
+
+	if (bDestroyWhenInventoryIsEmpty && PackageInventory->GetItemsArray().IsEmpty())
+	{
+		Destroy();
+	}
+}
+
+void AElementusInventoryPackage::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AElementusInventoryPackage, PackageInventory);
+}
+
 // ReSharper disable once CppUE4BlueprintCallableFunctionMayBeConst
-void AElementusInventoryPackage::PutItemIntoPackage(const TArray<FElementusItemInfo>& ItemInfo,
+void AElementusInventoryPackage::PutItemIntoPackage(const TArray<FElementusItemInfo> ItemInfo,
                                                     UElementusInventoryComponent* FromInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, FromInventory, PackageInventory);
 }
 
 // ReSharper disable once CppUE4BlueprintCallableFunctionMayBeConst
-void AElementusInventoryPackage::GetItemFromPackage(const TArray<FElementusItemInfo>& ItemInfo,
+void AElementusInventoryPackage::GetItemFromPackage(const TArray<FElementusItemInfo> ItemInfo,
                                                     UElementusInventoryComponent* ToInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, PackageInventory, ToInventory);
@@ -44,8 +67,7 @@ void AElementusInventoryPackage::SetDestroyOnEmpty(const bool bDestroy)
 	bDestroyWhenInventoryIsEmpty = bDestroy;
 	FElementusInventoryEmpty& Delegate = PackageInventory->OnInventoryEmpty;
 
-	if (const bool bIsAlreadyBound =
-			Delegate.IsAlreadyBound(this, &AElementusInventoryPackage::BeginPackageDestruction);
+	if (const bool bIsAlreadyBound = Delegate.IsAlreadyBound(this, &AElementusInventoryPackage::BeginPackageDestruction);
 		bDestroy && !bIsAlreadyBound)
 	{
 		Delegate.AddDynamic(this, &AElementusInventoryPackage::BeginPackageDestruction);
@@ -59,18 +81,6 @@ void AElementusInventoryPackage::SetDestroyOnEmpty(const bool bDestroy)
 bool AElementusInventoryPackage::GetDestroyOnEmpty() const
 {
 	return bDestroyWhenInventoryIsEmpty;
-}
-
-void AElementusInventoryPackage::BeginPlay()
-{
-	Super::BeginPlay();
-
-	SetDestroyOnEmpty(bDestroyWhenInventoryIsEmpty);
-
-	if (bDestroyWhenInventoryIsEmpty && PackageInventory->GetItemStack().IsEmpty())
-	{
-		Destroy();
-	}
 }
 
 void AElementusInventoryPackage::BeginPackageDestruction_Implementation()

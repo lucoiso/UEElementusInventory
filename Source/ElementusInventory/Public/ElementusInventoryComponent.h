@@ -9,21 +9,39 @@
 #include "Components/ActorComponent.h"
 #include "ElementusInventoryComponent.generated.h"
 
-UENUM(BlueprintType, Category = "Elementus Inventory | Enumerations")
+UENUM(Category = "Elementus Inventory | Enumerations")
 enum class EElementusInventoryUpdateOperation : uint8
 {
+	None,
 	Add,
 	Remove
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FElementusInventoryUpdate,
-                                             const FElementusItemInfo, Modifier,
-                                             const EElementusInventoryUpdateOperation, Operation);
+USTRUCT(Category = "Elementus Inventory | Structures")
+struct FItemModifierData
+{
+	GENERATED_USTRUCT_BODY()
 
+	FItemModifierData() = default;
+	
+	explicit FItemModifierData(const FElementusItemInfo& InItemInfo)
+		: ItemInfo(InItemInfo)
+	{
+	}
+	
+	explicit FItemModifierData(const FElementusItemInfo& InItemInfo, const int32& InIndex)
+		: ItemInfo(InItemInfo), Index(InIndex)
+	{
+	}
+
+	FElementusItemInfo ItemInfo = FElementusItemInfo();	
+	int32 Index = INDEX_NONE;
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FElementusInventoryUpdate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FElementusInventoryEmpty);
 
-UCLASS(Blueprintable, ClassGroup=(Custom), Category = "Elementus Inventory | Classes",
-	meta = (BlueprintSpawnableComponent))
+UCLASS(Blueprintable, ClassGroup=(Custom), Category = "Elementus Inventory | Classes", meta = (BlueprintSpawnableComponent))
 class ELEMENTUSINVENTORY_API UElementusInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -32,11 +50,12 @@ public:
 	explicit UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer);
 
 	/* Get the current inventory weight */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	float GetCurrentWeight() const;
-
-	/* Max weight allowed for this inventory */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
-	float MaxWeight;
+	
+	/* Get the current num of items in this inventory */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	int32 GetCurrentNumItems() const;
 
 	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
 	FElementusInventoryUpdate OnInventoryUpdate;
@@ -46,39 +65,90 @@ public:
 
 	/* Get the items that this inventory have */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	TArray<FElementusItemInfo> GetItemStack() const;
+	TArray<FElementusItemInfo> GetItemsArray() const;
 
-	/* Add a item to this inventory */
-	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void AddElementusItem(const FElementusItemInfo& InModifier);
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	FElementusItemInfo& GetItemReferenceAt(const int32 Index);
 
-	/* Remove a item from this inventory */
-	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	void RemoveElementusItem(const FElementusItemInfo& InModifier);
-
-	/* Print debug informations in the log about this inventory */
-	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	virtual void DebugInventoryStack();
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	FElementusItemInfo GetItemCopyAt(const int32 Index) const;
 
 	/* Check if this inventory can receive the passed item */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	virtual bool CanReceiveItem(const FElementusItemInfo& InItemInfo) const;
+	virtual bool CanReceiveItem(const FElementusItemInfo InItemInfo) const;
 
 	/* Check if this inventory can give the passed item */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	virtual bool CanGiveItem(const FElementusItemInfo& InItemInfo);
+	virtual bool CanGiveItem(const FElementusItemInfo InItemInfo) const;
 
+	/* Find the first elementus item that matches the specified info */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindElementusItemInStack(const FElementusItemInfo InItemInfo, int32& OutIndex) const;
+	bool FindFirstItemIndexWithInfo(const FElementusItemInfo InItemInfo,
+									int32& OutIndex,
+									const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(),
+									const int32 Offset = 0) const;
 
+	/* Find the first elementus item that matches the specified tag container */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool ContainItemInStack(const FElementusItemInfo InItemInfo) const;
+	bool FindFirstItemIndexWithTags(const FGameplayTagContainer WithTags,
+									int32& OutIndex,
+									const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(),
+									const int32 Offset = 0) const;
+
+	/* Find the first elementus item that matches the specified id */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	bool FindFirstItemIndexWithId(const FPrimaryElementusItemId InId,
+								  int32& OutIndex,
+								  const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(),
+								  const int32 Offset = 0) const;
+	
+
+	/* Find the first elementus item that matches the specified info */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	bool FindAllItemIndexesWithInfo(const FElementusItemInfo InItemInfo,
+								  	TArray<int32>& OutIndexes,
+								  	const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+
+	/* Find the first elementus item that matches the specified tag container */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	bool FindAllItemIndexesWithTags(const FGameplayTagContainer WithTags,
+									TArray<int32>& OutIndexes,
+									const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+
+	/* Find the first elementus item that matches the specified id */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	bool FindAllItemIndexesWithId(const FPrimaryElementusItemId InId,
+								  TArray<int32>& OutIndexes,
+								  const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+	
+	/* Check if the inventory stack contains a item that matches the specified info */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	bool ContainsItem(const FElementusItemInfo InItemInfo) const;
+
+	/* Print debug informations in the log about this inventory */
+	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
+	virtual void DebugInventory();
+	
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void ClearInventory();
+	
+	UFUNCTION(Client, Unreliable, BlueprintCallable, Category = "Elementus Inventory")
+	void UpdateWeight();
+	
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void GetItemsFrom(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+	
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void GiveItemsTo(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+	
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void DiscardItems(const TArray<int32>& ItemIndexes);
 
 protected:
 	/* Items that this inventory have */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (Getter = "GetItemStack"))
-	TArray<FElementusItemInfo> ItemStack;
+	UPROPERTY(ReplicatedUsing=NotifyInventoryChange, EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory",
+		meta = (Getter = "GetItemsArray", ArrayClamp = "MaxNumItems"))
+	TArray<FElementusItemInfo> ElementusItems;
 
 	/* Current weight of this inventory */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Elementus Inventory",
@@ -86,16 +156,36 @@ protected:
 	float CurrentWeight;
 
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	virtual void RefreshInventory();
 
 private:
-	UFUNCTION(NetMulticast, Reliable)
-	void AddElementusItem_Internal(const FElementusItemInfo& AddInfo);
+	/* Max weight allowed for this inventory */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Elementus Inventory",
+		meta=(AllowPrivateAccess = "true", ClampMin = "0", UIMin = "0"))
+	float MaxWeight;
+	
+	/* Max num of items allowed for this inventory */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Elementus Inventory",
+		meta=(AllowPrivateAccess = "true", ClampMax = "100", UIMax = "100", ClampMin = "1", UIMin = "1"))
+	int32 MaxNumItems;
+	
+	void ForceWeightUpdate();
+	void ForceInventoryValidation();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void RemoveElementusItem_Internal(const FElementusItemInfo& RemoveInfo);
+public:
+	/* Add a item to this inventory */
+	void UpdateElementusItems(const TArray<FElementusItemInfo>& Modifiers,
+							  const EElementusInventoryUpdateOperation Operation);
+	
+private:
+	UFUNCTION(Server, Reliable)
+	void Server_ProcessInventoryAddition_Internal(const TArray<FItemModifierData>& Modifiers);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_ProcessInventoryRemoval_Internal(const TArray<FItemModifierData>& Modifiers);
 
-	void NotifyInventoryChange(const FElementusItemInfo& Modifier,
-	                           const EElementusInventoryUpdateOperation Operation);
-
-	void UpdateCurrentWeight();
+	UFUNCTION(Category = "Elementus Inventory")
+	void NotifyInventoryChange();
 };

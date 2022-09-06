@@ -8,6 +8,7 @@
 
 class SElementusItemCreator final : public SCompoundWidget
 {
+public:
 	SLATE_USER_ARGS(SElementusItemCreator)
 		{
 		}
@@ -16,6 +17,7 @@ class SElementusItemCreator final : public SCompoundWidget
 
 	void Construct(const FArguments& InArgs);
 
+protected:
 	FString GetObjPath(const int32 ObjId) const;
 	void OnObjChanged(const FAssetData& AssetData, const int32 ObjId);
 
@@ -40,6 +42,7 @@ private:
 	FName ItemName;
 	FText ItemDescription;
 	uint8 ItemType = 0;
+	bool bIsStackable = false;
 	float ItemValue = 0.f;
 	float ItemWeight = 0.f;
 };

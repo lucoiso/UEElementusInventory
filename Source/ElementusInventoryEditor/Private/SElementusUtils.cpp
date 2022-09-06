@@ -15,7 +15,7 @@ void SElementusUtils::Construct(const FArguments& InArgs)
 
 	constexpr float Slot_Padding = 2.f;
 
-	const auto& ButtonCreator_Lambda =
+	const auto ButtonCreator_Lambda =
 		[this](const FString& InStr, const FString& Tooltip, const uint32& ButtonId) -> TSharedRef<SButton>
 	{
 		return SNew(SButton)
@@ -57,8 +57,8 @@ void SElementusUtils::Construct(const FArguments& InArgs)
 			+ SUniformGridPanel::Slot(0, 1)
 			[
 				ButtonCreator_Lambda("Update Table",
-				                     "Update the items table",
-				                     2)
+									 "Update the items table",
+									 2)
 			]
 		]
 	];
@@ -72,10 +72,10 @@ FReply SElementusUtils::OnButtonClicked(const uint32 ButtonId) const
 	}
 	else if (ButtonId == 1)
 	{
-		if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+		if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 		{
 			TArray<FAssetData> AssetsToDelete;
-			for (const auto& Iterator : TableSource->GetSelectedItems())
+			for (const FElementusItemPtr& Iterator : TableSource->GetSelectedItems())
 			{
 				FAssetData AssetData;
 				AssetManager->GetPrimaryAssetData(Iterator->PrimaryAssetId, AssetData);

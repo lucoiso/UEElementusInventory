@@ -7,14 +7,14 @@
 #include "Engine/AssetManager.h"
 #include "Subsystems/AssetEditorSubsystem.h"
 
-static const FName& ColumnId_PrimaryIdLabel = TEXT("PrimaryAssetId");
-static const FName& ColumnId_ItemIdLabel = TEXT("Id");
-static const FName& ColumnId_NameLabel = TEXT("Name");
-static const FName& ColumnId_TypeLabel = TEXT("Type");
-static const FName& ColumnId_ObjectLabel = TEXT("Object");
-static const FName& ColumnId_ClassLabel = TEXT("Class");
-static const FName& ColumnId_ValueLabel = TEXT("Value");
-static const FName& ColumnId_WeightLabel = TEXT("Weight");
+static const FName ColumnId_PrimaryIdLabel("PrimaryAssetId");
+static const FName ColumnId_ItemIdLabel("Id");
+static const FName ColumnId_NameLabel("Name");
+static const FName ColumnId_TypeLabel("Type");
+static const FName ColumnId_ObjectLabel("Object");
+static const FName ColumnId_ClassLabel("Class");
+static const FName ColumnId_ValueLabel("Value");
+static const FName ColumnId_WeightLabel("Weight");
 
 class SElementusItemTableRow final : public SMultiColumnTableRow<FElementusItemPtr>
 {
@@ -27,8 +27,6 @@ public:
 		SLATE_ARGUMENT(const FText*, HightlightTextSource)
 	SLATE_END_ARGS()
 
-	const FText* HighlightText;
-
 	void Construct(const FArguments& InArgs,
 	               const TSharedRef<STableViewBase>& InOwnerTableView,
 	               const FElementusItemPtr InEntryItem)
@@ -39,12 +37,13 @@ public:
 		SMultiColumnTableRow<FElementusItemPtr>::Construct(FSuperRowType::FArguments(), InOwnerTableView);
 	}
 
+protected:
 	virtual TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName) override
 	{
-		const FSlateFontInfo& CellFont = FCoreStyle::GetDefaultFontStyle("Regular", 10);
-		const FMargin& CellMargin = FMargin(4.f);
+		const FSlateFontInfo CellFont = FCoreStyle::GetDefaultFontStyle("Regular", 10);
+		const FMargin CellMargin = FMargin(4.f);
 
-		const auto& TextBlockCreator_Lambda =
+		const auto TextBlockCreator_Lambda =
 			[this, &CellFont, &CellMargin](const FText& InText) -> TSharedRef<STextBlock>
 		{
 			return SNew(STextBlock)
@@ -68,8 +67,8 @@ public:
 		}
 		if (ColumnName == ColumnId_TypeLabel)
 		{
-			return TextBlockCreator_Lambda(FText::FromString(
-				ElementusEdHelper::EnumToString(TEXT("EElementusItemType"), static_cast<uint8>(Item->Type))));
+			return TextBlockCreator_Lambda(FText::FromString(ElementusEdHelper::EnumToString(TEXT("EElementusItemType"),
+																							 static_cast<uint8>(Item->Type))));
 		}
 		if (ColumnName == ColumnId_ObjectLabel)
 		{
@@ -93,15 +92,16 @@ public:
 
 private:
 	FElementusItemPtr Item;
+	const FText* HighlightText = nullptr;
 };
 
 void SElementusTable::Construct([[maybe_unused]] const FArguments&)
 {
 	const TSharedPtr<SHeaderRow> HeaderRow = SNew(SHeaderRow);
 
-	const auto& HeaderColumnCreator_Lambda =
-		[&](const FName& ColumnId, const FString& ColumnText,
-		    const float InWidth = 1.f) -> const SHeaderRow::FColumn::FArguments
+	const auto HeaderColumnCreator_Lambda = [&](const FName& ColumnId,
+												 const FString& ColumnText,
+		    									 const float InWidth = 1.f) -> const SHeaderRow::FColumn::FArguments
 	{
 		return SHeaderRow::Column(ColumnId)
 		       .DefaultLabel(FText::FromString(ColumnText))
@@ -136,7 +136,10 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments&)
 		]
 	];
 
-	UpdateItemList();
+	UAssetManager::CallOrRegister_OnCompletedInitialScan(FSimpleMulticastDelegate::FDelegate::CreateLambda([this]
+	{
+		UpdateItemList();
+	}));
 }
 
 TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusItemPtr InItem,
@@ -149,7 +152,7 @@ TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusI
 
 void SElementusTable::OnTableItemDoubleClicked(const TSharedPtr<FElementusItemRowData> ElementusItemRowData) const
 {
-	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		UAssetEditorSubsystem* AssetEditorSubsystem = NewObject<UAssetEditorSubsystem>();
 		const FSoftObjectPath AssetPath = AssetManager->GetPrimaryAssetPath(ElementusItemRowData->PrimaryAssetId);
@@ -213,12 +216,22 @@ void SElementusTable::UpdateItemList()
 {
 	ItemArr.Empty();
 
-	for (const auto& Iterator : UElementusInventoryFunctions::GetAllElementusItemIds())
+	for (const FPrimaryElementusItemId& Iterator : UElementusInventoryFunctions::GetAllElementusItemIds())
 	{
 		ItemArr.Add(MakeShareable<FElementusItemRowData>(new FElementusItemRowData(Iterator)));
 	}
 
 	EdListView->RequestListRefresh();
+
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid();
+		IsValid(AssetManager)
+		&& AssetManager->HasInitialScanCompleted()
+		&& ItemArr.IsEmpty())
+	{
+		FMessageDialog::Open(EAppMsgType::Ok,
+			FText::FromString(TEXT("Asset Manager could not find any Elementus Items. "
+										  "Please check your Asset Manager settings.")));
+	}
 }
 
 TArray<TSharedPtr<FElementusItemRowData>> SElementusTable::GetSelectedItems() const
@@ -233,23 +246,25 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 	ColumnBeingSorted = ColumnName;
 	CurrentSortMode = SortMode;
 
-	const auto& CompareLambda =
-		[&](const auto& Val1, const auto& Val2) -> bool
+	const auto CompareLambda = [&](const auto& Val1, const auto& Val2) -> bool
 	{
 		switch (SortMode)
 		{
 		case EColumnSortMode::Ascending:
 			return Val1 < Val2;
+			
 		case EColumnSortMode::Descending:
 			return Val1 > Val2;
+			
 		case EColumnSortMode::None:
 			return Val1 < Val2;
+			
 		default:
 			return false;
 		}
 	};
 
-	const auto& SortLambda =
+	const auto Sort_Lambda =
 		[&](const TSharedPtr<FElementusItemRowData>& Val1, const TSharedPtr<FElementusItemRowData>& Val2) -> bool
 	{
 		if (ColumnName == ColumnId_PrimaryIdLabel)
@@ -269,7 +284,7 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 
 		if (ColumnName == ColumnId_TypeLabel)
 		{
-			const auto& ItemTypeToString_Lambda = [&](const EElementusItemType& InType) -> FString
+			const auto ItemTypeToString_Lambda = [&](const EElementusItemType& InType) -> FString
 			{
 				return *ElementusEdHelper::EnumToString(TEXT("EElementusItemType"), static_cast<uint8>(InType));
 			};
@@ -294,7 +309,7 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 		return false;
 	};
 
-	Algo::Sort(ItemArr, SortLambda);
+	Algo::Sort(ItemArr, Sort_Lambda);
 	EdListView->RequestListRefresh();
 }
 

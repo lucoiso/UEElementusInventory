@@ -10,6 +10,7 @@ class SElementusTable;
 
 class SElementusUtils final : public SCompoundWidget
 {
+public:
 	SLATE_USER_ARGS(SElementusUtils) :
 			_TableSource()
 		{
@@ -18,8 +19,11 @@ class SElementusUtils final : public SCompoundWidget
 		SLATE_ARGUMENT(SElementusTable*, TableSource)
 	SLATE_END_ARGS()
 
-	SElementusTable* TableSource;
-
 	void Construct(const FArguments& InArgs);
+	
+protected:
 	FReply OnButtonClicked(const uint32 ButtonId) const;
+
+private:
+	SElementusTable* TableSource = nullptr;
 };

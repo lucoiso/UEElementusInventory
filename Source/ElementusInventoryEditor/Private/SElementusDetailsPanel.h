@@ -7,14 +7,15 @@
 #include "CoreMinimal.h"
 #include "PropertyCustomizationHelpers.h"
 
-class ElementusDetailsPanel : public IPropertyTypeCustomization
+class SElementusDetailsPanel final : public IPropertyTypeCustomization
 {
 public:
 	static TSharedRef<IPropertyTypeCustomization> MakeInstance()
 	{
-		return MakeShareable(new ElementusDetailsPanel());
+		return MakeShareable(new SElementusDetailsPanel());
 	}
 
+protected:
 	virtual void CustomizeHeader(TSharedRef<IPropertyHandle> PropertyHandle,
 	                             FDetailWidgetRow& HeaderRow,
 	                             IPropertyTypeCustomizationUtils& CustomizationUtils) override;

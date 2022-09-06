@@ -6,6 +6,7 @@
 #include "PropertyCustomizationHelpers.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "AssetThumbnail.h"
+#include "AssetToolsModule.h"
 #include "ElementusInventoryData.h"
 #include "ElementusInventoryEditorFunctions.h"
 #include "Engine/AssetManager.h"
@@ -14,7 +15,6 @@
 #include "Widgets/Input/SMultiLineEditableTextBox.h"
 #include "Widgets/Input/STextComboBox.h"
 #include "PackageTools.h"
-#include "AssetToolsModule.h"
 #include "Factories/DataAssetFactory.h"
 #include "UObject/SavePackage.h"
 
@@ -24,7 +24,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 
 	ImageIcon_ThumbnailPool = MakeShareable(new FAssetThumbnailPool(1024));
 
-	const auto& CenterTextCreator_Lambda =
+	const auto CenterTextCreator_Lambda =
 		[](const FString& InStr) -> const TSharedRef<STextBlock>
 	{
 		return SNew(STextBlock)
@@ -35,7 +35,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 							.Margin(4.f);
 	};
 
-	const auto& ObjEntryBoxCreator_Lambda =
+	const auto ObjEntryBoxCreator_Lambda =
 		[this](UClass* ObjClass, const int32 ObjId) -> const TSharedRef<SObjectPropertyEntryBox>
 	{
 		return SNew(SObjectPropertyEntryBox)
@@ -50,7 +50,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 							.OnObjectChanged(this, &SElementusItemCreator::OnObjChanged, ObjId);
 	};
 
-	const auto& ContentPairCreator_Lambda =
+	const auto ContentPairCreator_Lambda =
 		[this](const TSharedRef<SWidget> Content1,
 		       const TSharedRef<SWidget> Content2) -> const TSharedRef<SBorder>
 	{
@@ -168,6 +168,18 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 			  .Padding(Slot_Padding)
 			  .AutoHeight()
 			[
+				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Is Stackable"),
+				                          SNew(SCheckBox)
+					.IsChecked(ECheckBoxState::Checked)
+					.OnCheckStateChanged_Lambda([this](const ECheckBoxState InState)
+				                                         {
+					                                         bIsStackable = InState == ECheckBoxState::Checked;
+				                                         }))
+			]
+			+ SVerticalBox::Slot()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
+			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Value"),
 				                          SNew(SNumericEntryBox<float>)
 												.AllowSpin(false)
@@ -275,7 +287,7 @@ FString SElementusItemCreator::GetObjPath(const int32 ObjId) const
 {
 	return ObjectMap.Contains(ObjId) && ObjectMap.FindRef(ObjId).IsValid()
 		       ? ObjectMap.FindRef(ObjId)->GetPathName()
-		       : FString("");
+		       : FString();
 }
 
 void SElementusItemCreator::HandleNewEntryClassSelected(const UClass* Class)
@@ -292,16 +304,26 @@ void SElementusItemCreator::UpdateFolders()
 {
 	AssetFoldersArr.Empty();
 
-	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		if (FPrimaryAssetTypeInfo Info;
 			AssetManager->GetPrimaryAssetTypeInfo(FPrimaryAssetType(ElementusItemDataType), Info))
 		{
-			for (const auto& Path : Info.AssetScanPaths)
+			for (const FString& Path : Info.AssetScanPaths)
 			{
 				AssetFoldersArr.Add(MakeShareable(new FString(Path)));
 			}
 		}
+	}
+
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid();
+		IsValid(AssetManager)
+		&& AssetManager->HasInitialScanCompleted()
+		&& AssetFoldersArr.IsEmpty())
+	{
+		FMessageDialog::Open(EAppMsgType::Ok,
+			FText::FromString(TEXT("Asset Manager could not find any folder. "
+										  "Please check your Asset Manager settings.")));
 	}
 }
 
@@ -318,7 +340,7 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 	const FAssetToolsModule& AssetToolsModule =
 		FModuleManager::Get().LoadModuleChecked<FAssetToolsModule>("AssetTools");
 
-	const FString& PackageName =
+	const FString PackageName =
 		UPackageTools::SanitizePackageName(AssetFolder.ToString() + TEXT("/") + AssetName.ToString());
 
 	UDataAssetFactory* Factory = NewObject<UDataAssetFactory>();
@@ -336,6 +358,7 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 		ItemData->ItemName = ItemName;
 		ItemData->ItemDescription = ItemDescription;
 		ItemData->ItemType = static_cast<EElementusItemType>(ItemType);
+		ItemData->bIsStackable = bIsStackable;
 		ItemData->ItemValue = ItemValue;
 		ItemData->ItemWeight = ItemWeight;
 		ItemData->ItemIcon = Cast<UTexture2D>(ObjectMap.FindRef(1));
@@ -358,9 +381,9 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 
 bool SElementusItemCreator::IsCreateEnabled() const
 {
-	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		const FPrimaryAssetId& InId = FPrimaryAssetId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)));
+		const FPrimaryAssetId InId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)));
 		return ItemId != 0 && !AssetManager->GetPrimaryAssetPath(InId).IsValid();
 	}
 

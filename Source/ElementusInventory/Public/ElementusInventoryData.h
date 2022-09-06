@@ -75,6 +75,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
 		meta = (AssetBundles = "Data"))
+	bool bIsStackable = true;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
+		meta = (AssetBundles = "Data"))
 	float ItemValue;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
@@ -128,9 +132,26 @@ struct FElementusItemInfo
 	{
 	}
 
+	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId,
+	                            const int32& InQuant,
+	                            const FGameplayTagContainer& InTags)
+		: ItemId(InItemId), Quantity(InQuant), Tags(InTags)
+	{
+	}
+
 	bool operator==(const FElementusItemInfo& Other) const
 	{
-		return ItemId == Other.ItemId && Tags.HasAllExact(Other.Tags) && Other.Tags.HasAllExact(Tags);
+		return ItemId == Other.ItemId && Tags == Other.Tags;
+	}
+
+	bool operator!=(const FElementusItemInfo& Other) const
+	{
+		return !(ItemId == Other.ItemId && Tags == Other.Tags);
+	}
+
+	bool operator<(const FElementusItemInfo& Other) const
+	{
+		return ItemId.ToString() < Other.ItemId.ToString();
 	}
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory")

@@ -11,21 +11,23 @@ struct FElementusItemRowData
 {
 	explicit FElementusItemRowData(const FPrimaryElementusItemId& InPrimaryAssetId)
 	{
-		const auto& ItemData =
-			UElementusInventoryFunctions::GetElementusItemDataById(InPrimaryAssetId,
-			                                                       {
-				                                                       TEXT("Data"),
-				                                                       TEXT("SoftData"),
-			                                                       });
+		const auto ItemData =
+			UElementusInventoryFunctions::GetSingleItemDataById(InPrimaryAssetId,
+			                                                    {
+				                                                    TEXT("Data"),
+				                                                    TEXT("SoftData"),
+			                                                    }, false);
 
 		PrimaryAssetId = InPrimaryAssetId;
 		Id = ItemData->ItemId;
 		Name = ItemData->ItemName;
 		Type = ItemData->ItemType;
-		Class = ItemData->ItemClass.IsValid() ? *ItemData->ItemClass->GetName() : TEXT("None");
-		Object = ItemData->ItemObject.IsValid() ? *ItemData->ItemObject->GetName() : TEXT("None");
+		Class = ItemData->ItemClass.IsValid() ? *ItemData->ItemClass.LoadSynchronous()->GetName() : FName();
+		Object = ItemData->ItemObject.IsValid() ? *ItemData->ItemObject.LoadSynchronous()->GetName() : FName();
 		Value = ItemData->ItemValue;
 		Weight = ItemData->ItemWeight;
+
+		UElementusInventoryFunctions::UnloadElementusItem(InPrimaryAssetId);
 	}
 
 	FPrimaryAssetId PrimaryAssetId;
@@ -42,6 +44,7 @@ using FElementusItemPtr = TSharedPtr<FElementusItemRowData, ESPMode::ThreadSafe>
 
 class SElementusTable final : public SCompoundWidget
 {
+public:
 	SLATE_USER_ARGS(SElementusTable)
 		{
 		}
@@ -49,29 +52,26 @@ class SElementusTable final : public SCompoundWidget
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
-	TArray<TSharedPtr<FElementusItemRowData>> ItemArr;
 
+	friend class SElementusFrame;
+	friend class SElementusUtils;
+
+protected:
 	TSharedRef<ITableRow> OnGenerateWidgetForList(TSharedPtr<FElementusItemRowData> InItem,
 	                                              const TSharedRef<STableViewBase>& OwnerTable) const;
-
 	void OnTableItemDoubleClicked(TSharedPtr<FElementusItemRowData> ElementusItemRowData) const;
-
-	void OnColumnSort(EColumnSortPriority::Type SortPriority, const FName& ColumnName, EColumnSortMode::Type SortMode);
+	void OnColumnSort(EColumnSortPriority::Type SortPriority, const FName& ColumnName, EColumnSortMode::Type SortMode);	
 	EColumnSortMode::Type GetColumnSort(const FName ColumnId) const;
-
 	EVisibility GetIsVisible(const FElementusItemPtr InItem) const;
-
-	TArray<int32> AllowedTypes;
-	FText SearchText;
-
-	void OnSearchTextModified(const FText& InText);
-	void OnSearchTypeModified(const ECheckBoxState InState, const int32 InType);
-
+	void OnSearchTextModified(const FText& InText);	
+	void OnSearchTypeModified(const ECheckBoxState InState, const int32 InType);	
 	void UpdateItemList();
-
 	TArray<TSharedPtr<FElementusItemRowData>> GetSelectedItems() const;
 
 private:
+	TArray<TSharedPtr<FElementusItemRowData>> ItemArr;
+	TArray<int32> AllowedTypes;
+	FText SearchText;
 	FName ColumnBeingSorted = NAME_None;
 	EColumnSortMode::Type CurrentSortMode = EColumnSortMode::None;
 
