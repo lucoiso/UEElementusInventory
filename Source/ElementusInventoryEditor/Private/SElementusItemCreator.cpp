@@ -343,15 +343,15 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 	const FString PackageName =
 		UPackageTools::SanitizePackageName(AssetFolder.ToString() + TEXT("/") + AssetName.ToString());
 
-	UDataAssetFactory* Factory = NewObject<UDataAssetFactory>();
+	UDataAssetFactory* const Factory = NewObject<UDataAssetFactory>();
 
-	if (UObject* NewData = AssetToolsModule.Get().CreateAsset(AssetName.ToString(),
+	if (UObject* const NewData = AssetToolsModule.Get().CreateAsset(AssetName.ToString(),
 	                                                          FPackageName::GetLongPackagePath(PackageName),
 	                                                          UElementusItemData::StaticClass(),
 	                                                          Factory);
 		NewData != nullptr)
 	{
-		UElementusItemData* ItemData = Cast<UElementusItemData>(NewData);
+		UElementusItemData* const ItemData = Cast<UElementusItemData>(NewData);
 		ItemData->ItemId = ItemId;
 		ItemData->ItemObject = TSoftObjectPtr(Cast<UObject>(ObjectMap.FindRef(0)));
 		ItemData->ItemClass = TSoftClassPtr(ItemClass.Get());

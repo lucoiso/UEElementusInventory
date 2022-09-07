@@ -8,7 +8,7 @@
 
 void UElementusInventoryFunctions::UnloadAllElementusItems()
 {
-	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		AssetManager->UnloadPrimaryAssetsWithType(FPrimaryAssetType(ElementusItemDataType));
 	}
@@ -16,7 +16,7 @@ void UElementusInventoryFunctions::UnloadAllElementusItems()
 
 void UElementusInventoryFunctions::UnloadElementusItem(const FPrimaryElementusItemId& InItemId)
 {
-	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		AssetManager->UnloadPrimaryAsset(FPrimaryAssetId(InItemId));
 	}
@@ -39,7 +39,7 @@ UElementusItemData* UElementusInventoryFunctions::GetSingleItemDataById(const FP
                                                                         const bool bAutoUnload)
 {
 	UElementusItemData* Output = nullptr;
-	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		if (const TSharedPtr<FStreamableHandle> StreamableHandle = AssetManager->LoadPrimaryAsset(InID, InBundles);
 			StreamableHandle.IsValid())
@@ -66,7 +66,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::GetItemDataArrayById(c
 																			   const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
-	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		Output = LoadElementusItemDatas_Internal(AssetManager, InIDs, InBundles, bAutoUnload);
 	}
@@ -79,7 +79,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::SearchItemData(const E
 																		 const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
-	if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		TArray<UElementusItemData*> ReturnedValues = LoadElementusItemDatas_Internal(AssetManager,
 																					 TArray<FPrimaryElementusItemId>(),
@@ -91,20 +91,20 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::SearchItemData(const E
 			bool bAddItem = false;
 			switch (SearchType)
 			{
-			case EElementusSearchType::Name:
-				bAddItem = Iterator->ItemName.ToString().Contains(SearchString);
-				break;
+				case EElementusSearchType::Name:
+					bAddItem = Iterator->ItemName.ToString().Contains(SearchString);
+					break;
 
-			case EElementusSearchType::ID:
-				bAddItem = FString::FromInt(Iterator->ItemId).Contains(SearchString);
-				break;
+				case EElementusSearchType::ID:
+					bAddItem = FString::FromInt(Iterator->ItemId).Contains(SearchString);
+					break;
 
-			case EElementusSearchType::Type:
-				bAddItem = static_cast<uint8>(Iterator->ItemType) == FCString::Atoi(*SearchString);
-				break;
+				case EElementusSearchType::Type:
+					bAddItem = static_cast<uint8>(Iterator->ItemType) == FCString::Atoi(*SearchString);
+					break;
 
-			default:
-				break;
+				default:
+					break;
 			}
 
 			if (bAddItem)
@@ -129,21 +129,21 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 	TArray<UElementusItemData*> Output;
 	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
 
-	constexpr auto FuncNam_LambVer = __func__;
-	const auto CheckAssetValidity_Lambda = [&FuncNam_LambVer](UObject* InAsset) -> bool
+	constexpr auto FuncName = __func__;
+	const auto CheckAssetValidity_Lambda = [&FuncName](UObject* const& InAsset) -> bool
 	{
 		const bool bOutput = IsValid(InAsset);
 		if (IsValid(InAsset))
 		{
 			UE_LOG(LogElementusInventory_Internal, Display,
 			       TEXT("Elementus Inventory - %s: Item data %s found and loaded"),
-			       *FString(FuncNam_LambVer), *InAsset->GetName());
+			       *FString(FuncName), *InAsset->GetName());
 		}
 		else
 		{
 			UE_LOG(LogElementusInventory_Internal, Error,
 			       TEXT("Elementus Inventory - %s: Failed to load item data: Invalid Asset"),
-			       *FString(FuncNam_LambVer));
+			       *FString(FuncName));
 		}
 
 		return bOutput;
@@ -165,7 +165,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 				continue;
 			}
 
-			if (UElementusItemData* CastedAsset = Cast<UElementusItemData>(Iterator))
+			if (UElementusItemData* const CastedAsset = Cast<UElementusItemData>(Iterator))
 			{
 				Output.Add(CastedAsset);
 			}

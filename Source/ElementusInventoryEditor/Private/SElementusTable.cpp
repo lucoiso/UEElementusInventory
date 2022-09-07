@@ -154,7 +154,7 @@ void SElementusTable::OnTableItemDoubleClicked(const TSharedPtr<FElementusItemRo
 {
 	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		UAssetEditorSubsystem* AssetEditorSubsystem = NewObject<UAssetEditorSubsystem>();
+		UAssetEditorSubsystem* const AssetEditorSubsystem = NewObject<UAssetEditorSubsystem>();
 		const FSoftObjectPath AssetPath = AssetManager->GetPrimaryAssetPath(ElementusItemRowData->PrimaryAssetId);
 
 		AssetEditorSubsystem->OpenEditorForAsset(AssetPath.ToString());
@@ -199,15 +199,15 @@ void SElementusTable::OnSearchTypeModified(const ECheckBoxState InState, const i
 {
 	switch (InState)
 	{
-	case ECheckBoxState::Checked:
-		AllowedTypes.Add(InType);
-		break;
-	case ECheckBoxState::Unchecked:
-		AllowedTypes.Remove(InType);
-		break;
-	case ECheckBoxState::Undetermined:
-		AllowedTypes.Remove(InType);
-		break;
+		case ECheckBoxState::Checked:
+			AllowedTypes.Add(InType);
+			break;
+		case ECheckBoxState::Unchecked:
+			AllowedTypes.Remove(InType);
+			break;
+		case ECheckBoxState::Undetermined:
+			AllowedTypes.Remove(InType);
+			break;
 	}
 	EdListView->RequestListRefresh();
 }
@@ -250,17 +250,17 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 	{
 		switch (SortMode)
 		{
-		case EColumnSortMode::Ascending:
-			return Val1 < Val2;
+			case EColumnSortMode::Ascending:
+				return Val1 < Val2;
 			
-		case EColumnSortMode::Descending:
-			return Val1 > Val2;
+			case EColumnSortMode::Descending:
+				return Val1 > Val2;
 			
-		case EColumnSortMode::None:
-			return Val1 < Val2;
+			case EColumnSortMode::None:
+				return Val1 < Val2;
 			
-		default:
-			return false;
+			default:
+				return false;
 		}
 	};
 
