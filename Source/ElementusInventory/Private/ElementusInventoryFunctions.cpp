@@ -128,9 +128,8 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 {
 	TArray<UElementusItemData*> Output;
 	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
-
-	constexpr auto FuncName = __func__;
-	const auto CheckAssetValidity_Lambda = [&FuncName](UObject* const& InAsset) -> bool
+	
+	const auto CheckAssetValidity_Lambda = [FuncName = __func__](UObject* const& InAsset) -> bool
 	{
 		const bool bOutput = IsValid(InAsset);
 		if (IsValid(InAsset))
