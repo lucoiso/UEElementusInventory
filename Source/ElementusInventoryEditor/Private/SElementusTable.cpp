@@ -26,9 +26,7 @@ public:
 		SLATE_ARGUMENT(const FText*, HightlightTextSource)
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs,
-	               const TSharedRef<STableViewBase>& InOwnerTableView,
-	               const FElementusItemPtr InEntryItem)
+	void Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTableView, const FElementusItemPtr InEntryItem)
 	{
 		HighlightText = InArgs._HightlightTextSource;
 
@@ -42,8 +40,7 @@ protected:
 		const FSlateFontInfo CellFont = FCoreStyle::GetDefaultFontStyle("Regular", 10);
 		const FMargin CellMargin = FMargin(4.f);
 
-		const auto TextBlockCreator_Lambda =
-			[this, &CellFont, &CellMargin](const FText& InText) -> TSharedRef<STextBlock>
+		const auto TextBlockCreator_Lambda = [this, &CellFont, &CellMargin](const FText& InText) -> TSharedRef<STextBlock>
 		{
 			return SNew(STextBlock)
 				.Text(InText)
@@ -66,8 +63,7 @@ protected:
 		}
 		if (ColumnName == ColumnId_TypeLabel)
 		{
-			return TextBlockCreator_Lambda(FText::FromString(ElementusEdHelper::EnumToString(TEXT("EElementusItemType"),
-			                                                                                 static_cast<uint8>(Item->Type))));
+			return TextBlockCreator_Lambda(FText::FromString(ElementusEdHelper::EnumToString(TEXT("EElementusItemType"), static_cast<uint8>(Item->Type))));
 		}
 		if (ColumnName == ColumnId_ObjectLabel)
 		{
