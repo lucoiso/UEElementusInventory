@@ -15,16 +15,16 @@ void SElementusFrame::Construct([[maybe_unused]] const FArguments& InArgs)
 	[
 		SNew(SHorizontalBox)
 		+ SHorizontalBox::Slot()
-		  .AutoWidth()
-		  .MaxWidth(300.f)
+		.AutoWidth()
+		.MaxWidth(300.f)
 		[
 			SNew(SVerticalBox)
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			[
 				SNew(SElementusSearch)
-						.OnSearchTextChanged(Table, &SElementusTable::OnSearchTextModified)
-						.OnCheckboxStateChanged(Table, &SElementusTable::OnSearchTypeModified)
+				.OnSearchTextChanged(Table, &SElementusTable::OnSearchTextModified)
+				.OnCheckboxStateChanged(Table, &SElementusTable::OnSearchTypeModified)
 			]
 			+ SVerticalBox::Slot()
 			.AutoHeight()

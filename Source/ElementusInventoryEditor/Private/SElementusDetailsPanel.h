@@ -16,13 +16,9 @@ public:
 	}
 
 protected:
-	virtual void CustomizeHeader(TSharedRef<IPropertyHandle> PropertyHandle,
-	                             FDetailWidgetRow& HeaderRow,
-	                             IPropertyTypeCustomizationUtils& CustomizationUtils) override;
+	virtual void CustomizeHeader(TSharedRef<IPropertyHandle> PropertyHandle, FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& CustomizationUtils) override;
 
-	virtual void CustomizeChildren(TSharedRef<IPropertyHandle> StructPropertyHandle,
-	                               IDetailChildrenBuilder& StructBuilder,
-	                               IPropertyTypeCustomizationUtils& CustomizationUtils) override;
+	virtual void CustomizeChildren(TSharedRef<IPropertyHandle> StructPropertyHandle, IDetailChildrenBuilder& StructBuilder, IPropertyTypeCustomizationUtils& CustomizationUtils) override;
 
 	FString GetObjPath() const;
 	void OnObjChanged(const FAssetData& AssetData) const;

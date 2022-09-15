@@ -11,12 +11,7 @@ struct FElementusItemRowData
 {
 	explicit FElementusItemRowData(const FPrimaryElementusItemId& InPrimaryAssetId)
 	{
-		const auto ItemData =
-			UElementusInventoryFunctions::GetSingleItemDataById(InPrimaryAssetId,
-			                                                    {
-				                                                    TEXT("Data"),
-				                                                    TEXT("SoftData"),
-			                                                    }, false);
+		const auto ItemData = UElementusInventoryFunctions::GetSingleItemDataById(InPrimaryAssetId, { TEXT("Data"), TEXT("SoftData"), }, false);
 
 		PrimaryAssetId = InPrimaryAssetId;
 		Id = ItemData->ItemId;
@@ -57,8 +52,7 @@ public:
 	friend class SElementusUtils;
 
 protected:
-	TSharedRef<ITableRow> OnGenerateWidgetForList(TSharedPtr<FElementusItemRowData> InItem,
-	                                              const TSharedRef<STableViewBase>& OwnerTable) const;
+	TSharedRef<ITableRow> OnGenerateWidgetForList(TSharedPtr<FElementusItemRowData> InItem, const TSharedRef<STableViewBase>& OwnerTable) const;
 	void OnTableItemDoubleClicked(TSharedPtr<FElementusItemRowData> ElementusItemRowData) const;
 	void OnColumnSort(EColumnSortPriority::Type SortPriority, const FName& ColumnName, EColumnSortMode::Type SortMode);	
 	EColumnSortMode::Type GetColumnSort(const FName ColumnId) const;

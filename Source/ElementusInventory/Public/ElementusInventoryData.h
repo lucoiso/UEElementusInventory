@@ -45,52 +45,40 @@ public:
 
 	FORCEINLINE virtual FPrimaryAssetId GetPrimaryAssetId() const override
 	{
-		return FPrimaryAssetId(TEXT("ElementusInventory_ItemData"),
-		                       *("Item_" + FString::FromInt(ItemId)));
+		return FPrimaryAssetId(TEXT("ElementusInventory_ItemData"), *("Item_" + FString::FromInt(ItemId)));
 	}
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (AssetBundles = "Data"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
 	int32 ItemId;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (AssetBundles = "SoftData"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "SoftData"))
 	TSoftObjectPtr<UObject> ItemObject;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (AssetBundles = "SoftData"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "SoftData"))
 	TSoftClassPtr<UObject> ItemClass;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (AssetBundles = "Data"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
 	FName ItemName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (AssetBundles = "Data", MultiLine = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data", MultiLine = "true"))
 	FText ItemDescription;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (AssetBundles = "Data"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
 	EElementusItemType ItemType;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (AssetBundles = "Data"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
 	bool bIsStackable = true;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (AssetBundles = "Data"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
 	float ItemValue;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (UIMin = 0, ClampMin = 0, AssetBundles = "Data"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (UIMin = 0, ClampMin = 0, AssetBundles = "Data"))
 	float ItemWeight;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (AssetBundles = "UI"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "UI"))
 	TSoftObjectPtr<UTexture2D> ItemIcon;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory",
-		meta = (AssetBundles = "UI"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "UI"))
 	TSoftObjectPtr<UTexture2D> ItemImage;
 };
 
@@ -99,18 +87,15 @@ struct FPrimaryElementusItemId : public FPrimaryAssetId
 {
 	GENERATED_USTRUCT_BODY()
 
-	FPrimaryElementusItemId()
-		: Super()
+	FPrimaryElementusItemId() : Super()
 	{
 	}
 
-	explicit FPrimaryElementusItemId(const FPrimaryAssetId& InId)
-		: Super(InId.PrimaryAssetType, InId.PrimaryAssetName)
+	explicit FPrimaryElementusItemId(const FPrimaryAssetId& InId) : Super(InId.PrimaryAssetType, InId.PrimaryAssetName)
 	{
 	}
 
-	explicit FPrimaryElementusItemId(const FString& TypeAndName)
-		: Super(TypeAndName)
+	explicit FPrimaryElementusItemId(const FString& TypeAndName) : Super(TypeAndName)
 	{
 	}
 };
@@ -122,20 +107,15 @@ struct FElementusItemInfo
 
 	FElementusItemInfo() = default;
 
-	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId)
-		: ItemId(InItemId)
+	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId) : ItemId(InItemId)
 	{
 	}
 
-	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId, const int32& InQuant)
-		: ItemId(InItemId), Quantity(InQuant)
+	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId, const int32& InQuant) : ItemId(InItemId), Quantity(InQuant)
 	{
 	}
 
-	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId,
-	                            const int32& InQuant,
-	                            const FGameplayTagContainer& InTags)
-		: ItemId(InItemId), Quantity(InQuant), Tags(InTags)
+	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId, const int32& InQuant, const FGameplayTagContainer& InTags) : ItemId(InItemId), Quantity(InQuant), Tags(InTags)
 	{
 	}
 

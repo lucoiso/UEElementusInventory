@@ -11,8 +11,7 @@ class SElementusTable;
 class SElementusUtils final : public SCompoundWidget
 {
 public:
-	SLATE_USER_ARGS(SElementusUtils) :
-			_TableSource()
+	SLATE_USER_ARGS(SElementusUtils) : _TableSource()
 		{
 		}
 

@@ -22,21 +22,17 @@ void UElementusInventoryFunctions::UnloadElementusItem(const FPrimaryElementusIt
 	}
 }
 
-bool UElementusInventoryFunctions::CompareItemInfo(const FElementusItemInfo& Info1,
-                                                   const FElementusItemInfo& Info2)
+bool UElementusInventoryFunctions::CompareItemInfo(const FElementusItemInfo& Info1, const FElementusItemInfo& Info2)
 {
 	return Info1 == Info2;
 }
 
-bool UElementusInventoryFunctions::CompareItemData(const UElementusItemData* Data1,
-                                                   const UElementusItemData* Data2)
+bool UElementusInventoryFunctions::CompareItemData(const UElementusItemData* Data1, const UElementusItemData* Data2)
 {
 	return Data1->GetPrimaryAssetId() == Data2->GetPrimaryAssetId();
 }
 
-UElementusItemData* UElementusInventoryFunctions::GetSingleItemDataById(const FPrimaryElementusItemId& InID,
-                                                                        const TArray<FName>& InBundles,
-                                                                        const bool bAutoUnload)
+UElementusItemData* UElementusInventoryFunctions::GetSingleItemDataById(const FPrimaryElementusItemId& InID, const TArray<FName>& InBundles, const bool bAutoUnload)
 {
 	UElementusItemData* Output = nullptr;
 	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
@@ -61,9 +57,7 @@ UElementusItemData* UElementusInventoryFunctions::GetSingleItemDataById(const FP
 	return Output;
 }
 
-TArray<UElementusItemData*> UElementusInventoryFunctions::GetItemDataArrayById(const TArray<FPrimaryElementusItemId>& InIDs,
-																			   const TArray<FName>& InBundles,
-																			   const bool bAutoUnload)
+TArray<UElementusItemData*> UElementusInventoryFunctions::GetItemDataArrayById(const TArray<FPrimaryElementusItemId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
 	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
@@ -73,45 +67,33 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::GetItemDataArrayById(c
 	return Output;
 }
 
-TArray<UElementusItemData*> UElementusInventoryFunctions::SearchItemData(const EElementusSearchType SearchType,
-																		 const FString& SearchString,
-																		 const TArray<FName>& InBundles,
-																		 const bool bAutoUnload)
+TArray<UElementusItemData*> UElementusInventoryFunctions::SearchItemData(const EElementusSearchType SearchType, const FString& SearchString, const TArray<FName>& InBundles, const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
 	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		TArray<UElementusItemData*> ReturnedValues = LoadElementusItemDatas_Internal(AssetManager,
-																					 TArray<FPrimaryElementusItemId>(),
-																					 InBundles,
-																					 bAutoUnload);
+		TArray<UElementusItemData*> ReturnedValues = LoadElementusItemDatas_Internal(AssetManager, TArray<FPrimaryElementusItemId>(), InBundles, bAutoUnload);
 
 		for (UElementusItemData* const& Iterator : ReturnedValues)
 		{
 			bool bAddItem = false;
 			switch (SearchType)
 			{
-				case EElementusSearchType::Name:
-					bAddItem = Iterator->ItemName.ToString().Contains(SearchString);
-					break;
+			case EElementusSearchType::Name: bAddItem = Iterator->ItemName.ToString().Contains(SearchString);
+				break;
 
-				case EElementusSearchType::ID:
-					bAddItem = FString::FromInt(Iterator->ItemId).Contains(SearchString);
-					break;
+			case EElementusSearchType::ID: bAddItem = FString::FromInt(Iterator->ItemId).Contains(SearchString);
+				break;
 
-				case EElementusSearchType::Type:
-					bAddItem = static_cast<uint8>(Iterator->ItemType) == FCString::Atoi(*SearchString);
-					break;
+			case EElementusSearchType::Type: bAddItem = static_cast<uint8>(Iterator->ItemType) == FCString::Atoi(*SearchString);
+				break;
 
-				default:
-					break;
+			default: break;
 			}
 
 			if (bAddItem)
 			{
-				UE_LOG(LogElementusInventory_Internal, Display,
-				       TEXT("Elementus Inventory - %s: Added Item Name: %s"),
-				       *FString(__func__), *Iterator->ItemName.ToString());
+				UE_LOG(LogElementusInventory_Internal, Display, TEXT("Elementus Inventory - %s: Added Item Name: %s"), *FString(__func__), *Iterator->ItemName.ToString());
 
 				Output.Add(Iterator);
 			}
@@ -121,28 +103,21 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::SearchItemData(const E
 	return Output;
 }
 
-TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager,
-                                                                                          const TArray<FPrimaryElementusItemId>& InIDs,
-                                                                                          const TArray<FName>& InBundles,
-                                                                                          const bool bAutoUnload)
+TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryElementusItemId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
 	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
-	
+
 	const auto CheckAssetValidity_Lambda = [FuncName = __func__](UObject* const& InAsset) -> bool
 	{
 		const bool bOutput = IsValid(InAsset);
 		if (IsValid(InAsset))
 		{
-			UE_LOG(LogElementusInventory_Internal, Display,
-			       TEXT("Elementus Inventory - %s: Item data %s found and loaded"),
-			       *FString(FuncName), *InAsset->GetName());
+			UE_LOG(LogElementusInventory_Internal, Display, TEXT("Elementus Inventory - %s: Item data %s found and loaded"), *FString(FuncName), *InAsset->GetName());
 		}
 		else
 		{
-			UE_LOG(LogElementusInventory_Internal, Error,
-			       TEXT("Elementus Inventory - %s: Failed to load item data: Invalid Asset"),
-			       *FString(FuncName));
+			UE_LOG(LogElementusInventory_Internal, Error, TEXT("Elementus Inventory - %s: Failed to load item data: Invalid Asset"), *FString(FuncName));
 		}
 
 		return bOutput;
@@ -152,9 +127,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 	{
 		if (InArr.IsEmpty())
 		{
-			UE_LOG(LogElementusInventory_Internal, Error,
-			       TEXT("Elementus Inventory - %s: Failed to find items with the given parameters"),
-			       *FString(__func__));
+			UE_LOG(LogElementusInventory_Internal, Error, TEXT("Elementus Inventory - %s: Failed to find items with the given parameters"), *FString(__func__));
 		}
 
 		for (UObject* const& Iterator : InArr)
@@ -222,9 +195,7 @@ TArray<FPrimaryElementusItemId> UElementusInventoryFunctions::GetAllElementusIte
 	return TArray<FPrimaryElementusItemId>();
 }
 
-void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo> ItemsToTrade,
-                                                      UElementusInventoryComponent* FromInventory,
-                                                      UElementusInventoryComponent* ToInventory)
+void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo> ItemsToTrade, UElementusInventoryComponent* FromInventory, UElementusInventoryComponent* ToInventory)
 {
 	ItemsToTrade.RemoveAll([&FromInventory, &ToInventory](const FElementusItemInfo& InInfo)
 	{
@@ -235,7 +206,7 @@ void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo>
 	{
 		return;
 	}
-	
+
 	FromInventory->UpdateElementusItems(ItemsToTrade, EElementusInventoryUpdateOperation::Remove);
 	ToInventory->UpdateElementusItems(ItemsToTrade, EElementusInventoryUpdateOperation::Add);
 }
@@ -255,8 +226,7 @@ bool UElementusInventoryFunctions::IsItemStackable(const FElementusItemInfo InIt
 	return true;
 }
 
-FGameplayTagContainer UElementusInventoryFunctions::GetItemTagsWithParentTag(const FElementusItemInfo InItemInfo,
-																			 const FGameplayTag FromParentTag)
+FGameplayTagContainer UElementusInventoryFunctions::GetItemTagsWithParentTag(const FElementusItemInfo InItemInfo, const FGameplayTag FromParentTag)
 {
 	FGameplayTagContainer Output;
 	for (const FGameplayTag& Iterator : InItemInfo.Tags)
