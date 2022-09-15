@@ -11,12 +11,7 @@ struct FElementusItemRowData
 {
 	explicit FElementusItemRowData(const FPrimaryElementusItemId& InPrimaryAssetId)
 	{
-		const auto ItemData =
-			UElementusInventoryFunctions::GetSingleItemDataById(InPrimaryAssetId,
-			                                                    {
-				                                                    TEXT("Data"),
-				                                                    TEXT("SoftData"),
-			                                                    }, false);
+		const auto ItemData = UElementusInventoryFunctions::GetSingleItemDataById(InPrimaryAssetId, {TEXT("Data"), TEXT("SoftData"),}, false);
 
 		PrimaryAssetId = InPrimaryAssetId;
 		Id = ItemData->ItemId;
@@ -46,8 +41,8 @@ class SElementusTable final : public SCompoundWidget
 {
 public:
 	SLATE_USER_ARGS(SElementusTable)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
@@ -57,14 +52,13 @@ public:
 	friend class SElementusUtils;
 
 protected:
-	TSharedRef<ITableRow> OnGenerateWidgetForList(TSharedPtr<FElementusItemRowData> InItem,
-	                                              const TSharedRef<STableViewBase>& OwnerTable) const;
+	TSharedRef<ITableRow> OnGenerateWidgetForList(TSharedPtr<FElementusItemRowData> InItem, const TSharedRef<STableViewBase>& OwnerTable) const;
 	void OnTableItemDoubleClicked(TSharedPtr<FElementusItemRowData> ElementusItemRowData) const;
-	void OnColumnSort(EColumnSortPriority::Type SortPriority, const FName& ColumnName, EColumnSortMode::Type SortMode);	
+	void OnColumnSort(EColumnSortPriority::Type SortPriority, const FName& ColumnName, EColumnSortMode::Type SortMode);
 	EColumnSortMode::Type GetColumnSort(const FName ColumnId) const;
 	EVisibility GetIsVisible(const FElementusItemPtr InItem) const;
-	void OnSearchTextModified(const FText& InText);	
-	void OnSearchTypeModified(const ECheckBoxState InState, const int32 InType);	
+	void OnSearchTextModified(const FText& InText);
+	void OnSearchTypeModified(const ECheckBoxState InState, const int32 InType);
 	void UpdateItemList();
 	TArray<TSharedPtr<FElementusItemRowData>> GetSelectedItems() const;
 

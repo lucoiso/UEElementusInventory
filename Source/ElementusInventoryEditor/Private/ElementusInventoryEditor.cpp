@@ -3,7 +3,6 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "ElementusInventoryEditor.h"
-
 #include "SElementusDetailsPanel.h"
 #include "ElementusStaticIds.h"
 #include "SElementusFrame.h"
@@ -18,13 +17,11 @@
 
 void FElementusInventoryEditorModule::StartupModule()
 {
-	const auto RegisterDelegate =
-		FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FElementusInventoryEditorModule::RegisterMenus);
+	const auto RegisterDelegate = FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FElementusInventoryEditorModule::RegisterMenus);
 
 	UToolMenus::RegisterStartupCallback(RegisterDelegate);
 
-	const auto MakeInstanceDelegate =
-		FOnGetPropertyTypeCustomizationInstance::CreateStatic(&SElementusDetailsPanel::MakeInstance);
+	const auto MakeInstanceDelegate = FOnGetPropertyTypeCustomizationInstance::CreateStatic(&SElementusDetailsPanel::MakeInstance);
 
 	PropertyEditorModule = &FModuleManager::LoadModuleChecked<FPropertyEditorModule>(TEXT("PropertyEditor"));
 	PropertyEditorModule->RegisterCustomPropertyTypeLayout(ItemStackPropertyId, MakeInstanceDelegate);
@@ -70,28 +67,23 @@ void FElementusInventoryEditorModule::RegisterMenus()
 {
 	FToolMenuOwnerScoped OwnerScoped(this);
 
-	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(
-		NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategory", "Elementus"),
-		NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategoryTooltip", "Elementus Plugins Tabs"),
-		FSlateIcon(FEditorStyle::GetStyleSetName(), "InputBindingEditor.LevelViewport"));
+	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategory", "Elementus"), NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategoryTooltip", "Elementus Plugins Tabs"), FSlateIcon(FEditorStyle::GetStyleSetName(), "InputBindingEditor.LevelViewport"));
 
-	const auto EditorTabSpawnerDelegate =
-		FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ElementusEditorTabId);
+	const auto EditorTabSpawnerDelegate = FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ElementusEditorTabId);
 
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ElementusEditorTabId, EditorTabSpawnerDelegate)
-	                        .SetDisplayName(FText::FromString("Elementus Inventory"))
-	                        .SetTooltipText(FText::FromString("Open Elementus Inventory Window"))
-	                        .SetGroup(Menu.ToSharedRef())
-	                        .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "Icons.Package"));
+		.SetDisplayName(FText::FromString("Elementus Inventory"))
+		.SetTooltipText(FText::FromString("Open Elementus Inventory Window"))
+		.SetGroup(Menu.ToSharedRef())
+		.SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "Icons.Package"));
 
 
-	const auto ItemCreatorTabSpawnerDelegate =
-		FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ItemCreatorTabId);
+	const auto ItemCreatorTabSpawnerDelegate = FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ItemCreatorTabId);
 
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ItemCreatorTabId, ItemCreatorTabSpawnerDelegate)
-	                        .SetDisplayName(FText::FromString("Elementus Item Creator"))
-	                        .SetGroup(Menu.ToSharedRef())
-	                        .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "Icons.PlusCircle"));
+		.SetDisplayName(FText::FromString("Elementus Item Creator"))
+		.SetGroup(Menu.ToSharedRef())
+		.SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "Icons.PlusCircle"));
 }
 #undef LOCTEXT_NAMESPACE
 

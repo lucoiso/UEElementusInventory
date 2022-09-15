@@ -7,14 +7,12 @@
 #include "ElementusInventoryFunctions.h"
 #include "Net/UnrealNetwork.h"
 
-AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer),
-	  bDestroyWhenInventoryIsEmpty(false)
+AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bDestroyWhenInventoryIsEmpty(false)
 {
 	bNetStartup = false;
 	bNetLoadOnClient = false;
 	bReplicates = true;
-	
+
 	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
@@ -44,15 +42,13 @@ void AElementusInventoryPackage::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 }
 
 // ReSharper disable once CppUE4BlueprintCallableFunctionMayBeConst
-void AElementusInventoryPackage::PutItemIntoPackage(const TArray<FElementusItemInfo> ItemInfo,
-                                                    UElementusInventoryComponent* FromInventory)
+void AElementusInventoryPackage::PutItemIntoPackage(const TArray<FElementusItemInfo> ItemInfo, UElementusInventoryComponent* FromInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, FromInventory, PackageInventory);
 }
 
 // ReSharper disable once CppUE4BlueprintCallableFunctionMayBeConst
-void AElementusInventoryPackage::GetItemFromPackage(const TArray<FElementusItemInfo> ItemInfo,
-                                                    UElementusInventoryComponent* ToInventory)
+void AElementusInventoryPackage::GetItemFromPackage(const TArray<FElementusItemInfo> ItemInfo, UElementusInventoryComponent* ToInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, PackageInventory, ToInventory);
 }
@@ -92,9 +88,6 @@ void AElementusInventoryPackage::BeginPackageDestruction_Implementation()
 	}
 	else
 	{
-		UE_LOG(LogElementusInventory, Warning,
-		       TEXT("ElementusInventory - %s: Package %s was not destroyed because the "
-			       "option 'bDestroyWhenInventoryIsEmpty' was disabled"),
-		       *FString(__func__), *GetName());
+		UE_LOG(LogElementusInventory, Warning, TEXT("ElementusInventory - %s: Package %s was not destroyed because the " "option 'bDestroyWhenInventoryIsEmpty' was disabled"), *FString(__func__), *GetName());
 	}
 }

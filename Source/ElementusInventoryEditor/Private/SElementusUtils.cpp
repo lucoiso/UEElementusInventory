@@ -15,8 +15,7 @@ void SElementusUtils::Construct(const FArguments& InArgs)
 
 	constexpr float Slot_Padding = 2.f;
 
-	const auto ButtonCreator_Lambda =
-		[this](const FString& InStr, const FString& Tooltip, const uint32& ButtonId) -> TSharedRef<SButton>
+	const auto ButtonCreator_Lambda = [this](const FString& InStr, const FString& Tooltip, const uint32& ButtonId) -> TSharedRef<SButton>
 	{
 		return SNew(SButton)
 			.Text(FText::FromString(InStr))
@@ -44,21 +43,15 @@ void SElementusUtils::Construct(const FArguments& InArgs)
 			.SlotPadding(Slot_Padding / 2.f)
 			+ SUniformGridPanel::Slot(0, 0)
 			[
-				ButtonCreator_Lambda("Create Item",
-				                     "Open the item creator window",
-				                     0)
+				ButtonCreator_Lambda("Create Item", "Open the item creator window", 0)
 			]
 			+ SUniformGridPanel::Slot(1, 0)
 			[
-				ButtonCreator_Lambda("Delete Items",
-				                     "Delete the selected items",
-				                     1)
+				ButtonCreator_Lambda("Delete Items", "Delete the selected items", 1)
 			]
 			+ SUniformGridPanel::Slot(0, 1)
 			[
-				ButtonCreator_Lambda("Update Table",
-									 "Update the items table",
-									 2)
+				ButtonCreator_Lambda("Update Table", "Update the items table", 2)
 			]
 		]
 	];
@@ -94,8 +87,7 @@ FReply SElementusUtils::OnButtonClicked(const uint32 ButtonId) const
 	}
 	else
 	{
-		FMessageDialog::Open(EAppMsgType::Ok,
-		                     FText::FromString("Work in Progress - ButtonId: " + FString::FromInt(ButtonId)));
+		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("Work in Progress - ButtonId: " + FString::FromInt(ButtonId)));
 	}
 
 	return FReply::Handled();
