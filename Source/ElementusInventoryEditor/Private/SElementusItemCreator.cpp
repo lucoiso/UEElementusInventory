@@ -55,17 +55,17 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 			[
 				SNew(SHorizontalBox)
 				+ SHorizontalBox::Slot()
-				.FillWidth(0.5f)
-				.HAlign(HAlign_Fill)
-				.VAlign(VAlign_Center)
+				  .FillWidth(0.5f)
+				  .HAlign(HAlign_Fill)
+				  .VAlign(VAlign_Center)
 				[
 					Content1
 				]
 				+ SHorizontalBox::Slot()
-				.FillWidth(0.5f)
-				.MaxWidth(250.f)
-				.HAlign(HAlign_Fill)
-				.VAlign(VAlign_Center)
+				  .FillWidth(0.5f)
+				  .MaxWidth(250.f)
+				  .HAlign(HAlign_Fill)
+				  .VAlign(VAlign_Center)
 				[
 					Content2
 				]
@@ -78,9 +78,9 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 	const TSharedRef<SToolTip> ToolTip = SNew(SToolTip)
 		.Text(FText::FromString(TEXT("Already exists a item with this Id.")))
 		.Visibility_Lambda([this]() -> EVisibility
-			{
-				return IsCreateEnabled() ? EVisibility::Collapsed : EVisibility::Visible;
-			});
+	                                                   {
+		                                                   return IsCreateEnabled() ? EVisibility::Collapsed : EVisibility::Visible;
+	                                                   });
 
 	ChildSlot
 	[
@@ -88,27 +88,27 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 		[
 			SNew(SVerticalBox)
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Id"), SNew(SNumericEntryBox<int32>)
 				.AllowSpin(false)
 				.MinValue(1)
 				.Value_Lambda([this] { return ItemId; })
 				.OnValueChanged_Lambda([this](const int32 InValue)
-					{
-						ItemId = InValue;
-					}))
+				{
+					ItemId = InValue;
+				}))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Object"), ObjEntryBoxCreator_Lambda(UObject::StaticClass(), 0))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Class"), SNew(SClassPropertyEntryBox)
 					.AllowAbstract(true)
@@ -116,130 +116,130 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 					.OnSetClass(this, &SElementusItemCreator::HandleNewEntryClassSelected))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Name"), SNew(SEditableTextBox)
-				.OnTextChanged(FOnTextChanged::CreateLambda([this](const FText& InText)
-					{
-						ItemName = *InText.ToString();
-					})))
+				                          .OnTextChanged(FOnTextChanged::CreateLambda([this](const FText& InText)
+				                          {
+					                          ItemName = *InText.ToString();
+				                          })))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Description"), SNew(SMultiLineEditableTextBox)
-				.OnTextChanged(FOnTextChanged::CreateLambda([this](const FText& InText)
-					{
-						ItemDescription = InText;
-					})))
+				                          .OnTextChanged(FOnTextChanged::CreateLambda([this](const FText& InText)
+				                          {
+					                          ItemDescription = InText;
+				                          })))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Type"), SNew(STextComboBox)
 					.OptionsSource(&ItemTypesArr)
 					.OnSelectionChanged(STextComboBox::FOnTextSelectionChanged::CreateLambda([this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
-						{
-							ItemType = ItemTypesArr.Find(InStr);
-						})))
+				                                                                                    {
+					                                                                                    ItemType = ItemTypesArr.Find(InStr);
+				                                                                                    })))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Is Stackable"), SNew(SCheckBox)
 					.IsChecked(ECheckBoxState::Checked)
 					.OnCheckStateChanged_Lambda([this](const ECheckBoxState InState)
-						{
-							bIsStackable = InState == ECheckBoxState::Checked;
-						}))
+				                                                                                   {
+					                                                                                   bIsStackable = InState == ECheckBoxState::Checked;
+				                                                                                   }))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Value"), SNew(SNumericEntryBox<float>)
 				.AllowSpin(false)
 					.MinValue(0.0f)
 					.Value_Lambda([this] { return ItemValue; })
 					.OnValueChanged_Lambda([this](const float InValue)
-						{
-							ItemValue = InValue;
-						}))
+				                                                                                               {
+					                                                                                               ItemValue = InValue;
+				                                                                                               }))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Weight"), SNew(SNumericEntryBox<float>)
 				.AllowSpin(false)
 					.MinValue(0.0f)
 					.Value_Lambda([this] { return ItemWeight; })
 					.OnValueChanged_Lambda([this](const float InValue)
-						{
-							ItemWeight = InValue;
-						}))
+				                                                                                                {
+					                                                                                                ItemWeight = InValue;
+				                                                                                                }))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Icon"), ObjEntryBoxCreator_Lambda(UTexture2D::StaticClass(), 1))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Image"), ObjEntryBoxCreator_Lambda(UTexture2D::StaticClass(), 2))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Asset Name"), SNew(SEditableTextBox)
-				.OnTextChanged(FOnTextChanged::CreateLambda([this](const FText& InText)
-					{
-						AssetName = *InText.ToString();
-					})))
+				                          .OnTextChanged(FOnTextChanged::CreateLambda([this](const FText& InText)
+				                          {
+					                          AssetName = *InText.ToString();
+				                          })))
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding)
-			.AutoHeight()
+			  .Padding(Slot_Padding)
+			  .AutoHeight()
 			[
 				ContentPairCreator_Lambda(CenterTextCreator_Lambda("Asset Folder"), SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot()
-				[
-					SNew(STextComboBox)
+				                          + SHorizontalBox::Slot()
+				                          [
+					                          SNew(STextComboBox)
 					.OptionsSource(&AssetFoldersArr)
 					.OnSelectionChanged(STextComboBox::FOnTextSelectionChanged::CreateLambda(
-					[this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
-						{
-							AssetFolder = FName(*InStr.Get());
-						}))
-				]
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SButton)
+						                                             [this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
+						                                             {
+							                                             AssetFolder = FName(*InStr.Get());
+						                                             }))
+				                          ]
+				                          + SHorizontalBox::Slot()
+				                          .AutoWidth()
+				                          [
+					                          SNew(SButton)
 					.OnClicked(FOnClicked::CreateLambda([this]() -> FReply
-						{
-							UpdateFolders();
-							return FReply::Handled();
-						}))
+					                                       {
+						                                       UpdateFolders();
+						                                       return FReply::Handled();
+					                                       }))
 					.Content()
-					[
-						SNew(SImage)
-						.Image(FEditorStyle::GetBrush("Icons.Refresh"))
-					]
-				])
+					                          [
+						                          SNew(SImage)
+						                          .Image(FEditorStyle::GetBrush("Icons.Refresh"))
+					                          ]
+				                          ])
 			]
 			+ SVerticalBox::Slot()
-			.Padding(Slot_Padding * 2.f)
-			.HAlign(HAlign_Center)
-			.AutoHeight()
+			  .Padding(Slot_Padding * 2.f)
+			  .HAlign(HAlign_Center)
+			  .AutoHeight()
 			[
 				SNew(SButton)
 				.Text(FText::FromString("Create Item"))

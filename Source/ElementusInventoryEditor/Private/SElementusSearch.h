@@ -14,11 +14,15 @@ class SElementusSearch final : public SCompoundWidget
 {
 public:
 	SLATE_USER_ARGS(SElementusSearch)
-		{
-		}
+	{
+	}
 
-		SLATE_EVENT(FOnElementusItemCheckStateChanged, OnCheckboxStateChanged)
-		SLATE_EVENT(FOnTextChanged, OnSearchTextChanged)
+	SLATE_EVENT(FOnElementusItemCheckStateChanged, OnCheckboxStateChanged)
+	SLATE_EVENT
+	(FOnTextChanged
+	,
+	OnSearchTextChanged
+	)
 
 	SLATE_END_ARGS()
 

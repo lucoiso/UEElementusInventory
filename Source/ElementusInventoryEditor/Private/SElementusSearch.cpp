@@ -24,11 +24,11 @@ void SElementusSearch::Construct(const FArguments& InArgs)
 			.Padding(CheckBox_Padding)
 			.OnCheckStateChanged(this, &SElementusSearch::TriggerOnCheckboxStateChanged, Index)
 			.Content()
-			[
-				SNew(STextBlock)
+		[
+			SNew(STextBlock)
 				.Text(FText::FromString(ElementusEdHelper::EnumToString(TEXT("EElementusItemType"), Index)))
 				.Margin(CheckBox_Padding)
-			];
+		];
 	};
 
 	ChildSlot
@@ -41,16 +41,16 @@ void SElementusSearch::Construct(const FArguments& InArgs)
 			.OnTextChanged(this, &SElementusSearch::TriggerOnSearchTextChanged)
 		]
 		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Slot_Padding)
+		  .AutoHeight()
+		  .Padding(Slot_Padding)
 		[
 			SNew(STextBlock)
 			.Text(FText::FromString("Show only types:"))
 			.Font(FAppStyle::Get().GetFontStyle("NormalFontBold"))
 		]
 		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Slot_Padding)
+		  .AutoHeight()
+		  .Padding(Slot_Padding)
 		[
 			SNew(SUniformGridPanel)
 			.SlotPadding(Slot_Padding / 4.f)

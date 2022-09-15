@@ -60,7 +60,7 @@ FString SElementusDetailsPanel::GetObjPath() const
 		if (AssetId.IsValid() && Output.IsEmpty())
 		{
 			FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(TEXT("Asset Manager could not retrieve asset information: "
-				"Check if you've added the path to the Asset Manager settings.")));
+				                     "Check if you've added the path to the Asset Manager settings.")));
 
 			PropertyHandlePtr->ResetToDefault();
 		}

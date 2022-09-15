@@ -20,15 +20,15 @@ class SElementusItemTableRow final : public SMultiColumnTableRow<FElementusItemP
 {
 public:
 	SLATE_BEGIN_ARGS(SElementusItemTableRow) : _HightlightTextSource()
-	{
-	}
+		{
+		}
 
-	SLATE_ARGUMENT(const FText*, HightlightTextSource)
-		SLATE_END_ARGS()
+		SLATE_ARGUMENT(const FText*, HightlightTextSource)
+	SLATE_END_ARGS()
 
-		void Construct(const FArguments& InArgs,
-			const TSharedRef<STableViewBase>& InOwnerTableView,
-			const FElementusItemPtr InEntryItem)
+	void Construct(const FArguments& InArgs,
+	               const TSharedRef<STableViewBase>& InOwnerTableView,
+	               const FElementusItemPtr InEntryItem)
 	{
 		HighlightText = InArgs._HightlightTextSource;
 
@@ -67,7 +67,7 @@ protected:
 		if (ColumnName == ColumnId_TypeLabel)
 		{
 			return TextBlockCreator_Lambda(FText::FromString(ElementusEdHelper::EnumToString(TEXT("EElementusItemType"),
-				static_cast<uint8>(Item->Type))));
+			                                                                                 static_cast<uint8>(Item->Type))));
 		}
 		if (ColumnName == ColumnId_ObjectLabel)
 		{
@@ -101,11 +101,11 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments&)
 	const auto HeaderColumnCreator_Lambda = [&](const FName& ColumnId, const FString& ColumnText, const float InWidth = 1.f) -> const SHeaderRow::FColumn::FArguments
 	{
 		return SHeaderRow::Column(ColumnId)
-			.DefaultLabel(FText::FromString(ColumnText))
-			.FillWidth(InWidth)
-			.SortMode(this, &SElementusTable::GetColumnSort, ColumnId)
-			.OnSort(this, &SElementusTable::OnColumnSort)
-			.HeaderComboVisibility(EHeaderComboVisibility::OnHover);
+		       .DefaultLabel(FText::FromString(ColumnText))
+		       .FillWidth(InWidth)
+		       .SortMode(this, &SElementusTable::GetColumnSort, ColumnId)
+		       .OnSort(this, &SElementusTable::OnColumnSort)
+		       .HeaderComboVisibility(EHeaderComboVisibility::OnHover);
 	};
 
 	HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_PrimaryIdLabel, "Primary Asset Id", 0.75f));
@@ -134,9 +134,9 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments&)
 	];
 
 	UAssetManager::CallOrRegister_OnCompletedInitialScan(FSimpleMulticastDelegate::FDelegate::CreateLambda([this]
-		{
-			UpdateItemList();
-		}));
+	{
+		UpdateItemList();
+	}));
 }
 
 TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusItemPtr InItem, const TSharedRef<STableViewBase>& OwnerTable) const
@@ -172,7 +172,7 @@ EVisibility SElementusTable::GetIsVisible(const FElementusItemPtr InItem) const
 				|| FString::SanitizeFloat(InItem->Value).Contains(InText)
 				|| FString::SanitizeFloat(InItem->Weight).Contains(InText);
 		}(SearchText.ToString())
-				&& (AllowedTypes.Contains(static_cast<uint8>(InItem->Type)) || AllowedTypes.IsEmpty()))
+		&& (AllowedTypes.Contains(static_cast<uint8>(InItem->Type)) || AllowedTypes.IsEmpty()))
 	{
 		Output = EVisibility::Visible;
 	}

@@ -10,8 +10,8 @@ class SElementusItemCreator final : public SCompoundWidget
 {
 public:
 	SLATE_USER_ARGS(SElementusItemCreator)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 

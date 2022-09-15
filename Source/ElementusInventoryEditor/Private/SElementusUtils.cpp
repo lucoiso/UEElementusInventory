@@ -28,16 +28,16 @@ void SElementusUtils::Construct(const FArguments& InArgs)
 	[
 		SNew(SVerticalBox)
 		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Slot_Padding)
+		  .AutoHeight()
+		  .Padding(Slot_Padding)
 		[
 			SNew(STextBlock)
 			.Text(FText::FromString("Utils:"))
 			.Font(FAppStyle::Get().GetFontStyle("NormalFontBold"))
 		]
 		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Slot_Padding)
+		  .AutoHeight()
+		  .Padding(Slot_Padding)
 		[
 			SNew(SUniformGridPanel)
 			.SlotPadding(Slot_Padding / 2.f)
