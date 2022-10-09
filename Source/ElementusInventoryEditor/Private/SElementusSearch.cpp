@@ -26,7 +26,7 @@ void SElementusSearch::Construct(const FArguments& InArgs)
 			.Content()
 		[
 			SNew(STextBlock)
-				.Text(FText::FromString(ElementusEdHelper::EnumToString(TEXT("EElementusItemType"), Index)))
+				.Text(FText::FromString(ElementusEdHelper::EnumToString(static_cast<EElementusItemType>(Index))))
 				.Margin(CheckBox_Padding)
 		];
 	};

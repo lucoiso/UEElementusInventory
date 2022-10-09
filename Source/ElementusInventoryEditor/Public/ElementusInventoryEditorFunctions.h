@@ -6,38 +6,60 @@
 
 namespace ElementusEdHelper
 {
-	static UEnum* GetUEnum(const TCHAR* InEnumName)
+	static FString EnumToString(const EElementusItemType InEnumName)
 	{
-		return FindObject<UEnum>(ANY_PACKAGE, InEnumName, true);
+		switch (InEnumName)
+		{
+			case EElementusItemType::None :
+			return "None";
+
+			case EElementusItemType::Consumable :
+			return "Consumable";
+
+			case EElementusItemType::Armor :
+			return "Armor";
+
+			case EElementusItemType::Weapon :
+			return "Weapon";
+			
+			case EElementusItemType::Accessory :
+			return "Accessory";
+
+			case EElementusItemType::Crafting :
+			return "Crafting";
+
+			case EElementusItemType::Material :
+			return "Material";
+
+			case EElementusItemType::Information :
+			return "Information";
+
+			case EElementusItemType::Special :
+			return "Special";
+
+			case EElementusItemType::Event :
+			return "Event";
+
+			case EElementusItemType::Quest :
+			return "Quest";
+
+			case EElementusItemType::Junk :
+			return "Junk";
+
+			case EElementusItemType::Other :
+			return "Other";
+
+			default:
+			return FString();
+		}
 	}
 
-	static FString EnumToString(const TCHAR* InEnumName, const int32 InEnumValue)
+	static TArray<TSharedPtr<FString>> GetEnumValuesAsStringArray()
 	{
-		const auto EnumPtr = GetUEnum(InEnumName);
-		if (EnumPtr == nullptr)
-		{
-			return "Invalid";
-		}
-
-#if WITH_EDITOR
-		return EnumPtr->GetDisplayNameTextByValue(InEnumValue).ToString();
-#else
-		return EnumPtr->GetEnumName(InEnumValue);
-#endif
-	}
-
-	static TArray<TSharedPtr<FString>> GetEnumValuesAsStringArray(const TCHAR* InEnumName)
-	{
-		const auto EnumPtr = GetUEnum(InEnumName);
-		if (EnumPtr == nullptr)
-		{
-			return TArray<TSharedPtr<FString>>();
-		}
-
 		TArray<TSharedPtr<FString>> EnumValues;
-		for (int32 i = 0; i < EnumPtr->NumEnums(); i++)
+		for (int32 i = 0; i < static_cast<int32>(EElementusItemType::MAX); i++)
 		{
-			EnumValues.Add(MakeShareable(new FString(EnumPtr->GetDisplayNameTextByIndex(i).ToString())));
+			EnumValues.Add(MakeShareable<FString>(new FString(EnumToString(static_cast<EElementusItemType>(i)))));
 		}
 		return EnumValues;
 	}

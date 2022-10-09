@@ -17,6 +17,7 @@
 #include "PackageTools.h"
 #include "Factories/DataAssetFactory.h"
 #include "UObject/SavePackage.h"
+#include "EditorStyleSet.h"
 
 void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 {
@@ -28,8 +29,8 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 	{
 		return SNew(STextBlock)
 			.Text(FText::FromString(InStr))
-			.TextStyle(FEditorStyle::Get(), "PropertyEditor.AssetClass")
-			.Font(FEditorStyle::GetFontStyle("PropertyWindow.NormalFont"))
+			.TextStyle(FAppStyle::Get(), "PropertyEditor.AssetClass")
+			.Font(FAppStyle::GetFontStyle("PropertyWindow.NormalFont"))
 			.Justification(ETextJustify::Left)
 			.Margin(4.f);
 	};
@@ -51,7 +52,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 	const auto ContentPairCreator_Lambda = [this](const TSharedRef<SWidget> Content1, const TSharedRef<SWidget> Content2) -> const TSharedRef<SBorder>
 	{
 		return SNew(SBorder)
-			.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+			.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
 			[
 				SNew(SHorizontalBox)
 				+ SHorizontalBox::Slot()
@@ -72,7 +73,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 			];
 	};
 
-	ItemTypesArr = ElementusEdHelper::GetEnumValuesAsStringArray(TEXT("EElementusItemType"));
+	ItemTypesArr = ElementusEdHelper::GetEnumValuesAsStringArray();
 	UpdateFolders();
 
 	const TSharedRef<SToolTip> ToolTip = SNew(SToolTip)
@@ -232,7 +233,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 						.Content()
 						[
 						    SNew(SImage)
-						    .Image(FEditorStyle::GetBrush("Icons.Refresh"))
+						    .Image(FAppStyle::GetBrush("Icons.Refresh"))
 						]
 					])
 			]

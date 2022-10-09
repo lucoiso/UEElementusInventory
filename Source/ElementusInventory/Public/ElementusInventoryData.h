@@ -30,7 +30,9 @@ enum class EElementusItemType : uint8
 	Event,
 	Quest,
 	Junk,
-	Other
+	Other,
+
+	MAX
 };
 
 class UTexture2D;
