@@ -46,8 +46,8 @@ class ELEMENTUSINVENTORY_API UElementusInventoryComponent : public UActorCompone
 	GENERATED_BODY()
 
 public:
-	explicit UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer);
-
+	explicit UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	
 	/* Get the current inventory weight */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	float GetCurrentWeight() const;
