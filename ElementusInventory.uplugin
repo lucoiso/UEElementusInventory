@@ -1,7 +1,8 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.1.0",
+	"VersionName": "1.1.1",
+	"EngineVersion": "5.1.0",
 	"FriendlyName": "ElementusInventory",
 	"Description": "Inventory System",
 	"Category": "Game Features",

@@ -40,7 +40,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FElementusInventoryUpdate);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FElementusInventoryEmpty);
 
-UCLASS(Blueprintable, ClassGroup=(Custom), Category = "Elementus Inventory | Classes", meta = (BlueprintSpawnableComponent))
+UCLASS(Blueprintable, ClassGroup=(Custom), Category = "Elementus Inventory | Classes", EditInlineNew, meta = (BlueprintSpawnableComponent))
 class ELEMENTUSINVENTORY_API UElementusInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
