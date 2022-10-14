@@ -13,6 +13,7 @@ void SElementusUtils::Construct(const FArguments& InArgs)
 {
 	TableSource = InArgs._TableSource;
 
+	const ISlateStyle& AppStyle = FAppStyle::Get();
 	constexpr float Slot_Padding = 2.f;
 
 	const auto ButtonCreator_Lambda = [this](const FString& InStr, const FString& Tooltip, const uint32& ButtonId) -> TSharedRef<SButton>
@@ -33,7 +34,7 @@ void SElementusUtils::Construct(const FArguments& InArgs)
 		[
 			SNew(STextBlock)
 			.Text(FText::FromString("Utils:"))
-			.Font(FAppStyle::Get().GetFontStyle("NormalFontBold"))
+			.Font(AppStyle.GetFontStyle("NormalFontBold"))
 		]
 		+ SVerticalBox::Slot()
 		  .AutoHeight()

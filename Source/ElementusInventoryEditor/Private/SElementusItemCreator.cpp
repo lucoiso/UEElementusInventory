@@ -24,13 +24,14 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 	constexpr float Slot_Padding = 1.f;
 
 	ImageIcon_ThumbnailPool = MakeShareable(new FAssetThumbnailPool(1024));
+	const ISlateStyle& AppStyle = FAppStyle::Get();
 
-	const auto CenterTextCreator_Lambda = [](const FString& InStr) -> const TSharedRef<STextBlock>
+	const auto CenterTextCreator_Lambda = [&AppStyle](const FString& InStr) -> const TSharedRef<STextBlock>
 	{
 		return SNew(STextBlock)
 			.Text(FText::FromString(InStr))
-			.TextStyle(FAppStyle::Get(), "PropertyEditor.AssetClass")
-			.Font(FAppStyle::GetFontStyle("PropertyWindow.NormalFont"))
+			.TextStyle(AppStyle, "PropertyEditor.AssetClass")
+			.Font(AppStyle.GetFontStyle("PropertyWindow.NormalFont"))
 			.Justification(ETextJustify::Left)
 			.Margin(4.f);
 	};
@@ -49,10 +50,10 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 			.OnObjectChanged(this, &SElementusItemCreator::OnObjChanged, ObjId);
 	};
 
-	const auto ContentPairCreator_Lambda = [this](const TSharedRef<SWidget> Content1, const TSharedRef<SWidget> Content2) -> const TSharedRef<SBorder>
+	const auto ContentPairCreator_Lambda = [this, &AppStyle](const TSharedRef<SWidget> Content1, const TSharedRef<SWidget> Content2) -> const TSharedRef<SBorder>
 	{
 		return SNew(SBorder)
-			.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+			.BorderImage(AppStyle.GetBrush("ToolPanel.GroupBorder"))
 			[
 				SNew(SHorizontalBox)
 				+ SHorizontalBox::Slot()
@@ -233,7 +234,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 						.Content()
 						[
 						    SNew(SImage)
-						    .Image(FAppStyle::GetBrush("Icons.Refresh"))
+						    .Image(AppStyle.GetBrush("Icons.Refresh"))
 						]
 					])
 			]
