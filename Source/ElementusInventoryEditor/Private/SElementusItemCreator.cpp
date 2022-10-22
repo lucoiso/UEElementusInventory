@@ -17,19 +17,21 @@
 #include "PackageTools.h"
 #include "Factories/DataAssetFactory.h"
 #include "UObject/SavePackage.h"
+#include "EditorStyleSet.h"
 
 void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 {
 	constexpr float Slot_Padding = 1.f;
 
 	ImageIcon_ThumbnailPool = MakeShareable(new FAssetThumbnailPool(1024));
+	const ISlateStyle& AppStyle = FAppStyle::Get();
 
-	const auto CenterTextCreator_Lambda = [](const FString& InStr) -> const TSharedRef<STextBlock>
+	const auto CenterTextCreator_Lambda = [&AppStyle](const FString& InStr) -> const TSharedRef<STextBlock>
 	{
 		return SNew(STextBlock)
 			.Text(FText::FromString(InStr))
-			.TextStyle(FEditorStyle::Get(), "PropertyEditor.AssetClass")
-			.Font(FEditorStyle::GetFontStyle("PropertyWindow.NormalFont"))
+			.TextStyle(AppStyle, "PropertyEditor.AssetClass")
+			.Font(AppStyle.GetFontStyle("PropertyWindow.NormalFont"))
 			.Justification(ETextJustify::Left)
 			.Margin(4.f);
 	};
@@ -48,10 +50,10 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 			.OnObjectChanged(this, &SElementusItemCreator::OnObjChanged, ObjId);
 	};
 
-	const auto ContentPairCreator_Lambda = [this](const TSharedRef<SWidget> Content1, const TSharedRef<SWidget> Content2) -> const TSharedRef<SBorder>
+	const auto ContentPairCreator_Lambda = [this, &AppStyle](const TSharedRef<SWidget> Content1, const TSharedRef<SWidget> Content2) -> const TSharedRef<SBorder>
 	{
 		return SNew(SBorder)
-			.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+			.BorderImage(AppStyle.GetBrush("ToolPanel.GroupBorder"))
 			[
 				SNew(SHorizontalBox)
 				+ SHorizontalBox::Slot()
@@ -72,7 +74,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 			];
 	};
 
-	ItemTypesArr = ElementusEdHelper::GetEnumValuesAsStringArray(TEXT("EElementusItemType"));
+	ItemTypesArr = ElementusEdHelper::GetEnumValuesAsStringArray();
 	UpdateFolders();
 
 	const TSharedRef<SToolTip> ToolTip = SNew(SToolTip)
@@ -232,7 +234,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 						.Content()
 						[
 						    SNew(SImage)
-						    .Image(FEditorStyle::GetBrush("Icons.Refresh"))
+						    .Image(AppStyle.GetBrush("Icons.Refresh"))
 						]
 					])
 			]

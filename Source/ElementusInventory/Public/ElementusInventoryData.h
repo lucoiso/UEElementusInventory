@@ -30,7 +30,9 @@ enum class EElementusItemType : uint8
 	Event,
 	Quest,
 	Junk,
-	Other
+	Other,
+
+	MAX
 };
 
 class UTexture2D;
@@ -41,7 +43,7 @@ class ELEMENTUSINVENTORY_API UElementusItemData final : public UPrimaryDataAsset
 	GENERATED_BODY()
 
 public:
-	explicit UElementusItemData(const FObjectInitializer& ObjectInitializer);
+	explicit UElementusItemData(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	FORCEINLINE virtual FPrimaryAssetId GetPrimaryAssetId() const override
 	{

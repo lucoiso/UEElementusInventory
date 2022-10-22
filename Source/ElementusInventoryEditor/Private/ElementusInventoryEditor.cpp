@@ -4,9 +4,10 @@
 
 #include "ElementusInventoryEditor.h"
 #include "SElementusDetailsPanel.h"
-#include "ElementusStaticIds.h"
 #include "SElementusFrame.h"
 #include "SElementusItemCreator.h"
+#include "EditorStyleSet.h"
+#include "ElementusStaticIds.h"
 #include "Widgets/Docking/SDockTab.h"
 #include "LevelEditor.h"
 #include "ToolMenus.h"
@@ -67,7 +68,7 @@ void FElementusInventoryEditorModule::RegisterMenus()
 {
 	FToolMenuOwnerScoped OwnerScoped(this);
 
-	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategory", "Elementus"), NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategoryTooltip", "Elementus Plugins Tabs"), FSlateIcon(FEditorStyle::GetStyleSetName(), "InputBindingEditor.LevelViewport"));
+	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategory", "Elementus"), NSLOCTEXT(LOCTEXT_NAMESPACE, "ElementusCategoryTooltip", "Elementus Plugins Tabs"), FSlateIcon(FAppStyle::GetAppStyleSetName(), "InputBindingEditor.LevelViewport"));
 
 	const auto EditorTabSpawnerDelegate = FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ElementusEditorTabId);
 
@@ -75,7 +76,7 @@ void FElementusInventoryEditorModule::RegisterMenus()
 		.SetDisplayName(FText::FromString("Elementus Inventory"))
 		.SetTooltipText(FText::FromString("Open Elementus Inventory Window"))
 		.SetGroup(Menu.ToSharedRef())
-		.SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "Icons.Package"));
+		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Package"));
 
 
 	const auto ItemCreatorTabSpawnerDelegate = FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ItemCreatorTabId);
@@ -83,7 +84,7 @@ void FElementusInventoryEditorModule::RegisterMenus()
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ItemCreatorTabId, ItemCreatorTabSpawnerDelegate)
 		.SetDisplayName(FText::FromString("Elementus Item Creator"))
 		.SetGroup(Menu.ToSharedRef())
-		.SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "Icons.PlusCircle"));
+		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.PlusCircle"));
 }
 #undef LOCTEXT_NAMESPACE
 

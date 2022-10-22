@@ -63,7 +63,7 @@ protected:
 		}
 		if (ColumnName == ColumnId_TypeLabel)
 		{
-			return TextBlockCreator_Lambda(FText::FromString(ElementusEdHelper::EnumToString(TEXT("EElementusItemType"), static_cast<uint8>(Item->Type))));
+			return TextBlockCreator_Lambda(FText::FromString(ElementusEdHelper::EnumToString(Item->Type)));
 		}
 		if (ColumnName == ColumnId_ObjectLabel)
 		{
@@ -163,7 +163,7 @@ EVisibility SElementusTable::GetIsVisible(const FElementusItemPtr InItem) const
 				|| InItem->PrimaryAssetId.ToString().Contains(InText)
 				|| FString::FromInt(InItem->Id).Contains(InText)
 				|| InItem->Name.ToString().Contains(InText)
-				|| ElementusEdHelper::EnumToString(TEXT("EElementusItemType"), static_cast<uint8>(InItem->Type)).Contains(InText)
+				|| ElementusEdHelper::EnumToString(InItem->Type).Contains(InText)
 				|| InItem->Class.ToString().Contains(InText)
 				|| FString::SanitizeFloat(InItem->Value).Contains(InText)
 				|| FString::SanitizeFloat(InItem->Weight).Contains(InText);
@@ -272,7 +272,7 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 		{
 			const auto ItemTypeToString_Lambda = [&](const EElementusItemType& InType) -> FString
 			{
-				return *ElementusEdHelper::EnumToString(TEXT("EElementusItemType"), static_cast<uint8>(InType));
+				return *ElementusEdHelper::EnumToString(InType);
 			};
 
 			return CompareLambda(ItemTypeToString_Lambda(Val1->Type), ItemTypeToString_Lambda(Val2->Type));

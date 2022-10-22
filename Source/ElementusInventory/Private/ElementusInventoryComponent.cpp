@@ -12,6 +12,8 @@ UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitiali
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
+
+	SetIsReplicatedByDefault(true);
 }
 
 float UElementusInventoryComponent::GetCurrentWeight() const

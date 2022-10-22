@@ -13,6 +13,8 @@ void SElementusSearch::Construct(const FArguments& InArgs)
 	OnCheckStateChanged = InArgs._OnCheckboxStateChanged;
 	OnTextChangedDelegate = InArgs._OnSearchTextChanged;
 
+	const ISlateStyle& AppStyle = FAppStyle::Get();
+	
 	constexpr float CheckBox_Padding = 2.f;
 	constexpr float Slot_Padding = 4.f;
 
@@ -26,7 +28,7 @@ void SElementusSearch::Construct(const FArguments& InArgs)
 			.Content()
 		[
 			SNew(STextBlock)
-				.Text(FText::FromString(ElementusEdHelper::EnumToString(TEXT("EElementusItemType"), Index)))
+				.Text(FText::FromString(ElementusEdHelper::EnumToString(static_cast<EElementusItemType>(Index))))
 				.Margin(CheckBox_Padding)
 		];
 	};
@@ -46,7 +48,7 @@ void SElementusSearch::Construct(const FArguments& InArgs)
 		[
 			SNew(STextBlock)
 			.Text(FText::FromString("Show only types:"))
-			.Font(FAppStyle::Get().GetFontStyle("NormalFontBold"))
+			.Font(AppStyle.GetFontStyle("NormalFontBold"))
 		]
 		+ SVerticalBox::Slot()
 		  .AutoHeight()
