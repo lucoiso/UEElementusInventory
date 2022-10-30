@@ -12,19 +12,17 @@ public class ElementusInventory : ModuleRules
 		CppStandard = CppStandardVersion.Cpp17;
 
 		PublicDependencyModuleNames.AddRange(
-			new[]
-			{
-				"Core"
-			}
-		);
+		new[]
+		{
+			"Core"
+		});
 
 		PrivateDependencyModuleNames.AddRange(
-			new[]
-			{
-				"Engine",
-				"CoreUObject",
-				"GameplayTags"
-			}
-		);
+		new[]
+		{
+			"Engine",
+			"CoreUObject",
+			"GameplayTags"
+		});
 	}
 }
