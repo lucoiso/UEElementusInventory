@@ -153,8 +153,7 @@ void UElementusInventoryComponent::ForceInventoryValidation()
 	{
 		ElementusItems.Append(NewItems);
 	}
-
-	ElementusItems.Sort();
+	
 	ElementusItems.Shrink();
 
 	NotifyInventoryChange();
@@ -471,7 +470,6 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 
 void UElementusInventoryComponent::NotifyInventoryChange()
 {
-	ElementusItems.Sort();
 	ElementusItems.Shrink();
 
 	OnInventoryUpdate.Broadcast();
