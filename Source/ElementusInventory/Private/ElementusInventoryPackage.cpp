@@ -6,6 +6,7 @@
 #include "ElementusInventoryComponent.h"
 #include "ElementusInventoryFunctions.h"
 #include "Net/UnrealNetwork.h"
+#include "LogElementusInventory.h"
 
 AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bDestroyWhenInventoryIsEmpty(false)
 {

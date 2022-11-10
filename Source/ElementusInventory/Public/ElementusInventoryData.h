@@ -9,10 +9,6 @@
 #include "GameplayTagContainer.h"
 #include "ElementusInventoryData.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory, Display, Verbose);
-
-DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory_Internal, Display, Verbose);
-
 constexpr auto& ElementusItemDataType = TEXT("ElementusInventory_ItemData");
 
 UENUM(BlueprintType, Category = "Elementus Inventory | Enumerations")

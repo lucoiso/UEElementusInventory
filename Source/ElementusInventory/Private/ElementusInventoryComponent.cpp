@@ -7,6 +7,7 @@
 #include "Engine/AssetManager.h"
 #include "GameFramework/Actor.h"
 #include "Net/UnrealNetwork.h"
+#include "LogElementusInventory.h"
 
 UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
 {
