@@ -5,11 +5,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/DataAsset.h"
 #include "GameplayTagContainer.h"
+#include "Engine/DataAsset.h"
 #include "ElementusInventoryData.generated.h"
 
-constexpr auto& ElementusItemDataType = TEXT("ElementusInventory_ItemData");
+constexpr auto ElementusItemDataType = TEXT("ElementusInventory_ItemData");
 
 UENUM(BlueprintType, Category = "Elementus Inventory | Enumerations")
 enum class EElementusItemType : uint8

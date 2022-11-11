@@ -6,9 +6,6 @@
 
 #include "CoreMinimal.h"
 
-class FToolBarBuilder;
-class FMenuBuilder;
-
 class FElementusInventoryEditorModule : public IModuleInterface
 {
 protected:

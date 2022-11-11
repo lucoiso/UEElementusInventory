@@ -9,6 +9,8 @@
 #include "Components/ActorComponent.h"
 #include "ElementusInventoryComponent.generated.h"
 
+struct FElementusItemInfo;
+
 UENUM(Category = "Elementus Inventory | Enumerations")
 enum class EElementusInventoryUpdateOperation : uint8
 {
