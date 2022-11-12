@@ -5,11 +5,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ElementusInventoryData.h"
 #include "GameFramework/Actor.h"
 #include "ElementusInventoryPackage.generated.h"
 
-struct FPrimaryElementusItemId;
 class UElementusInventoryComponent;
 
 UCLASS(Category = "Elementus Inventory | Classes")

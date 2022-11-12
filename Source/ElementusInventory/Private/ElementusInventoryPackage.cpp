@@ -5,6 +5,7 @@
 #include "ElementusInventoryPackage.h"
 #include "ElementusInventoryComponent.h"
 #include "ElementusInventoryFunctions.h"
+#include "ElementusInventoryData.h"
 #include "Net/UnrealNetwork.h"
 #include "LogElementusInventory.h"
 

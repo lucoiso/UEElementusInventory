@@ -5,7 +5,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ElementusInventoryData.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "ElementusInventoryFunctions.generated.h"
 
@@ -19,6 +18,7 @@ enum class EElementusSearchType : uint8
 
 class UElementusInventoryComponent;
 class UAssetManager;
+class UElementusItemData;
 struct FPrimaryElementusItemId;
 /**
  * 

@@ -5,6 +5,7 @@
 #include "ElementusInventoryFunctions.h"
 #include "ElementusInventoryComponent.h"
 #include "Engine/AssetManager.h"
+#include "ElementusInventoryData.h"
 #include "LogElementusInventory.h"
 
 void UElementusInventoryFunctions::UnloadAllElementusItems()

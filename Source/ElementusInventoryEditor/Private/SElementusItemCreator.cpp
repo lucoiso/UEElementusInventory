@@ -4,20 +4,17 @@
 
 #include "SElementusItemCreator.h"
 #include "PropertyCustomizationHelpers.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "AssetThumbnail.h"
 #include "AssetToolsModule.h"
 #include "ElementusInventoryData.h"
 #include "ElementusInventoryEditorFunctions.h"
 #include "Engine/AssetManager.h"
-#include "Widgets/Layout/SUniformGridPanel.h"
 #include "Widgets/Input/SNumericEntryBox.h"
 #include "Widgets/Input/SMultiLineEditableTextBox.h"
 #include "Widgets/Input/STextComboBox.h"
 #include "PackageTools.h"
 #include "Factories/DataAssetFactory.h"
 #include "UObject/SavePackage.h"
-#include "EditorStyleSet.h"
 
 void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 {
