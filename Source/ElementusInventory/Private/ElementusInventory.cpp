@@ -3,6 +3,7 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "ElementusInventory.h"
+#include "Modules/ModuleManager.h"
 
 void FElementusInventoryModule::StartupModule()
 {
