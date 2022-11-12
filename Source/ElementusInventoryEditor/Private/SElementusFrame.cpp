@@ -6,6 +6,7 @@
 #include "SElementusSearch.h"
 #include "SElementusTable.h"
 #include "SElementusUtils.h"
+#include "Widgets/Layout/SScrollBox.h"
 
 void SElementusFrame::Construct([[maybe_unused]] const FArguments& InArgs)
 {
@@ -18,19 +19,23 @@ void SElementusFrame::Construct([[maybe_unused]] const FArguments& InArgs)
 		  .AutoWidth()
 		  .MaxWidth(300.f)
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
-			.AutoHeight()
+			SNew(SScrollBox)
+			+ SScrollBox::Slot()
 			[
-				SNew(SElementusSearch)
-				.OnSearchTextChanged(Table, &SElementusTable::OnSearchTextModified)
-				.OnCheckboxStateChanged(Table, &SElementusTable::OnSearchTypeModified)
-			]
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SNew(SElementusUtils)
-				.TableSource(&Table.Get())
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SElementusSearch)
+					.OnSearchTextChanged(Table, &SElementusTable::OnSearchTextModified)
+					.OnCheckboxStateChanged(Table, &SElementusTable::OnSearchTypeModified)
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SElementusUtils)
+					.TableSource(&Table.Get())
+				]
 			]
 		]
 		+ SHorizontalBox::Slot()
