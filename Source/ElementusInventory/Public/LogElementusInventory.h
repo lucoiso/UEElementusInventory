@@ -11,4 +11,4 @@
  */
 
 DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory, Display, Verbose);
-DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory_Internal, Verbose, Verbose);
+DECLARE_LOG_CATEGORY_EXTERN(LogElementusInventory_Internal, Log, Verbose);
