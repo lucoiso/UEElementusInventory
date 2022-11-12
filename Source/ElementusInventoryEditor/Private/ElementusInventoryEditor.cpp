@@ -71,7 +71,7 @@ void FElementusInventoryEditorModule::RegisterMenus()
 	const auto EditorTabSpawnerDelegate = FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ElementusEditorTabId);
 
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ElementusEditorTabId, EditorTabSpawnerDelegate)
-		.SetDisplayName(FText::FromString("Elementus Inventory"))
+		.SetDisplayName(FText::FromString("Elementus Inventory Management"))
 		.SetTooltipText(FText::FromString("Open Elementus Inventory Window"))
 		.SetGroup(Menu.ToSharedRef())
 		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Package"));
