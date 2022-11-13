@@ -65,12 +65,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static void TradeElementusItem(TArray<FElementusItemInfo> ItemsToTrade, UElementusInventoryComponent* FromInventory, UElementusInventoryComponent* ToInventory);
 
+	/* Check if the given item info have a valid id */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static bool IsItemValid(const FElementusItemInfo InItemInfo);
 
+	/* Check if the given item info represents a stackable item */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static bool IsItemStackable(const FElementusItemInfo InItemInfo);
 
+	/* Get item tags providing a parent tag */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static FGameplayTagContainer GetItemTagsWithParentTag(const FElementusItemInfo InItemInfo, const FGameplayTag FromParentTag);
 

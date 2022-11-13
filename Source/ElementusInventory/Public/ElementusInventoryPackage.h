@@ -42,7 +42,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	/* Will this package auto destroy when empty? */
+	/* Should this package auto destroy when empty? */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (Getter = "GetDestroyOnEmpty", Setter = "SetDestroyOnEmpty"))
 	bool bDestroyWhenInventoryIsEmpty;
 

@@ -58,9 +58,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	int32 GetCurrentNumItems() const;
 
+	/* Called on every inventory update */
 	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
 	FElementusInventoryUpdate OnInventoryUpdate;
 
+	/* Called when the inventory is empty */
 	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
 	FElementusInventoryEmpty OnInventoryEmpty;
 
@@ -68,9 +70,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	TArray<FElementusItemInfo> GetItemsArray() const;
 
+	/* Get a reference of the item at given index */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	FElementusItemInfo& GetItemReferenceAt(const int32 Index);
 
+	/* Get a copy of the item at given index */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	FElementusItemInfo GetItemCopyAt(const int32 Index) const;
 
@@ -93,8 +97,7 @@ public:
 	/* Find the first elementus item that matches the specified id */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool FindFirstItemIndexWithId(const FPrimaryElementusItemId InId, int32& OutIndex, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(), const int32 Offset = 0) const;
-
-
+	
 	/* Find the first elementus item that matches the specified info */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool FindAllItemIndexesWithInfo(const FElementusItemInfo InItemInfo, TArray<int32>& OutIndexes, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
@@ -115,18 +118,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	virtual void DebugInventory();
 
+	/* Remove all items from this inventory */
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "Elementus Inventory")
 	void ClearInventory();
 
+	/* Update the current weight of this inventory */
 	UFUNCTION(Client, Unreliable, BlueprintCallable, Category = "Elementus Inventory")
 	void UpdateWeight();
 
+	/* Get items from another inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
 	void GetItemsFrom(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
 
+	/* Give items to another inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
 	void GiveItemsTo(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
 
+	/* Discard items from this inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
 	void DiscardItems(const TArray<int32>& ItemIndexes);
 
