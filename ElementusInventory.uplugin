@@ -18,12 +18,24 @@
 		{
 			"Name": "ElementusInventory",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64",
+				"Mac",
+				"Linux",
+				"IOS",
+				"Android"
+			]
 		},
 		{
 			"Name": "ElementusInventoryEditor",
 			"Type": "Editor",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64",
+				"Mac",
+				"Linux"
+			]
 		}
 	]
 }
