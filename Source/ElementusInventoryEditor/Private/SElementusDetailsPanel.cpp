@@ -3,7 +3,7 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusDetailsPanel.h"
-#include "ElementusInventoryData.h"
+#include "Management/ElementusInventoryData.h"
 #include "Engine/AssetManager.h"
 
 void SElementusDetailsPanel::CustomizeHeader(const TSharedRef<IPropertyHandle> PropertyHandle, FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& CustomizationUtils)

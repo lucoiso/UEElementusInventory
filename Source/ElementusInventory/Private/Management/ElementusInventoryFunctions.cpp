@@ -2,10 +2,10 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
-#include "ElementusInventoryFunctions.h"
-#include "ElementusInventoryComponent.h"
+#include "Management/ElementusInventoryFunctions.h"
+#include "Components/ElementusInventoryComponent.h"
 #include "Engine/AssetManager.h"
-#include "ElementusInventoryData.h"
+#include "Management/ElementusInventoryData.h"
 #include "LogElementusInventory.h"
 
 void UElementusInventoryFunctions::UnloadAllElementusItems()

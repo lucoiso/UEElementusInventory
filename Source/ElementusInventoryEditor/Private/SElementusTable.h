@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ElementusInventoryFunctions.h"
+#include "Management/ElementusInventoryFunctions.h"
 
 struct FElementusItemRowData
 {

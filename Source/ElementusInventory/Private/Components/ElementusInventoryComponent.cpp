@@ -2,8 +2,8 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
-#include "ElementusInventoryComponent.h"
-#include "ElementusInventoryFunctions.h"
+#include "Components/ElementusInventoryComponent.h"
+#include "Management/ElementusInventoryFunctions.h"
 #include "Engine/AssetManager.h"
 #include "GameFramework/Actor.h"
 #include "Net/UnrealNetwork.h"

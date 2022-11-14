@@ -3,7 +3,7 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusSearch.h"
-#include "ElementusInventoryData.h"
+#include "Management/ElementusInventoryData.h"
 #include "ElementusInventoryEditorFunctions.h"
 #include "Widgets/Input/SSearchBox.h"
 #include "Widgets/Layout/SUniformGridPanel.h"
