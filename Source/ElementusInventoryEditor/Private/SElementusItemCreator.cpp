@@ -6,7 +6,7 @@
 #include "PropertyCustomizationHelpers.h"
 #include "AssetThumbnail.h"
 #include "AssetToolsModule.h"
-#include "ElementusInventoryData.h"
+#include "Management/ElementusInventoryData.h"
 #include "ElementusInventoryEditorFunctions.h"
 #include "Engine/AssetManager.h"
 #include "Widgets/Input/SNumericEntryBox.h"

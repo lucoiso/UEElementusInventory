@@ -2,7 +2,7 @@
 // Year: 2022
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
-#include "ElementusInventoryData.h"
+#include "Management/ElementusInventoryData.h"
 
 UElementusItemData::UElementusItemData(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {

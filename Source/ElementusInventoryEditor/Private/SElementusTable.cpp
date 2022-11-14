@@ -4,7 +4,7 @@
 
 #include "SElementusTable.h"
 #include "ElementusInventoryEditorFunctions.h"
-#include "ElementusInventoryData.h"
+#include "Management/ElementusInventoryData.h"
 #include "Engine/AssetManager.h"
 #include "Subsystems/AssetEditorSubsystem.h"
 

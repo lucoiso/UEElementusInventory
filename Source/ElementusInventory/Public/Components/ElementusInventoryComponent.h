@@ -5,7 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ElementusInventoryData.h"
+#include "Management/ElementusInventoryData.h"
 #include "Components/ActorComponent.h"
 #include "ElementusInventoryComponent.generated.h"
 
