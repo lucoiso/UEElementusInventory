@@ -10,5 +10,5 @@ An Unreal Engine plugin that provides a Data-Driven Inventory & Items system bas
 * [Documentation](https://github.com/lucoiso/UEElementusInventory/wiki)  
 * [Example Project](https://github.com/lucoiso/UEElementusInventory_Example)  
 * [Project Elementus](https://github.com/lucoiso/UEProject_Elementus)
-* [Unreal Engine Forum](https://forums.unrealengine.com/t/free-elementus-inventory-data-driven-inventory-system/617474?u=lucoiso)
+* [Unreal Engine Forum](https://forums.unrealengine.com/t/free-elementus-inventory-plugin-data-driven-inventory-system/)
 * [Email](mailto:contatolukevboas@gmail.com)  
