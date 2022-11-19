@@ -78,11 +78,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	FElementusItemInfo GetItemCopyAt(const int32 Index) const;
 
-	/* Check if this inventory can receive the passed item */
+	/* Check if this inventory can receive the item */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	virtual bool CanReceiveItem(const FElementusItemInfo InItemInfo) const;
 
-	/* Check if this inventory can give the passed item */
+	/* Check if this inventory can give the item */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	virtual bool CanGiveItem(const FElementusItemInfo InItemInfo) const;
 

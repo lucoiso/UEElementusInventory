@@ -41,11 +41,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static bool CompareItemInfo(const FElementusItemInfo& Info1, const FElementusItemInfo& Info2);
 
-	/* Check if the id of the passed datas are equal */
+	/* Check if the ids of the given item datas are equal */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static bool CompareItemData(const UElementusItemData* Data1, const UElementusItemData* Data2);
 
-	/* Return the data of the passed Id */
+	/* Return the item data related to the given id */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static UElementusItemData* GetSingleItemDataById(const FPrimaryElementusItemId& InID, const TArray<FName>& InBundles, const bool bAutoUnload = true);
 
