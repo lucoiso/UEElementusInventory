@@ -11,14 +11,12 @@ public class ElementusInventory : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
 
-		PublicDependencyModuleNames.AddRange(
-		new[]
+		PublicDependencyModuleNames.AddRange(new[]
 		{
 			"Core"
 		});
 
-		PrivateDependencyModuleNames.AddRange(
-		new[]
+		PrivateDependencyModuleNames.AddRange(new[]
 		{
 			"Engine",
 			"CoreUObject",

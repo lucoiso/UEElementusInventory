@@ -11,29 +11,27 @@ public class ElementusInventoryEditor : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp17;
 
-		PublicDependencyModuleNames.AddRange(
-			new[]
-			{
-				"Core"
-			});
+		PublicDependencyModuleNames.AddRange(new[]
+		{
+			"Core"
+		});
 
-		PrivateDependencyModuleNames.AddRange(
-			new[]
-			{
-				"ElementusInventory",
-				"InputCore",
-				"EditorFramework",
-				"UnrealEd",
-				"AssetTools",
-				"ToolMenus",
-				"CoreUObject",
-				"Engine",
-				"Slate",
-				"SlateCore",
-				"EditorStyle",
-				"WorkspaceMenuStructure",
-				"PropertyEditor",
-				"GameplayTags"
-			});
+		PrivateDependencyModuleNames.AddRange(new[]
+		{
+			"ElementusInventory",
+			"InputCore",
+			"EditorFramework",
+			"UnrealEd",
+			"AssetTools",
+			"ToolMenus",
+			"CoreUObject",
+			"Engine",
+			"Slate",
+			"SlateCore",
+			"EditorStyle",
+			"WorkspaceMenuStructure",
+			"PropertyEditor",
+			"GameplayTags"
+		});
 	}
 }
