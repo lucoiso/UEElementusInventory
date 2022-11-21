@@ -25,6 +25,10 @@ struct FElementusItemRowData
 		UElementusInventoryFunctions::UnloadElementusItem(InPrimaryAssetId);
 	}
 
+	explicit FElementusItemRowData(const FPrimaryAssetId& InPrimaryAssetId) : FElementusItemRowData(FPrimaryElementusItemId(InPrimaryAssetId)) 
+	{
+	}
+
 	FPrimaryAssetId PrimaryAssetId;
 	int32 Id = -1;
 	FName Name = NAME_None;

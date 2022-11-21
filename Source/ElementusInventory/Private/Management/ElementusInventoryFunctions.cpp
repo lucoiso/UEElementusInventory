@@ -69,33 +69,39 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::GetItemDataArrayById(c
 	return Output;
 }
 
-TArray<UElementusItemData*> UElementusInventoryFunctions::SearchItemData(const EElementusSearchType SearchType, const FString& SearchString, const TArray<FName>& InBundles, const bool bAutoUnload)
+TArray<UElementusItemData*> UElementusInventoryFunctions::SearchElementusItemData(const EElementusSearchType SearchType, const FString& SearchString, const TArray<FName>& InBundles, const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
 	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		TArray<UElementusItemData*> ReturnedValues = LoadElementusItemDatas_Internal(AssetManager, TArray<FPrimaryElementusItemId>(), InBundles, bAutoUnload);
+		TArray<UElementusItemData*> ReturnedValues = LoadElementusItemDatas_Internal(AssetManager, GetAllElementusItemIds(), InBundles, bAutoUnload);
 
 		for (UElementusItemData* const& Iterator : ReturnedValues)
 		{
+			UE_LOG(LogElementusInventory_Internal, Display, TEXT("%s: Filtering items. Current iteration: id %s and name %s"), *FString(__func__), *FString::FromInt(Iterator->ItemId), *Iterator->ItemName.ToString());
+
 			bool bAddItem = false;
 			switch (SearchType)
 			{
-			case EElementusSearchType::Name: bAddItem = Iterator->ItemName.ToString().Contains(SearchString);
-				break;
+				case EElementusSearchType::Name: 
+					bAddItem = Iterator->ItemName.ToString().Contains(SearchString, ESearchCase::IgnoreCase);
+					break;
 
-			case EElementusSearchType::ID: bAddItem = FString::FromInt(Iterator->ItemId).Contains(SearchString);
-				break;
+				case EElementusSearchType::ID: 
+					bAddItem = FString::FromInt(Iterator->ItemId).Contains(SearchString, ESearchCase::IgnoreCase);
+					break;
 
-			case EElementusSearchType::Type: bAddItem = static_cast<uint8>(Iterator->ItemType) == FCString::Atoi(*SearchString);
-				break;
+				case EElementusSearchType::Type: 
+					bAddItem = ElementusItemEnumTypeToString(Iterator->ItemType).Contains(SearchString, ESearchCase::IgnoreCase);
+					break;
 
-			default: break;
+				default: 
+					break;
 			}
 
 			if (bAddItem)
 			{
-				UE_LOG(LogElementusInventory_Internal, Display, TEXT("Elementus Inventory - %s: Added Item Name: %s"), *FString(__func__), *Iterator->ItemName.ToString());
+				UE_LOG(LogElementusInventory_Internal, Display, TEXT("%s: Item with id %s and name %s matches the search parameters"), *FString(__func__), *FString::FromInt(Iterator->ItemId), *Iterator->ItemName.ToString());
 
 				Output.Add(Iterator);
 			}
@@ -105,31 +111,30 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::SearchItemData(const E
 	return Output;
 }
 
-TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryElementusItemId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload)
+TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryAssetId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
-	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
 
 	const auto CheckAssetValidity_Lambda = [FuncName = __func__](UObject* const& InAsset) -> bool
 	{
 		const bool bOutput = IsValid(InAsset);
-		if (IsValid(InAsset))
+		if (bOutput)
 		{
-			UE_LOG(LogElementusInventory_Internal, Display, TEXT("Elementus Inventory - %s: Item data %s found and loaded"), *FString(FuncName), *InAsset->GetName());
+			UE_LOG(LogElementusInventory_Internal, Display, TEXT("%s: Item data %s found and loaded"), *FString(FuncName), *InAsset->GetName());
 		}
 		else
 		{
-			UE_LOG(LogElementusInventory_Internal, Error, TEXT("Elementus Inventory - %s: Failed to load item data: Invalid Asset"), *FString(FuncName));
+			UE_LOG(LogElementusInventory_Internal, Error, TEXT("%s: Failed to load item data: Invalid Asset"), *FString(FuncName));
 		}
 
 		return bOutput;
 	};
 
-	const auto PassItemArr_Lambda = [&CheckAssetValidity_Lambda, &Output](TArray<UObject*>& InArr)
+	const auto PassItemArr_Lambda = [&CheckAssetValidity_Lambda, &Output, FuncName = __func__](TArray<UObject*>& InArr)
 	{
 		if (InArr.IsEmpty())
 		{
-			UE_LOG(LogElementusInventory_Internal, Error, TEXT("Elementus Inventory - %s: Failed to find items with the given parameters"), *FString(__func__));
+			UE_LOG(LogElementusInventory_Internal, Error, TEXT("%s: Failed to find items with the given parameters"), *FString(FuncName));
 		}
 
 		for (UObject* const& Iterator : InArr)
@@ -146,7 +151,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 		}
 	};
 
-	if (const TSharedPtr<FStreamableHandle> StreamableHandle = InAssetManager->LoadPrimaryAssets(PrimaryAssetIds, InBundles);
+	if (const TSharedPtr<FStreamableHandle> StreamableHandle = InAssetManager->LoadPrimaryAssets(InIDs, InBundles);
 		StreamableHandle.IsValid())
 	{
 		StreamableHandle->WaitUntilComplete(5.f);
@@ -179,22 +184,31 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 	if (bAutoUnload)
 	{
 		// Unload all elementus item assets
-		InAssetManager->UnloadPrimaryAssets(PrimaryAssetIds);
+		InAssetManager->UnloadPrimaryAssets(InIDs);
 	}
+
 	return Output;
 }
 
-TArray<FPrimaryElementusItemId> UElementusInventoryFunctions::GetAllElementusItemIds()
+
+
+TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryElementusItemId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload)
+{
+	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);
+	return LoadElementusItemDatas_Internal(InAssetManager, PrimaryAssetIds, InBundles, bAutoUnload);
+}
+
+TArray<FPrimaryAssetId> UElementusInventoryFunctions::GetAllElementusItemIds()
 {
 	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
 		if (TArray<FPrimaryAssetId> IdList;
 			AssetManager->GetPrimaryAssetIdList(FPrimaryAssetType(ElementusItemDataType), IdList))
 		{
-			return TArray<FPrimaryElementusItemId>(IdList);
+			return IdList;
 		}
 	}
-	return TArray<FPrimaryElementusItemId>();
+	return TArray<FPrimaryAssetId>();
 }
 
 void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo> ItemsToTrade, UElementusInventoryComponent* FromInventory, UElementusInventoryComponent* ToInventory)
@@ -240,4 +254,54 @@ FGameplayTagContainer UElementusInventoryFunctions::GetItemTagsWithParentTag(con
 	}
 
 	return Output;
+}
+
+FString UElementusInventoryFunctions::ElementusItemEnumTypeToString(const EElementusItemType InEnumName)
+{
+	switch (InEnumName)
+	{
+		case EElementusItemType::None:
+			return "None";
+
+		case EElementusItemType::Consumable:
+			return "Consumable";
+
+		case EElementusItemType::Armor:
+			return "Armor";
+
+		case EElementusItemType::Weapon:
+			return "Weapon";
+
+		case EElementusItemType::Accessory:
+			return "Accessory";
+
+		case EElementusItemType::Crafting:
+			return "Crafting";
+
+		case EElementusItemType::Material:
+			return "Material";
+
+		case EElementusItemType::Information:
+			return "Information";
+
+		case EElementusItemType::Special:
+			return "Special";
+
+		case EElementusItemType::Event:
+			return "Event";
+
+		case EElementusItemType::Quest:
+			return "Quest";
+
+		case EElementusItemType::Junk:
+			return "Junk";
+
+		case EElementusItemType::Other:
+			return "Other";
+
+		default:
+			break;
+	}
+
+	return FString();
 }
