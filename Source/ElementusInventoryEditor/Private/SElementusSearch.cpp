@@ -4,7 +4,7 @@
 
 #include "SElementusSearch.h"
 #include "Management/ElementusInventoryData.h"
-#include "ElementusInventoryEditorFunctions.h"
+#include "Management/ElementusInventoryFunctions.h"
 #include "Widgets/Input/SSearchBox.h"
 #include "Widgets/Layout/SUniformGridPanel.h"
 
@@ -28,7 +28,7 @@ void SElementusSearch::Construct(const FArguments& InArgs)
 			.Content()
 		[
 			SNew(STextBlock)
-				.Text(FText::FromString(ElementusEdHelper::EnumToString(static_cast<EElementusItemType>(Index))))
+				.Text(FText::FromString(UElementusInventoryFunctions::ElementusItemEnumTypeToString(static_cast<EElementusItemType>(Index))))
 				.Margin(CheckBox_Padding)
 		];
 	};

@@ -53,13 +53,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	static TArray<UElementusItemData*> GetItemDataArrayById(const TArray<FPrimaryElementusItemId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload = true);
 
-	/* Search items and return a array of item data */
+	/* Search all registered elementus items and return a array of item data that match with the given parameters */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static TArray<UElementusItemData*> SearchItemData(const EElementusSearchType SearchType, const FString& SearchString, const TArray<FName>& InBundles, const bool bAutoUnload = true);
+	static TArray<UElementusItemData*> SearchElementusItemData(const EElementusSearchType SearchType, const FString& SearchString, const TArray<FName>& InBundles, const bool bAutoUnload = true);
 
-	/* Get ids of all registered items */
-	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
-	static TArray<FPrimaryElementusItemId> GetAllElementusItemIds();
+	/* Get the primary asset ids of all registered elementus items */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	static TArray<FPrimaryAssetId> GetAllElementusItemIds();
 
 	/* Trade items between two inventory components */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
@@ -77,6 +77,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static FGameplayTagContainer GetItemTagsWithParentTag(const FElementusItemInfo InItemInfo, const FGameplayTag FromParentTag);
 
+	/* Convert an item type enum value to string */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	static FString ElementusItemEnumTypeToString(const EElementusItemType InEnumName);
+
 private:
+	static TArray<UElementusItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryAssetId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload);
 	static TArray<UElementusItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryElementusItemId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload);
 };

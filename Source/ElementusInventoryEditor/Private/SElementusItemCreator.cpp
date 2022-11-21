@@ -3,11 +3,11 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusItemCreator.h"
+#include "Management/ElementusInventoryData.h"
+#include "Management/ElementusInventoryFunctions.h"
 #include "PropertyCustomizationHelpers.h"
 #include "AssetThumbnail.h"
 #include "AssetToolsModule.h"
-#include "Management/ElementusInventoryData.h"
-#include "ElementusInventoryEditorFunctions.h"
 #include "Engine/AssetManager.h"
 #include "Widgets/Input/SNumericEntryBox.h"
 #include "Widgets/Input/SMultiLineEditableTextBox.h"
@@ -72,7 +72,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 			];
 	};
 
-	ItemTypesArr = ElementusEdHelper::GetEnumValuesAsStringArray();
+	ItemTypesArr = GetEnumValuesAsStringArray();
 	UpdateFolders();
 
 	const TSharedRef<SToolTip> ToolTip = SNew(SToolTip)
@@ -353,4 +353,15 @@ bool SElementusItemCreator::IsCreateEnabled() const
 	}
 
 	return false;
+}
+
+TArray<TSharedPtr<FString>> SElementusItemCreator::GetEnumValuesAsStringArray() const
+{
+	TArray<TSharedPtr<FString>> EnumValues;
+	for (int32 i = 0; i < static_cast<int32>(EElementusItemType::MAX); i++)
+	{
+		EnumValues.Add(MakeShareable<FString>(new FString(UElementusInventoryFunctions::ElementusItemEnumTypeToString(static_cast<EElementusItemType>(i)))));
+	}
+
+	return EnumValues;
 }

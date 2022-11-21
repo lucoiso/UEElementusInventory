@@ -3,7 +3,7 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusTable.h"
-#include "ElementusInventoryEditorFunctions.h"
+#include "Management/ElementusInventoryFunctions.h"
 #include "Management/ElementusInventoryData.h"
 #include "Engine/AssetManager.h"
 #include "Subsystems/AssetEditorSubsystem.h"
@@ -64,7 +64,7 @@ protected:
 		}
 		if (ColumnName == ColumnId_TypeLabel)
 		{
-			return TextBlockCreator_Lambda(FText::FromString(ElementusEdHelper::EnumToString(Item->Type)));
+			return TextBlockCreator_Lambda(FText::FromString(UElementusInventoryFunctions::ElementusItemEnumTypeToString(Item->Type)));
 		}
 		if (ColumnName == ColumnId_ObjectLabel)
 		{
@@ -161,13 +161,13 @@ EVisibility SElementusTable::GetIsVisible(const FElementusItemPtr InItem) const
 	if ([&InItem](const FString& InText) -> const bool
 		{
 			return InText.IsEmpty()
-				|| InItem->PrimaryAssetId.ToString().Contains(InText)
-				|| FString::FromInt(InItem->Id).Contains(InText)
-				|| InItem->Name.ToString().Contains(InText)
-				|| ElementusEdHelper::EnumToString(InItem->Type).Contains(InText)
-				|| InItem->Class.ToString().Contains(InText)
-				|| FString::SanitizeFloat(InItem->Value).Contains(InText)
-				|| FString::SanitizeFloat(InItem->Weight).Contains(InText);
+				|| InItem->PrimaryAssetId.ToString().Contains(InText, ESearchCase::IgnoreCase)
+				|| FString::FromInt(InItem->Id).Contains(InText, ESearchCase::IgnoreCase)
+				|| InItem->Name.ToString().Contains(InText, ESearchCase::IgnoreCase)
+				|| UElementusInventoryFunctions::ElementusItemEnumTypeToString(InItem->Type).Contains(InText, ESearchCase::IgnoreCase)
+				|| InItem->Class.ToString().Contains(InText, ESearchCase::IgnoreCase)
+				|| FString::SanitizeFloat(InItem->Value).Contains(InText, ESearchCase::IgnoreCase)
+				|| FString::SanitizeFloat(InItem->Weight).Contains(InText, ESearchCase::IgnoreCase);
 		}(SearchText.ToString())
 		&& (AllowedTypes.Contains(static_cast<uint8>(InItem->Type)) || AllowedTypes.IsEmpty()))
 	{
@@ -191,15 +191,15 @@ void SElementusTable::OnSearchTypeModified(const ECheckBoxState InState, const i
 {
 	switch (InState)
 	{
-	case ECheckBoxState::Checked:
-		AllowedTypes.Add(InType);
-		break;
-	case ECheckBoxState::Unchecked:
-		AllowedTypes.Remove(InType);
-		break;
-	case ECheckBoxState::Undetermined:
-		AllowedTypes.Remove(InType);
-		break;
+		case ECheckBoxState::Checked:
+			AllowedTypes.Add(InType);
+			break;
+		case ECheckBoxState::Unchecked:
+			AllowedTypes.Remove(InType);
+			break;
+		case ECheckBoxState::Undetermined:
+			AllowedTypes.Remove(InType);
+			break;
 	}
 	EdListView->RequestListRefresh();
 }
@@ -208,7 +208,7 @@ void SElementusTable::UpdateItemList()
 {
 	ItemArr.Empty();
 
-	for (const FPrimaryElementusItemId& Iterator : UElementusInventoryFunctions::GetAllElementusItemIds())
+	for (const FPrimaryAssetId& Iterator : UElementusInventoryFunctions::GetAllElementusItemIds())
 	{
 		ItemArr.Add(MakeShareable<FElementusItemRowData>(new FElementusItemRowData(Iterator)));
 	}
@@ -238,17 +238,17 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 	{
 		switch (SortMode)
 		{
-		case EColumnSortMode::Ascending:
-			return Val1 < Val2;
+			case EColumnSortMode::Ascending:
+				return Val1 < Val2;
 
-		case EColumnSortMode::Descending:
-			return Val1 > Val2;
+			case EColumnSortMode::Descending:
+				return Val1 > Val2;
 
-		case EColumnSortMode::None:
-			return Val1 < Val2;
+			case EColumnSortMode::None:
+				return Val1 < Val2;
 
-		default:
-			return false;
+			default:
+				return false;
 		}
 	};
 
@@ -273,7 +273,7 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 		{
 			const auto ItemTypeToString_Lambda = [&](const EElementusItemType& InType) -> FString
 			{
-				return *ElementusEdHelper::EnumToString(InType);
+				return *UElementusInventoryFunctions::ElementusItemEnumTypeToString(InType);
 			};
 
 			return CompareLambda(ItemTypeToString_Lambda(Val1->Type), ItemTypeToString_Lambda(Val2->Type));

@@ -58,7 +58,7 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 
 	if (!bOutput)
 	{
-		UE_LOG(LogElementusInventory, Warning, TEXT("Elementus Inventory - %s: Actor %s cannot receive %d item(s) with name '%s'"), *FString(__func__), *GetOwner()->GetName(), InItemInfo.Quantity, *InItemInfo.ItemId.ToString());
+		UE_LOG(LogElementusInventory, Warning, TEXT("%s: Actor %s cannot receive %d item(s) with name '%s'"), *FString(__func__), *GetOwner()->GetName(), InItemInfo.Quantity, *InItemInfo.ItemId.ToString());
 	}
 
 	return bOutput;
@@ -78,7 +78,7 @@ bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo InItemIn
 		return Quantity >= InItemInfo.Quantity;
 	}
 
-	UE_LOG(LogElementusInventory, Warning, TEXT("Elementus Inventory - %s: Actor %s cannot give %d item(s) with name '%s'"), *FString(__func__), *GetOwner()->GetName(), InItemInfo.Quantity, *InItemInfo.ItemId.ToString());
+	UE_LOG(LogElementusInventory, Warning, TEXT("%s: Actor %s cannot give %d item(s) with name '%s'"), *FString(__func__), *GetOwner()->GetName(), InItemInfo.Quantity, *InItemInfo.ItemId.ToString());
 
 	return false;
 }
@@ -281,7 +281,7 @@ bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemI
 
 void UElementusInventoryComponent::DebugInventory()
 {
-	UE_LOG(LogElementusInventory, Warning, TEXT("Elementus Inventory - %s"), *FString(__func__));
+	UE_LOG(LogElementusInventory, Warning, TEXT("%s"), *FString(__func__));
 	UE_LOG(LogElementusInventory, Warning, TEXT("Owning Actor: %s"), *GetOwner()->GetName());
 
 	for (const FElementusItemInfo& Iterator : ElementusItems)
@@ -304,7 +304,7 @@ void UElementusInventoryComponent::DebugInventory()
 
 void UElementusInventoryComponent::ClearInventory_Implementation()
 {
-	UE_LOG(LogElementusInventory, Display, TEXT("Elementus Inventory - %s: Cleaning %s's inventory"), *FString(__func__), *GetOwner()->GetName());
+	UE_LOG(LogElementusInventory, Display, TEXT("%s: Cleaning %s's inventory"), *FString(__func__), *GetOwner()->GetName());
 
 	ElementusItems.Empty();
 	CurrentWeight = 0.f;
@@ -381,7 +381,7 @@ void UElementusInventoryComponent::UpdateElementusItems(const TArray<FElementusI
 	FElementusItemInfo LastCheckedItem;
 	for (const FElementusItemInfo& Iterator : Modifiers)
 	{
-		UE_LOG(LogElementusInventory_Internal, Display, TEXT("Elementus Inventory - %s: %s %d item(s) with name '%s' %s inventory"), *FString(__func__), *OpStr, Iterator.Quantity, *Iterator.ItemId.ToString(), *OpPred);
+		UE_LOG(LogElementusInventory_Internal, Display, TEXT("%s: %s %d item(s) with name '%s' %s inventory"), *FString(__func__), *OpStr, Iterator.Quantity, *Iterator.ItemId.ToString(), *OpPred);
 
 		if (Iterator != LastCheckedItem)
 		{
@@ -453,7 +453,7 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 	{
 		if (Iterator.Index == INDEX_NONE || Iterator.Index > ElementusItems.Num())
 		{
-			UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Elementus Inventory - %s: Item with name '%s' not found in inventory"), *FString(__func__), *Iterator.ItemInfo.ItemId.ToString());
+			UE_LOG(LogElementusInventory_Internal, Warning, TEXT("%s: Item with name '%s' not found in inventory"), *FString(__func__), *Iterator.ItemInfo.ItemId.ToString());
 
 			continue;
 		}

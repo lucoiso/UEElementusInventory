@@ -29,6 +29,8 @@ protected:
 	FReply HandleCreateItemButtonClicked() const;
 	bool IsCreateEnabled() const;
 
+	TArray<TSharedPtr<FString>> GetEnumValuesAsStringArray() const;
+	
 private:
 	TMap<int32, TWeakObjectPtr<UObject>> ObjectMap;
 	TSharedPtr<FAssetThumbnailPool> ImageIcon_ThumbnailPool;
