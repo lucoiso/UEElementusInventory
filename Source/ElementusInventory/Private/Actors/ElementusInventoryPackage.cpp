@@ -3,11 +3,11 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "Actors/ElementusInventoryPackage.h"
-#include "Components/ElementusInventoryComponent.h"
+#include <Components/ElementusInventoryComponent.h>
 #include "Management/ElementusInventoryFunctions.h"
 #include "Management/ElementusInventoryData.h"
-#include "Net/UnrealNetwork.h"
 #include "LogElementusInventory.h"
+#include <Net/UnrealNetwork.h>
 
 AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bDestroyWhenInventoryIsEmpty(false)
 {

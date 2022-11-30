@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include <CoreMinimal.h>
+#include <Components/ActorComponent.h>
 #include "Management/ElementusInventoryData.h"
-#include "Components/ActorComponent.h"
 #include "ElementusInventoryComponent.generated.h"
 
 struct FElementusItemInfo;

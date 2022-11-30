@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "PropertyCustomizationHelpers.h"
+#include <CoreMinimal.h>
+#include <PropertyCustomizationHelpers.h>
 
 class SElementusDetailsPanel final : public IPropertyTypeCustomization
 {

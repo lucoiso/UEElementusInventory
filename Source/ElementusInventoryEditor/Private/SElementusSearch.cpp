@@ -3,10 +3,10 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusSearch.h"
-#include "Management/ElementusInventoryData.h"
-#include "Management/ElementusInventoryFunctions.h"
-#include "Widgets/Input/SSearchBox.h"
-#include "Widgets/Layout/SUniformGridPanel.h"
+#include <Management/ElementusInventoryData.h>
+#include <Management/ElementusInventoryFunctions.h>
+#include <Widgets/Input/SSearchBox.h>
+#include <Widgets/Layout/SUniformGridPanel.h>
 
 void SElementusSearch::Construct(const FArguments& InArgs)
 {

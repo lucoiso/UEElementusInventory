@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameplayTagContainer.h"
-#include "Engine/DataAsset.h"
+#include <CoreMinimal.h>
+#include <GameplayTagContainer.h>
+#include <Engine/DataAsset.h>
 #include "ElementusInventoryData.generated.h"
 
 constexpr auto ElementusItemDataType = TEXT("ElementusInventory_ItemData");

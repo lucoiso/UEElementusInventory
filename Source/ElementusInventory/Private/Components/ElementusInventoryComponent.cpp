@@ -4,10 +4,10 @@
 
 #include "Components/ElementusInventoryComponent.h"
 #include "Management/ElementusInventoryFunctions.h"
-#include "Engine/AssetManager.h"
-#include "GameFramework/Actor.h"
-#include "Net/UnrealNetwork.h"
 #include "LogElementusInventory.h"
+#include <Engine/AssetManager.h>
+#include <GameFramework/Actor.h>
+#include <Net/UnrealNetwork.h>
 
 UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
 {

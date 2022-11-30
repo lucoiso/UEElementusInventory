@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
+#include <CoreMinimal.h>
+#include <Kismet/BlueprintFunctionLibrary.h>
 #include "ElementusInventoryFunctions.generated.h"
 
 UENUM(BlueprintType, Category = "Elementus Inventory | Enumerations")

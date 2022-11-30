@@ -6,7 +6,7 @@
 #include "SElementusSearch.h"
 #include "SElementusTable.h"
 #include "SElementusUtils.h"
-#include "Widgets/Layout/SScrollBox.h"
+#include <Widgets/Layout/SScrollBox.h>
 
 void SElementusFrame::Construct([[maybe_unused]] const FArguments& InArgs)
 {

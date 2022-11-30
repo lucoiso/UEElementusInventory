@@ -5,9 +5,9 @@
 #include "SElementusUtils.h"
 #include "ElementusStaticIds.h"
 #include "SElementusTable.h"
-#include "Engine/AssetManager.h"
-#include "Widgets/Layout/SUniformGridPanel.h"
-#include "ObjectTools.h"
+#include <Engine/AssetManager.h>
+#include <Widgets/Layout/SUniformGridPanel.h>
+#include <ObjectTools.h>
 
 void SElementusUtils::Construct(const FArguments& InArgs)
 {

@@ -3,19 +3,19 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusItemCreator.h"
-#include "Management/ElementusInventoryData.h"
-#include "Management/ElementusInventoryFunctions.h"
-#include "PropertyCustomizationHelpers.h"
-#include "AssetThumbnail.h"
-#include "AssetToolsModule.h"
-#include "Engine/AssetManager.h"
-#include "Widgets/Input/SNumericEntryBox.h"
-#include "Widgets/Input/SMultiLineEditableTextBox.h"
-#include "Widgets/Input/STextComboBox.h"
-#include "Widgets/Layout/SScrollBox.h"
-#include "PackageTools.h"
-#include "Factories/DataAssetFactory.h"
-#include "UObject/SavePackage.h"
+#include <Management/ElementusInventoryData.h>
+#include <Management/ElementusInventoryFunctions.h>
+#include <PropertyCustomizationHelpers.h>
+#include <AssetThumbnail.h>
+#include <AssetToolsModule.h>
+#include <Engine/AssetManager.h>
+#include <Widgets/Input/SNumericEntryBox.h>
+#include <Widgets/Input/SMultiLineEditableTextBox.h>
+#include <Widgets/Input/STextComboBox.h>
+#include <Widgets/Layout/SScrollBox.h>
+#include <PackageTools.h>
+#include <Factories/DataAssetFactory.h>
+#include <UObject/SavePackage.h>
 
 void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 {

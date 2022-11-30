@@ -3,10 +3,10 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "Management/ElementusInventoryFunctions.h"
-#include "Components/ElementusInventoryComponent.h"
-#include "Engine/AssetManager.h"
+#include <Components/ElementusInventoryComponent.h>
 #include "Management/ElementusInventoryData.h"
 #include "LogElementusInventory.h"
+#include <Engine/AssetManager.h>
 
 void UElementusInventoryFunctions::UnloadAllElementusItems()
 {

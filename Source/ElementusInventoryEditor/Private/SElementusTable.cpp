@@ -3,10 +3,10 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusTable.h"
-#include "Management/ElementusInventoryFunctions.h"
-#include "Management/ElementusInventoryData.h"
-#include "Engine/AssetManager.h"
-#include "Subsystems/AssetEditorSubsystem.h"
+#include <Management/ElementusInventoryFunctions.h>
+#include <Management/ElementusInventoryData.h>
+#include <Engine/AssetManager.h>
+#include <Subsystems/AssetEditorSubsystem.h>
 
 static const FName ColumnId_PrimaryIdLabel("PrimaryAssetId");
 static const FName ColumnId_ItemIdLabel("Id");
