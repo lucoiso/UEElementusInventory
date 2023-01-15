@@ -132,7 +132,7 @@ struct FElementusItemInfo
 		return ItemId.ToString() < Other.ItemId.ToString();
 	}
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
 	FPrimaryElementusItemId ItemId;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
