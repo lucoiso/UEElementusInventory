@@ -10,7 +10,7 @@
 #include <Net/UnrealNetwork.h>
 #include <Algo/ForEach.h>
 
-UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bAllowEmptySlots(true), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
+UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bAllowEmptySlots(false), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
