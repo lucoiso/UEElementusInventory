@@ -49,7 +49,11 @@ class ELEMENTUSINVENTORY_API UElementusInventoryComponent : public UActorCompone
 
 public:
 	explicit UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
+
+	/* If true, will replace empty slots with empty item info */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	bool bAllowEmptySlots;
+
 	/* Get the current inventory weight */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	float GetCurrentWeight() const;
@@ -113,6 +117,10 @@ public:
 	/* Check if the inventory stack contains a item that matches the specified info */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool ContainsItem(const FElementusItemInfo InItemInfo) const;
+
+	/* Check if the inventory is empty */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	bool IsInventoryEmpty() const;
 
 	/* Print debug informations in the log about this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")

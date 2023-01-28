@@ -103,6 +103,8 @@ struct FElementusItemInfo
 {
 	GENERATED_USTRUCT_BODY()
 
+	static const FElementusItemInfo EmptyItemInfo;
+
 	FElementusItemInfo() = default;
 
 	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId) : ItemId(InItemId)

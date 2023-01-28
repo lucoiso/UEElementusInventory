@@ -234,6 +234,11 @@ bool UElementusInventoryFunctions::IsItemValid(const FElementusItemInfo InItemIn
 
 bool UElementusInventoryFunctions::IsItemStackable(const FElementusItemInfo InItemInfo)
 {
+	if (InItemInfo == FElementusItemInfo::EmptyItemInfo)
+	{
+		return false;
+	}
+
 	if (const UElementusItemData* const ItemData = GetSingleItemDataById(InItemInfo.ItemId, {"Data"}))
 	{
 		return ItemData->bIsStackable;

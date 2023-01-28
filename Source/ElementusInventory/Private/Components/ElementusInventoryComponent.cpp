@@ -8,8 +8,9 @@
 #include <Engine/AssetManager.h>
 #include <GameFramework/Actor.h>
 #include <Net/UnrealNetwork.h>
+#include <Algo/ForEach.h>
 
-UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
+UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bAllowEmptySlots(true), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
@@ -147,15 +148,20 @@ void UElementusInventoryComponent::ForceInventoryValidation()
 	{
 		for (const int32& Iterator : IndexesToRemove)
 		{
-			ElementusItems.RemoveAt(Iterator, 1, false);
+			if (bAllowEmptySlots)
+			{
+				ElementusItems[Iterator] = FElementusItemInfo::EmptyItemInfo;
+			}
+			else
+			{
+				ElementusItems.RemoveAt(Iterator, 1, false);				
+			}
 		}
 	}
 	if (!NewItems.IsEmpty())
 	{
 		ElementusItems.Append(NewItems);
 	}
-	
-	ElementusItems.Shrink();
 
 	NotifyInventoryChange();
 }
@@ -279,27 +285,45 @@ bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemI
 	}) != nullptr;
 }
 
-void UElementusInventoryComponent::DebugInventory()
+bool UElementusInventoryComponent::IsInventoryEmpty() const
 {
-	UE_LOG(LogElementusInventory, Warning, TEXT("%s"), *FString(__func__));
-	UE_LOG(LogElementusInventory, Warning, TEXT("Owning Actor: %s"), *GetOwner()->GetName());
+	bool bOutput = true;
 
 	for (const FElementusItemInfo& Iterator : ElementusItems)
 	{
-		UE_LOG(LogElementusInventory, Warning, TEXT("Item: %s"), *Iterator.ItemId.ToString());
-		UE_LOG(LogElementusInventory, Warning, TEXT("Quantity: %d"), Iterator.Quantity);
+		if (Iterator.Quantity > 0)
+		{
+			bOutput = false;
+			break;
+		}
+	}
+	
+	return bOutput;
+}
+
+void UElementusInventoryComponent::DebugInventory()
+{
+#if !UE_BUILD_SHIPPING
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("%s"), *FString(__func__));
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Owning Actor: %s"), *GetOwner()->GetName());
+
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Weight: %d"), CurrentWeight);
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Num: %d"), ElementusItems.Num());
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Size: %d"), ElementusItems.GetAllocatedSize());
+
+	for (const FElementusItemInfo& Iterator : ElementusItems)
+	{
+		UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Item: %s"), *Iterator.ItemId.ToString());
+		UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Quantity: %d"), Iterator.Quantity);
 
 		for (const FGameplayTag& Tag : Iterator.Tags)
 		{
-			UE_LOG(LogElementusInventory, Warning, TEXT("Tag: %s"), *Tag.ToString());
+			UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Tag: %s"), *Tag.ToString());
 		}
 	}
 
-	UE_LOG(LogElementusInventory, Warning, TEXT("Weight: %d"), CurrentWeight);
-	UE_LOG(LogElementusInventory, Warning, TEXT("Num: %d"), ElementusItems.Num());
-	UE_LOG(LogElementusInventory, Warning, TEXT("Size: %d"), ElementusItems.GetAllocatedSize());
-
-	UE_LOG(LogElementusInventory, Warning, TEXT("Component Memory Size: %d"), GetResourceSizeBytes(EResourceSizeMode::EstimatedTotal));
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Component Memory Size: %d"), GetResourceSizeBytes(EResourceSizeMode::EstimatedTotal));
+#endif
 }
 
 void UElementusInventoryComponent::ClearInventory_Implementation()
@@ -323,7 +347,15 @@ void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInvento
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
 			Modifiers.Add(OtherInventory->ElementusItems[Iterator]);
-			OtherInventory->ElementusItems.RemoveAt(Iterator, 1, false);
+			
+			if (OtherInventory->bAllowEmptySlots)
+			{
+				OtherInventory->ElementusItems[Iterator] = FElementusItemInfo::EmptyItemInfo;
+			}
+			else
+			{
+				OtherInventory->ElementusItems.RemoveAt(Iterator, 1, false);
+			}
 		}
 	}
 
@@ -344,7 +376,15 @@ void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventor
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
 			Modifiers.Add(ElementusItems[Iterator]);
-			ElementusItems.RemoveAt(Iterator, 1, false);
+
+			if (bAllowEmptySlots)
+			{
+				ElementusItems[Iterator] = FElementusItemInfo::EmptyItemInfo;
+			}
+			else
+			{
+				ElementusItems.RemoveAt(Iterator, 1, false);
+			}
 		}
 	}
 
@@ -363,7 +403,14 @@ void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<int3
 	{
 		if (ElementusItems.IsValidIndex(Index))
 		{
-			ElementusItems.RemoveAt(Index, 1, false);
+			if (bAllowEmptySlots)
+			{
+				ElementusItems[Index] = FElementusItemInfo::EmptyItemInfo;
+			}
+			else
+			{
+				ElementusItems.RemoveAt(Index, 1, false);
+			}
 		}
 	}
 
@@ -400,13 +447,16 @@ void UElementusInventoryComponent::UpdateElementusItems(const TArray<FElementusI
 
 	switch (Operation)
 	{
-	case EElementusInventoryUpdateOperation::Add: Server_ProcessInventoryAddition_Internal(ModifierDataArr);
-		break;
+		case EElementusInventoryUpdateOperation::Add: 
+			Server_ProcessInventoryAddition_Internal(ModifierDataArr);
+			break;
 
-	case EElementusInventoryUpdateOperation::Remove: Server_ProcessInventoryRemoval_Internal(ModifierDataArr);
-		break;
+		case EElementusInventoryUpdateOperation::Remove: 
+			Server_ProcessInventoryRemoval_Internal(ModifierDataArr);
+			break;
 
-	default: break;
+		default: 
+			break;
 	}
 }
 
@@ -461,10 +511,23 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 		ElementusItems[Iterator.Index].Quantity -= Iterator.ItemInfo.Quantity;
 	}
 
-	ElementusItems.RemoveAll([](const FElementusItemInfo& InInfo)
+	if (bAllowEmptySlots)
 	{
-		return InInfo.Quantity <= 0;
-	});
+		Algo::ForEach(ElementusItems, [](FElementusItemInfo& InInfo)
+		{
+			if (InInfo.Quantity <= 0)
+			{
+				InInfo = FElementusItemInfo::EmptyItemInfo;
+			}
+		});
+	}
+	else
+	{
+		ElementusItems.RemoveAll([](const FElementusItemInfo& InInfo)
+		{
+			return InInfo.Quantity <= 0;
+		});		
+	}
 
 	NotifyInventoryChange();
 }
@@ -473,10 +536,10 @@ void UElementusInventoryComponent::NotifyInventoryChange()
 {
 	ElementusItems.Shrink();
 
-	OnInventoryUpdate.Broadcast();
-
-	if (ElementusItems.IsEmpty())
+	if (IsInventoryEmpty())
 	{
+		ElementusItems.Empty();
+		
 		CurrentWeight = 0.f;
 		OnInventoryEmpty.Broadcast();
 	}
@@ -484,6 +547,8 @@ void UElementusInventoryComponent::NotifyInventoryChange()
 	{
 		UpdateWeight();
 	}
+
+	OnInventoryUpdate.Broadcast();
 }
 
 void UElementusInventoryComponent::UpdateWeight_Implementation()

@@ -4,6 +4,8 @@
 
 #include "Management/ElementusInventoryData.h"
 
+const FElementusItemInfo FElementusItemInfo::EmptyItemInfo(FPrimaryElementusItemId(), -1);
+
 UElementusItemData::UElementusItemData(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 }
