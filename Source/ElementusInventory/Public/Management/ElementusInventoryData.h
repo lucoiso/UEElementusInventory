@@ -83,7 +83,7 @@ public:
 USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
 struct FPrimaryElementusItemId : public FPrimaryAssetId
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	FPrimaryElementusItemId() : Super()
 	{
@@ -101,7 +101,7 @@ struct FPrimaryElementusItemId : public FPrimaryAssetId
 USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
 struct FElementusItemInfo
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	static const FElementusItemInfo EmptyItemInfo;
 

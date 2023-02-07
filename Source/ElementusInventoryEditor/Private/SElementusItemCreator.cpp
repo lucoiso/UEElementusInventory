@@ -8,12 +8,12 @@
 #include <PropertyCustomizationHelpers.h>
 #include <AssetThumbnail.h>
 #include <AssetToolsModule.h>
+#include <PackageTools.h>
 #include <Engine/AssetManager.h>
 #include <Widgets/Input/SNumericEntryBox.h>
 #include <Widgets/Input/SMultiLineEditableTextBox.h>
 #include <Widgets/Input/STextComboBox.h>
 #include <Widgets/Layout/SScrollBox.h>
-#include <PackageTools.h>
 #include <Factories/DataAssetFactory.h>
 #include <UObject/SavePackage.h>
 
@@ -281,8 +281,7 @@ void SElementusItemCreator::UpdateFolders()
 
 	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		if (FPrimaryAssetTypeInfo Info;
-			AssetManager->GetPrimaryAssetTypeInfo(FPrimaryAssetType(ElementusItemDataType), Info))
+		if (FPrimaryAssetTypeInfo Info; AssetManager->GetPrimaryAssetTypeInfo(FPrimaryAssetType(ElementusItemDataType), Info))
 		{
 			for (const FString& Path : Info.AssetScanPaths)
 			{
@@ -291,8 +290,7 @@ void SElementusItemCreator::UpdateFolders()
 		}
 	}
 
-	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid();
-		IsValid(AssetManager) && AssetManager->HasInitialScanCompleted() && AssetFoldersArr.IsEmpty())
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid(); IsValid(AssetManager) && AssetManager->HasInitialScanCompleted() && AssetFoldersArr.IsEmpty())
 	{
 		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(TEXT("Asset Manager could not find any folder. Please check your Asset Manager settings.")));
 	}
@@ -313,8 +311,7 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 
 	UDataAssetFactory* const Factory = NewObject<UDataAssetFactory>();
 
-	if (UObject* const NewData = AssetToolsModule.Get().CreateAsset(AssetName.ToString(), FPackageName::GetLongPackagePath(PackageName), UElementusItemData::StaticClass(), Factory);
-		NewData != nullptr)
+	if (UObject* const NewData = AssetToolsModule.Get().CreateAsset(AssetName.ToString(), FPackageName::GetLongPackagePath(PackageName), UElementusItemData::StaticClass(), Factory))
 	{
 		UElementusItemData* const ItemData = Cast<UElementusItemData>(NewData);
 		ItemData->ItemId = ItemId;
@@ -347,9 +344,7 @@ bool SElementusItemCreator::IsCreateEnabled() const
 {
 	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		const FPrimaryAssetId InId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)));
-
-		return ItemId != 0 && !AssetManager->GetPrimaryAssetPath(InId).IsValid();
+		return ItemId != 0 && !AssetManager->GetPrimaryAssetPath(FPrimaryAssetId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)))).IsValid();
 	}
 
 	return false;
@@ -358,9 +353,9 @@ bool SElementusItemCreator::IsCreateEnabled() const
 TArray<TSharedPtr<FString>> SElementusItemCreator::GetEnumValuesAsStringArray() const
 {
 	TArray<TSharedPtr<FString>> EnumValues;
-	for (int32 i = 0; i < static_cast<int32>(EElementusItemType::MAX); i++)
+	for (uint32 iterator = 0; iterator < static_cast<uint32>(EElementusItemType::MAX); iterator++)
 	{
-		EnumValues.Add(MakeShareable<FString>(new FString(UElementusInventoryFunctions::ElementusItemEnumTypeToString(static_cast<EElementusItemType>(i)))));
+		EnumValues.Add(MakeShareable<FString>(new FString(UElementusInventoryFunctions::ElementusItemEnumTypeToString(static_cast<EElementusItemType>(iterator)))));
 	}
 
 	return EnumValues;

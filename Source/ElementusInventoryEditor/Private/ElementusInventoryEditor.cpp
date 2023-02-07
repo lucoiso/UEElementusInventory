@@ -7,8 +7,8 @@
 #include "SElementusFrame.h"
 #include "SElementusItemCreator.h"
 #include "ElementusStaticIds.h"
-#include <Widgets/Docking/SDockTab.h>
 #include <ToolMenus.h>
+#include <Widgets/Docking/SDockTab.h>
 #include <WorkspaceMenuStructure.h>
 #include <WorkspaceMenuStructureModule.h>
 

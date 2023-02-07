@@ -22,7 +22,7 @@ enum class EElementusInventoryUpdateOperation : uint8
 USTRUCT(Category = "Elementus Inventory | Structures")
 struct FItemModifierData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	FItemModifierData() = default;
 

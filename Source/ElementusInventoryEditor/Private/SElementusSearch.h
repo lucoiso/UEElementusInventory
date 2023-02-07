@@ -18,11 +18,7 @@ public:
 	}
 
 	SLATE_EVENT(FOnElementusItemCheckStateChanged, OnCheckboxStateChanged)
-	SLATE_EVENT
-	(FOnTextChanged
-	,
-	OnSearchTextChanged
-	)
+	SLATE_EVENT(FOnTextChanged, OnSearchTextChanged)
 
 	SLATE_END_ARGS()
 

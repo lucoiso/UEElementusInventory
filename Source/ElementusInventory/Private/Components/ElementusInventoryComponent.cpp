@@ -52,7 +52,7 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 
 	bool bOutput = MaxNumItems > ElementusItems.Num();
 
-	if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(InItemInfo.ItemId, {"Data"}))
+	if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(InItemInfo.ItemId, { "Data" }))
 	{
 		bOutput = bOutput && (MaxWeight == 0.f || MaxWeight >= CurrentWeight + ItemData->ItemWeight * InItemInfo.Quantity);
 	}
@@ -67,10 +67,9 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 
 bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo InItemInfo) const
 {
-	if (TArray<int32> InIndex;
-		FindAllItemIndexesWithInfo(InItemInfo, InIndex))
+	if (TArray<int32> InIndex; FindAllItemIndexesWithInfo(InItemInfo, InIndex))
 	{
-		int32 Quantity = 0;
+		int32 Quantity = 0u;
 		for (const int32& Index : InIndex)
 		{
 			Quantity += ElementusItems[Index].Quantity;
@@ -109,7 +108,7 @@ void UElementusInventoryComponent::ForceWeightUpdate()
 	float NewWeigth = 0.f;
 	for (const FElementusItemInfo& Iterator : ElementusItems)
 	{
-		if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId, {"Data"}))
+		if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId, { "Data" }))
 		{
 			NewWeigth += ItemData->ItemWeight * Iterator.Quantity;
 		}
@@ -146,7 +145,7 @@ void UElementusInventoryComponent::ForceInventoryValidation()
 
 	if (!IndexesToRemove.IsEmpty())
 	{
-		for (const int32& Iterator : IndexesToRemove)
+		for (const uint32& Iterator : IndexesToRemove)
 		{
 			if (bAllowEmptySlots)
 			{
@@ -342,7 +341,7 @@ void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInvento
 	}
 
 	TArray<FElementusItemInfo> Modifiers;
-	for (const int32& Iterator : ItemIndexes)
+	for (const uint32& Iterator : ItemIndexes)
 	{
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
@@ -371,7 +370,7 @@ void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventor
 	}
 
 	TArray<FElementusItemInfo> Modifiers;
-	for (const int32& Iterator : ItemIndexes)
+	for (const uint32& Iterator : ItemIndexes)
 	{
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
@@ -399,7 +398,7 @@ void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<int3
 		return;
 	}
 
-	for (const int32& Index : ItemIndexes)
+	for (const uint32& Index : ItemIndexes)
 	{
 		if (ElementusItems.IsValidIndex(Index))
 		{
@@ -424,7 +423,7 @@ void UElementusInventoryComponent::UpdateElementusItems(const TArray<FElementusI
 	const FString OpStr = Operation == EElementusInventoryUpdateOperation::Add ? "Add" : "Remove";
 	const FString OpPred = Operation == EElementusInventoryUpdateOperation::Add ? "to" : "from";
 
-	int32 SearchOffset = 0;
+	uint32 SearchOffset = 0;
 	FElementusItemInfo LastCheckedItem;
 	for (const FElementusItemInfo& Iterator : Modifiers)
 	{
@@ -432,13 +431,13 @@ void UElementusInventoryComponent::UpdateElementusItems(const TArray<FElementusI
 
 		if (Iterator != LastCheckedItem)
 		{
-			SearchOffset = 0;
+			SearchOffset = 0u;
 		}
 
 		int32 Index;
 		if (FindFirstItemIndexWithInfo(Iterator, Index, FGameplayTagContainer::EmptyContainer, SearchOffset) && Operation == EElementusInventoryUpdateOperation::Remove)
 		{
-			SearchOffset = Index + 1;
+			SearchOffset = Index + 1u;
 		}
 
 		ModifierDataArr.Add(FItemModifierData(Iterator, Index));
@@ -476,7 +475,7 @@ void UElementusInventoryComponent::Server_ProcessInventoryAddition_Internal_Impl
 		}
 		else if (!bIsStackable)
 		{
-			for (int32 i = 0; i < Iterator.ItemInfo.Quantity; ++i)
+			for (int32 i = 0u; i < Iterator.ItemInfo.Quantity; ++i)
 			{
 				const FElementusItemInfo ItemInfo{Iterator.ItemInfo.ItemId, 1, Iterator.ItemInfo.Tags};
 
@@ -556,7 +555,7 @@ void UElementusInventoryComponent::UpdateWeight_Implementation()
 	float NewWeight = 0.f;
 	for (const FElementusItemInfo& Iterator : ElementusItems)
 	{
-		if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId, {"Data"}))
+		if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId, { "Data" }))
 		{
 			NewWeight += ItemData->ItemWeight * Iterator.Quantity;
 		}

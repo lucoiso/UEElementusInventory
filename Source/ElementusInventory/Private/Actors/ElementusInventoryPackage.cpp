@@ -61,10 +61,9 @@ void AElementusInventoryPackage::SetDestroyOnEmpty(const bool bDestroy)
 	}
 
 	bDestroyWhenInventoryIsEmpty = bDestroy;
-	FElementusInventoryEmpty& Delegate = PackageInventory->OnInventoryEmpty;
+	FElementusInventoryEmpty Delegate = PackageInventory->OnInventoryEmpty;
 
-	if (const bool bIsAlreadyBound = Delegate.IsAlreadyBound(this, &AElementusInventoryPackage::BeginPackageDestruction);
-		bDestroy && !bIsAlreadyBound)
+	if (const bool bIsAlreadyBound = Delegate.IsAlreadyBound(this, &AElementusInventoryPackage::BeginPackageDestruction); bDestroy && !bIsAlreadyBound)
 	{
 		Delegate.AddDynamic(this, &AElementusInventoryPackage::BeginPackageDestruction);
 	}
@@ -81,7 +80,7 @@ bool AElementusInventoryPackage::GetDestroyOnEmpty() const
 
 void AElementusInventoryPackage::BeginPackageDestruction_Implementation()
 {
-	// Check if this option is still active
+	// Check if this option is still active before the destruction
 	if (bDestroyWhenInventoryIsEmpty)
 	{
 		Destroy();
