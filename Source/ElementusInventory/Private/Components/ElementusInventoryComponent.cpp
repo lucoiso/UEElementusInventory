@@ -10,6 +10,10 @@
 #include <Net/UnrealNetwork.h>
 #include <Algo/ForEach.h>
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryComponent)
+#endif
+
 UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bAllowEmptySlots(false), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
 {
 	PrimaryComponentTick.bCanEverTick = false;

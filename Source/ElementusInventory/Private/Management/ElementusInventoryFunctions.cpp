@@ -8,6 +8,10 @@
 #include "LogElementusInventory.h"
 #include <Engine/AssetManager.h>
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryFunctions)
+#endif
+
 void UElementusInventoryFunctions::UnloadAllElementusItems()
 {
 	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
