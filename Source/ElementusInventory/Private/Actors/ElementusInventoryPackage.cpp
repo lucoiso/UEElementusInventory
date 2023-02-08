@@ -9,6 +9,10 @@
 #include "LogElementusInventory.h"
 #include <Net/UnrealNetwork.h>
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryPackage)
+#endif
+
 AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bDestroyWhenInventoryIsEmpty(false)
 {
 	bNetStartup = false;

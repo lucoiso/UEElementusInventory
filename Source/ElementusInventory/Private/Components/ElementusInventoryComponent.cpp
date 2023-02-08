@@ -9,6 +9,10 @@
 #include <GameFramework/Actor.h>
 #include <Net/UnrealNetwork.h>
 
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryComponent)
+#endif
+
 UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
 {
 	PrimaryComponentTick.bCanEverTick = false;
