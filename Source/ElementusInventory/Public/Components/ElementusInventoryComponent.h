@@ -112,11 +112,13 @@ public:
 
 	/* Check if the inventory stack contains a item that matches the specified info */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool ContainsItem(const FElementusItemInfo InItemInfo) const;
+	bool ContainsItem(const FElementusItemInfo InItemInfo, const bool bIgnoreTags = false) const;
 
+#if WITH_EDITORONLY_DATA
 	/* Print debug informations in the log about this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	virtual void DebugInventory();
+#endif
 
 	/* Remove all items from this inventory */
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "Elementus Inventory")
@@ -179,5 +181,7 @@ private:
 	void OnRep_ElementusItems();
 
 protected:
+	/* Mark the inventory as dirty to update the replicated data and broadcast the events */
+	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	void NotifyInventoryChange();
 };

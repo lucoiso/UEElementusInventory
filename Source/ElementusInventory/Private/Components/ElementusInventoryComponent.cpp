@@ -276,14 +276,20 @@ bool UElementusInventoryComponent::FindAllItemIndexesWithId(const FPrimaryElemen
 	return !OutIndexes.IsEmpty();
 }
 
-bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemInfo) const
+bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemInfo, const bool bIgnoreTags) const
 {
-	return ElementusItems.FindByPredicate([&InItemInfo](const FElementusItemInfo& InInfo)
+	return ElementusItems.FindByPredicate([&InItemInfo, &bIgnoreTags](const FElementusItemInfo& InInfo)
 	{
+		if (bIgnoreTags)
+		{
+			return InInfo.ItemId == InItemInfo.ItemId;
+		}
+
 		return InInfo == InItemInfo;
 	}) != nullptr;
 }
 
+#if WITH_EDITORONLY_DATA
 void UElementusInventoryComponent::DebugInventory()
 {
 	UE_LOG(LogElementusInventory, Warning, TEXT("%s"), *FString(__func__));
@@ -306,6 +312,7 @@ void UElementusInventoryComponent::DebugInventory()
 
 	UE_LOG(LogElementusInventory, Warning, TEXT("Component Memory Size: %d"), GetResourceSizeBytes(EResourceSizeMode::EstimatedTotal));
 }
+#endif
 
 void UElementusInventoryComponent::ClearInventory_Implementation()
 {
