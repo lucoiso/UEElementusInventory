@@ -98,7 +98,10 @@ void UElementusInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimePr
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UElementusInventoryComponent, ElementusItems);
+	FDoRepLifetimeParams SharedParams;
+	SharedParams.bIsPushBased = true;
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(UElementusInventoryComponent, ElementusItems, SharedParams);
 }
 
 void UElementusInventoryComponent::RefreshInventory()
@@ -159,8 +162,6 @@ void UElementusInventoryComponent::ForceInventoryValidation()
 		ElementusItems.Append(NewItems);
 	}
 	
-	ElementusItems.Shrink();
-
 	NotifyInventoryChange();
 }
 
@@ -404,13 +405,16 @@ void UElementusInventoryComponent::UpdateElementusItems(const TArray<FElementusI
 
 	switch (Operation)
 	{
-	case EElementusInventoryUpdateOperation::Add: Server_ProcessInventoryAddition_Internal(ModifierDataArr);
-		break;
+		case EElementusInventoryUpdateOperation::Add: 
+			Server_ProcessInventoryAddition_Internal(ModifierDataArr);
+			break;
 
-	case EElementusInventoryUpdateOperation::Remove: Server_ProcessInventoryRemoval_Internal(ModifierDataArr);
-		break;
+		case EElementusInventoryUpdateOperation::Remove: 
+			Server_ProcessInventoryRemoval_Internal(ModifierDataArr);
+			break;
 
-	default: break;
+		default: 
+			break;
 	}
 }
 
@@ -473,11 +477,9 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 	NotifyInventoryChange();
 }
 
-void UElementusInventoryComponent::NotifyInventoryChange()
+void UElementusInventoryComponent::OnRep_ElementusItems()
 {
 	ElementusItems.Shrink();
-
-	OnInventoryUpdate.Broadcast();
 
 	if (ElementusItems.IsEmpty())
 	{
@@ -488,6 +490,18 @@ void UElementusInventoryComponent::NotifyInventoryChange()
 	{
 		UpdateWeight();
 	}
+
+	OnInventoryUpdate.Broadcast();
+}
+
+void UElementusInventoryComponent::NotifyInventoryChange()
+{
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		OnRep_ElementusItems();
+	}
+
+	MARK_PROPERTY_DIRTY_FROM_NAME(UElementusInventoryComponent, ElementusItems, this);
 }
 
 void UElementusInventoryComponent::UpdateWeight_Implementation()

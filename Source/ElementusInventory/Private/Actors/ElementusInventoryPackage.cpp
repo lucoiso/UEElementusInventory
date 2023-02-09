@@ -44,17 +44,22 @@ void AElementusInventoryPackage::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AElementusInventoryPackage, PackageInventory);
+	FDoRepLifetimeParams SharedParams;
+	SharedParams.bIsPushBased = true;
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(AElementusInventoryPackage, PackageInventory, SharedParams);
 }
 
 void AElementusInventoryPackage::PutItemIntoPackage(const TArray<FElementusItemInfo> ItemInfo, UElementusInventoryComponent* FromInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, FromInventory, PackageInventory);
+	MARK_PROPERTY_DIRTY_FROM_NAME(AElementusInventoryPackage, PackageInventory, this);
 }
 
 void AElementusInventoryPackage::GetItemFromPackage(const TArray<FElementusItemInfo> ItemInfo, UElementusInventoryComponent* ToInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, PackageInventory, ToInventory);
+	MARK_PROPERTY_DIRTY_FROM_NAME(AElementusInventoryPackage, PackageInventory, this);
 }
 
 void AElementusInventoryPackage::SetDestroyOnEmpty(const bool bDestroy)

@@ -140,7 +140,7 @@ public:
 
 protected:
 	/* Items that this inventory have */
-	UPROPERTY(ReplicatedUsing=NotifyInventoryChange, EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory", meta = (Getter = "GetItemsArray", ArrayClamp = "MaxNumItems"))
+	UPROPERTY(ReplicatedUsing=OnRep_ElementusItems, EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory", meta = (Getter = "GetItemsArray", ArrayClamp = "MaxNumItems"))
 	TArray<FElementusItemInfo> ElementusItems;
 
 	/* Current weight of this inventory */
@@ -176,5 +176,8 @@ private:
 	void Server_ProcessInventoryRemoval_Internal(const TArray<FItemModifierData>& Modifiers);
 
 	UFUNCTION(Category = "Elementus Inventory")
+	void OnRep_ElementusItems();
+
+protected:
 	void NotifyInventoryChange();
 };
