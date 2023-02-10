@@ -130,11 +130,19 @@ public:
 
 	/* Get items from another inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
-	void GetItemsFrom(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+	void GetItemIndexesFrom(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
 
 	/* Give items to another inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
-	void GiveItemsTo(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+	void GiveItemIndexesTo(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+
+	/* Get items from another inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void GetItemsFrom(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items);
+
+	/* Give items to another inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void GiveItemsTo(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items);
 
 	/* Discard items from this inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")

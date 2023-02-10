@@ -8,6 +8,7 @@
 #include <Engine/AssetManager.h>
 #include <GameFramework/Actor.h>
 #include <Net/UnrealNetwork.h>
+#include <Algo/Copy.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryComponent)
@@ -322,7 +323,7 @@ void UElementusInventoryComponent::ClearInventory_Implementation()
 	CurrentWeight = 0.f;
 }
 
-void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
+void UElementusInventoryComponent::GetItemIndexesFrom_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
 {
 	if (GetOwnerRole() != ROLE_Authority)
 	{
@@ -343,7 +344,7 @@ void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInvento
 	UpdateElementusItems(Modifiers, EElementusInventoryUpdateOperation::Add);
 }
 
-void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
+void UElementusInventoryComponent::GiveItemIndexesTo_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
 {
 	if (GetOwnerRole() != ROLE_Authority)
 	{
@@ -362,6 +363,38 @@ void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventor
 
 	NotifyInventoryChange();
 	OtherInventory->UpdateElementusItems(Modifiers, EElementusInventoryUpdateOperation::Add);
+}
+
+void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+
+	TArray<FElementusItemInfo> TradeableItems;
+	Algo::CopyIf(Items, TradeableItems, [this, &OtherInventory](const FElementusItemInfo& Item) {
+		return OtherInventory->CanGiveItem(Item) && CanReceiveItem(Item);;
+	});
+	
+	OtherInventory->UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Remove);
+	UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Add);
+}
+
+void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+
+	TArray<FElementusItemInfo> TradeableItems;
+	Algo::CopyIf(Items, TradeableItems, [this, &OtherInventory](const FElementusItemInfo& Item) {
+			return CanGiveItem(Item) && OtherInventory->CanReceiveItem(Item);;
+	});
+
+	UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Remove);
+	OtherInventory->UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Add);
 }
 
 void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<int32>& ItemIndexes)
