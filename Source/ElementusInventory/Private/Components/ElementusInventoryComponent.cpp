@@ -372,6 +372,11 @@ void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInvento
 		return;
 	}
 
+	if (!IsValid(OtherInventory))
+	{
+		return;
+	}
+
 	TArray<FElementusItemInfo> TradeableItems;
 	Algo::CopyIf(Items, TradeableItems, [this, &OtherInventory](const FElementusItemInfo& Item) {
 		return OtherInventory->CanGiveItem(Item) && CanReceiveItem(Item);;
@@ -387,17 +392,22 @@ void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventor
 	{
 		return;
 	}
+	
+	if (!IsValid(OtherInventory))
+	{
+		return;
+	}
 
 	TArray<FElementusItemInfo> TradeableItems;
 	Algo::CopyIf(Items, TradeableItems, [this, &OtherInventory](const FElementusItemInfo& Item) {
-			return CanGiveItem(Item) && OtherInventory->CanReceiveItem(Item);;
+		return CanGiveItem(Item) && OtherInventory->CanReceiveItem(Item);
 	});
 
 	UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Remove);
 	OtherInventory->UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Add);
 }
 
-void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<int32>& ItemIndexes)
+void UElementusInventoryComponent::DiscardItemIndexes_Implementation(const TArray<int32>& ItemIndexes)
 {
 	if (GetOwnerRole() != ROLE_Authority || ItemIndexes.IsEmpty())
 	{
@@ -412,6 +422,28 @@ void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<int3
 		}
 	}
 
+	NotifyInventoryChange();
+}
+
+void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority || Items.IsEmpty())
+	{
+		return;
+	}
+
+	UpdateElementusItems(Items, EElementusInventoryUpdateOperation::Remove);
+	NotifyInventoryChange();
+}
+
+void UElementusInventoryComponent::AddItems_Implementation(const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority || Items.IsEmpty())
+	{
+		return;
+	}
+
+	UpdateElementusItems(Items, EElementusInventoryUpdateOperation::Add);
 	NotifyInventoryChange();
 }
 

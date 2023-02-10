@@ -146,7 +146,15 @@ public:
 
 	/* Discard items from this inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
-	void DiscardItems(const TArray<int32>& ItemIndexes);
+	void DiscardItemIndexes(const TArray<int32>& ItemIndexes);
+
+	/* Discard items from this inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void DiscardItems(const TArray<FElementusItemInfo>& Items);
+
+	/* Add items to this inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void AddItems(const TArray<FElementusItemInfo>& Items);
 
 protected:
 	/* Items that this inventory have */
