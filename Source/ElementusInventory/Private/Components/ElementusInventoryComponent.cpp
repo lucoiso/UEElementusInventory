@@ -8,6 +8,7 @@
 #include <Engine/AssetManager.h>
 #include <GameFramework/Actor.h>
 #include <Net/UnrealNetwork.h>
+#include <Algo/Copy.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryComponent)
@@ -98,7 +99,10 @@ void UElementusInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimePr
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UElementusInventoryComponent, ElementusItems);
+	FDoRepLifetimeParams SharedParams;
+	SharedParams.bIsPushBased = true;
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(UElementusInventoryComponent, ElementusItems, SharedParams);
 }
 
 void UElementusInventoryComponent::RefreshInventory()
@@ -159,8 +163,6 @@ void UElementusInventoryComponent::ForceInventoryValidation()
 		ElementusItems.Append(NewItems);
 	}
 	
-	ElementusItems.Shrink();
-
 	NotifyInventoryChange();
 }
 
@@ -275,14 +277,20 @@ bool UElementusInventoryComponent::FindAllItemIndexesWithId(const FPrimaryElemen
 	return !OutIndexes.IsEmpty();
 }
 
-bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemInfo) const
+bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemInfo, const bool bIgnoreTags) const
 {
-	return ElementusItems.FindByPredicate([&InItemInfo](const FElementusItemInfo& InInfo)
+	return ElementusItems.FindByPredicate([&InItemInfo, &bIgnoreTags](const FElementusItemInfo& InInfo)
 	{
+		if (bIgnoreTags)
+		{
+			return InInfo.ItemId == InItemInfo.ItemId;
+		}
+
 		return InInfo == InItemInfo;
 	}) != nullptr;
 }
 
+#if WITH_EDITORONLY_DATA
 void UElementusInventoryComponent::DebugInventory()
 {
 	UE_LOG(LogElementusInventory, Warning, TEXT("%s"), *FString(__func__));
@@ -305,6 +313,7 @@ void UElementusInventoryComponent::DebugInventory()
 
 	UE_LOG(LogElementusInventory, Warning, TEXT("Component Memory Size: %d"), GetResourceSizeBytes(EResourceSizeMode::EstimatedTotal));
 }
+#endif
 
 void UElementusInventoryComponent::ClearInventory_Implementation()
 {
@@ -314,7 +323,7 @@ void UElementusInventoryComponent::ClearInventory_Implementation()
 	CurrentWeight = 0.f;
 }
 
-void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
+void UElementusInventoryComponent::GetItemIndexesFrom_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
 {
 	if (GetOwnerRole() != ROLE_Authority)
 	{
@@ -335,7 +344,7 @@ void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInvento
 	UpdateElementusItems(Modifiers, EElementusInventoryUpdateOperation::Add);
 }
 
-void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
+void UElementusInventoryComponent::GiveItemIndexesTo_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
 {
 	if (GetOwnerRole() != ROLE_Authority)
 	{
@@ -356,7 +365,49 @@ void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventor
 	OtherInventory->UpdateElementusItems(Modifiers, EElementusInventoryUpdateOperation::Add);
 }
 
-void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<int32>& ItemIndexes)
+void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+
+	if (!IsValid(OtherInventory))
+	{
+		return;
+	}
+
+	TArray<FElementusItemInfo> TradeableItems;
+	Algo::CopyIf(Items, TradeableItems, [this, &OtherInventory](const FElementusItemInfo& Item) {
+		return OtherInventory->CanGiveItem(Item) && CanReceiveItem(Item);;
+	});
+	
+	OtherInventory->UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Remove);
+	UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Add);
+}
+
+void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+	
+	if (!IsValid(OtherInventory))
+	{
+		return;
+	}
+
+	TArray<FElementusItemInfo> TradeableItems;
+	Algo::CopyIf(Items, TradeableItems, [this, &OtherInventory](const FElementusItemInfo& Item) {
+		return CanGiveItem(Item) && OtherInventory->CanReceiveItem(Item);
+	});
+
+	UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Remove);
+	OtherInventory->UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Add);
+}
+
+void UElementusInventoryComponent::DiscardItemIndexes_Implementation(const TArray<int32>& ItemIndexes)
 {
 	if (GetOwnerRole() != ROLE_Authority || ItemIndexes.IsEmpty())
 	{
@@ -371,6 +422,28 @@ void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<int3
 		}
 	}
 
+	NotifyInventoryChange();
+}
+
+void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority || Items.IsEmpty())
+	{
+		return;
+	}
+
+	UpdateElementusItems(Items, EElementusInventoryUpdateOperation::Remove);
+	NotifyInventoryChange();
+}
+
+void UElementusInventoryComponent::AddItems_Implementation(const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority || Items.IsEmpty())
+	{
+		return;
+	}
+
+	UpdateElementusItems(Items, EElementusInventoryUpdateOperation::Add);
 	NotifyInventoryChange();
 }
 
@@ -404,13 +477,16 @@ void UElementusInventoryComponent::UpdateElementusItems(const TArray<FElementusI
 
 	switch (Operation)
 	{
-	case EElementusInventoryUpdateOperation::Add: Server_ProcessInventoryAddition_Internal(ModifierDataArr);
-		break;
+		case EElementusInventoryUpdateOperation::Add: 
+			Server_ProcessInventoryAddition_Internal(ModifierDataArr);
+			break;
 
-	case EElementusInventoryUpdateOperation::Remove: Server_ProcessInventoryRemoval_Internal(ModifierDataArr);
-		break;
+		case EElementusInventoryUpdateOperation::Remove: 
+			Server_ProcessInventoryRemoval_Internal(ModifierDataArr);
+			break;
 
-	default: break;
+		default: 
+			break;
 	}
 }
 
@@ -473,11 +549,9 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 	NotifyInventoryChange();
 }
 
-void UElementusInventoryComponent::NotifyInventoryChange()
+void UElementusInventoryComponent::OnRep_ElementusItems()
 {
 	ElementusItems.Shrink();
-
-	OnInventoryUpdate.Broadcast();
 
 	if (ElementusItems.IsEmpty())
 	{
@@ -488,6 +562,18 @@ void UElementusInventoryComponent::NotifyInventoryChange()
 	{
 		UpdateWeight();
 	}
+
+	OnInventoryUpdate.Broadcast();
+}
+
+void UElementusInventoryComponent::NotifyInventoryChange()
+{
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		OnRep_ElementusItems();
+	}
+
+	MARK_PROPERTY_DIRTY_FROM_NAME(UElementusInventoryComponent, ElementusItems, this);
 }
 
 void UElementusInventoryComponent::UpdateWeight_Implementation()

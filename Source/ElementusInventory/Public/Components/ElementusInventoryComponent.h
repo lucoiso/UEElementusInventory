@@ -112,11 +112,13 @@ public:
 
 	/* Check if the inventory stack contains a item that matches the specified info */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool ContainsItem(const FElementusItemInfo InItemInfo) const;
+	bool ContainsItem(const FElementusItemInfo InItemInfo, const bool bIgnoreTags = false) const;
 
+#if WITH_EDITORONLY_DATA
 	/* Print debug informations in the log about this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	virtual void DebugInventory();
+#endif
 
 	/* Remove all items from this inventory */
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "Elementus Inventory")
@@ -128,19 +130,35 @@ public:
 
 	/* Get items from another inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
-	void GetItemsFrom(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+	void GetItemIndexesFrom(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
 
 	/* Give items to another inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
-	void GiveItemsTo(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+	void GiveItemIndexesTo(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+
+	/* Get items from another inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void GetItemsFrom(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items);
+
+	/* Give items to another inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void GiveItemsTo(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items);
 
 	/* Discard items from this inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
-	void DiscardItems(const TArray<int32>& ItemIndexes);
+	void DiscardItemIndexes(const TArray<int32>& ItemIndexes);
+
+	/* Discard items from this inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void DiscardItems(const TArray<FElementusItemInfo>& Items);
+
+	/* Add items to this inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void AddItems(const TArray<FElementusItemInfo>& Items);
 
 protected:
 	/* Items that this inventory have */
-	UPROPERTY(ReplicatedUsing=NotifyInventoryChange, EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory", meta = (Getter = "GetItemsArray", ArrayClamp = "MaxNumItems"))
+	UPROPERTY(ReplicatedUsing=OnRep_ElementusItems, EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory", meta = (Getter = "GetItemsArray", ArrayClamp = "MaxNumItems"))
 	TArray<FElementusItemInfo> ElementusItems;
 
 	/* Current weight of this inventory */
@@ -176,5 +194,10 @@ private:
 	void Server_ProcessInventoryRemoval_Internal(const TArray<FItemModifierData>& Modifiers);
 
 	UFUNCTION(Category = "Elementus Inventory")
+	void OnRep_ElementusItems();
+
+protected:
+	/* Mark the inventory as dirty to update the replicated data and broadcast the events */
+	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	void NotifyInventoryChange();
 };

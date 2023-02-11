@@ -217,18 +217,12 @@ TArray<FPrimaryAssetId> UElementusInventoryFunctions::GetAllElementusItemIds()
 
 void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo> ItemsToTrade, UElementusInventoryComponent* FromInventory, UElementusInventoryComponent* ToInventory)
 {
-	ItemsToTrade.RemoveAll([&FromInventory, &ToInventory](const FElementusItemInfo& InInfo)
-	{
-		return !FromInventory->CanGiveItem(InInfo) || !ToInventory->CanReceiveItem(InInfo);
-	});
-
 	if (ItemsToTrade.IsEmpty())
 	{
 		return;
 	}
 
-	FromInventory->UpdateElementusItems(ItemsToTrade, EElementusInventoryUpdateOperation::Remove);
-	ToInventory->UpdateElementusItems(ItemsToTrade, EElementusInventoryUpdateOperation::Add);
+	FromInventory->GiveItemsTo(ToInventory, ItemsToTrade);
 }
 
 bool UElementusInventoryFunctions::IsItemValid(const FElementusItemInfo InItemInfo)

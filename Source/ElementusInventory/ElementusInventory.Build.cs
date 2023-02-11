@@ -19,6 +19,7 @@ public class ElementusInventory : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new[]
 		{
 			"Engine",
+			"NetCore",
 			"CoreUObject",
 			"GameplayTags"
 		});
