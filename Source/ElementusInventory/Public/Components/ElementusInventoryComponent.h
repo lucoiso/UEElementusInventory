@@ -22,7 +22,7 @@ enum class EElementusInventoryUpdateOperation : uint8
 USTRUCT(Category = "Elementus Inventory | Structures")
 struct FItemModifierData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	FItemModifierData() = default;
 
@@ -49,7 +49,11 @@ class ELEMENTUSINVENTORY_API UElementusInventoryComponent : public UActorCompone
 
 public:
 	explicit UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
+
+	/* Experimental parameter to assist using empty slots in the inventory: If true, will replace empty slots with empty item info */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	bool bAllowEmptySlots;
+
 	/* Get the current inventory weight */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	float GetCurrentWeight() const;
@@ -113,6 +117,10 @@ public:
 	/* Check if the inventory stack contains a item that matches the specified info */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool ContainsItem(const FElementusItemInfo InItemInfo, const bool bIgnoreTags = false) const;
+
+	/* Check if the inventory is empty */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	bool IsInventoryEmpty() const;
 
 #if WITH_EDITORONLY_DATA
 	/* Print debug informations in the log about this inventory */

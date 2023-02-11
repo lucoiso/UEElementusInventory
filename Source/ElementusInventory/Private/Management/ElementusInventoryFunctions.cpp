@@ -43,8 +43,7 @@ UElementusItemData* UElementusInventoryFunctions::GetSingleItemDataById(const FP
 	UElementusItemData* Output = nullptr;
 	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		if (const TSharedPtr<FStreamableHandle> StreamableHandle = AssetManager->LoadPrimaryAsset(InID, InBundles);
-			StreamableHandle.IsValid())
+		if (const TSharedPtr<FStreamableHandle> StreamableHandle = AssetManager->LoadPrimaryAsset(InID, InBundles); StreamableHandle.IsValid())
 		{
 			StreamableHandle->WaitUntilComplete(5.f);
 			Output = Cast<UElementusItemData>(StreamableHandle->GetLoadedAsset());
@@ -155,13 +154,13 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 		}
 	};
 
-	if (const TSharedPtr<FStreamableHandle> StreamableHandle = InAssetManager->LoadPrimaryAssets(InIDs, InBundles);
-		StreamableHandle.IsValid())
+	if (const TSharedPtr<FStreamableHandle> StreamableHandle = InAssetManager->LoadPrimaryAssets(InIDs, InBundles); StreamableHandle.IsValid())
 	{
 		StreamableHandle->WaitUntilComplete(5.f);
 
 		TArray<UObject*> LoadedAssets;
 		StreamableHandle->GetLoadedAssets(LoadedAssets);
+		
 		PassItemArr_Lambda(LoadedAssets);
 	}
 	else // Objects already loaded
@@ -204,15 +203,14 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 
 TArray<FPrimaryAssetId> UElementusInventoryFunctions::GetAllElementusItemIds()
 {
+	TArray<FPrimaryAssetId> Output;
+
 	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		if (TArray<FPrimaryAssetId> IdList;
-			AssetManager->GetPrimaryAssetIdList(FPrimaryAssetType(ElementusItemDataType), IdList))
-		{
-			return IdList;
-		}
+		AssetManager->GetPrimaryAssetIdList(FPrimaryAssetType(ElementusItemDataType), Output);
 	}
-	return TArray<FPrimaryAssetId>();
+
+	return Output;
 }
 
 void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo> ItemsToTrade, UElementusInventoryComponent* FromInventory, UElementusInventoryComponent* ToInventory)
@@ -232,7 +230,12 @@ bool UElementusInventoryFunctions::IsItemValid(const FElementusItemInfo InItemIn
 
 bool UElementusInventoryFunctions::IsItemStackable(const FElementusItemInfo InItemInfo)
 {
-	if (const UElementusItemData* const ItemData = GetSingleItemDataById(InItemInfo.ItemId, {"Data"}))
+	if (InItemInfo == FElementusItemInfo::EmptyItemInfo)
+	{
+		return false;
+	}
+
+	if (const UElementusItemData* const ItemData = GetSingleItemDataById(InItemInfo.ItemId, { "Data" }))
 	{
 		return ItemData->bIsStackable;
 	}

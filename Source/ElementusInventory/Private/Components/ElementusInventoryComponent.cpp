@@ -8,13 +8,14 @@
 #include <Engine/AssetManager.h>
 #include <GameFramework/Actor.h>
 #include <Net/UnrealNetwork.h>
+#include <Algo/ForEach.h>
 #include <Algo/Copy.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryComponent)
 #endif
 
-UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
+UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bAllowEmptySlots(false), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
@@ -49,6 +50,11 @@ FElementusItemInfo UElementusInventoryComponent::GetItemCopyAt(const int32 Index
 
 bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InItemInfo) const
 {
+	if (InItemInfo == FElementusItemInfo::EmptyItemInfo)
+	{
+		return false;
+	}
+
 	if (MaxWeight == 0.f && MaxNumItems == 0)
 	{
 		return true;
@@ -56,7 +62,7 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 
 	bool bOutput = MaxNumItems > ElementusItems.Num();
 
-	if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(InItemInfo.ItemId, {"Data"}))
+	if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(InItemInfo.ItemId, { "Data" }))
 	{
 		bOutput = bOutput && (MaxWeight == 0.f || MaxWeight >= CurrentWeight + ItemData->ItemWeight * InItemInfo.Quantity);
 	}
@@ -71,10 +77,14 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 
 bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo InItemInfo) const
 {
-	if (TArray<int32> InIndex;
-		FindAllItemIndexesWithInfo(InItemInfo, InIndex))
+	if (InItemInfo == FElementusItemInfo::EmptyItemInfo)
 	{
-		int32 Quantity = 0;
+		return false;
+	}
+
+	if (TArray<int32> InIndex; FindAllItemIndexesWithInfo(InItemInfo, InIndex))
+	{
+		int32 Quantity = 0u;
 		for (const int32& Index : InIndex)
 		{
 			Quantity += ElementusItems[Index].Quantity;
@@ -116,7 +126,7 @@ void UElementusInventoryComponent::ForceWeightUpdate()
 	float NewWeigth = 0.f;
 	for (const FElementusItemInfo& Iterator : ElementusItems)
 	{
-		if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId, {"Data"}))
+		if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId, { "Data" }))
 		{
 			NewWeigth += ItemData->ItemWeight * Iterator.Quantity;
 		}
@@ -153,16 +163,23 @@ void UElementusInventoryComponent::ForceInventoryValidation()
 
 	if (!IndexesToRemove.IsEmpty())
 	{
-		for (const int32& Iterator : IndexesToRemove)
+		for (const uint32& Iterator : IndexesToRemove)
 		{
-			ElementusItems.RemoveAt(Iterator, 1, false);
+			if (bAllowEmptySlots)
+			{
+				ElementusItems[Iterator] = FElementusItemInfo::EmptyItemInfo;
+			}
+			else
+			{
+				ElementusItems.RemoveAt(Iterator, 1, false);				
+			}
 		}
 	}
 	if (!NewItems.IsEmpty())
 	{
 		ElementusItems.Append(NewItems);
 	}
-	
+
 	NotifyInventoryChange();
 }
 
@@ -290,28 +307,46 @@ bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemI
 	}) != nullptr;
 }
 
-#if WITH_EDITORONLY_DATA
-void UElementusInventoryComponent::DebugInventory()
+bool UElementusInventoryComponent::IsInventoryEmpty() const
 {
-	UE_LOG(LogElementusInventory, Warning, TEXT("%s"), *FString(__func__));
-	UE_LOG(LogElementusInventory, Warning, TEXT("Owning Actor: %s"), *GetOwner()->GetName());
+	bool bOutput = true;
 
 	for (const FElementusItemInfo& Iterator : ElementusItems)
 	{
-		UE_LOG(LogElementusInventory, Warning, TEXT("Item: %s"), *Iterator.ItemId.ToString());
-		UE_LOG(LogElementusInventory, Warning, TEXT("Quantity: %d"), Iterator.Quantity);
+		if (Iterator.Quantity > 0)
+		{
+			bOutput = false;
+			break;
+		}
+	}
+	
+	return bOutput;
+}
+
+#if WITH_EDITORONLY_DATA
+void UElementusInventoryComponent::DebugInventory()
+{
+#if !UE_BUILD_SHIPPING
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("%s"), *FString(__func__));
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Owning Actor: %s"), *GetOwner()->GetName());
+
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Weight: %d"), CurrentWeight);
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Num: %d"), ElementusItems.Num());
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Size: %d"), ElementusItems.GetAllocatedSize());
+
+	for (const FElementusItemInfo& Iterator : ElementusItems)
+	{
+		UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Item: %s"), *Iterator.ItemId.ToString());
+		UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Quantity: %d"), Iterator.Quantity);
 
 		for (const FGameplayTag& Tag : Iterator.Tags)
 		{
-			UE_LOG(LogElementusInventory, Warning, TEXT("Tag: %s"), *Tag.ToString());
+			UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Tag: %s"), *Tag.ToString());
 		}
 	}
 
-	UE_LOG(LogElementusInventory, Warning, TEXT("Weight: %d"), CurrentWeight);
-	UE_LOG(LogElementusInventory, Warning, TEXT("Num: %d"), ElementusItems.Num());
-	UE_LOG(LogElementusInventory, Warning, TEXT("Size: %d"), ElementusItems.GetAllocatedSize());
-
-	UE_LOG(LogElementusInventory, Warning, TEXT("Component Memory Size: %d"), GetResourceSizeBytes(EResourceSizeMode::EstimatedTotal));
+	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Component Memory Size: %d"), GetResourceSizeBytes(EResourceSizeMode::EstimatedTotal));
+#endif
 }
 #endif
 
@@ -331,12 +366,20 @@ void UElementusInventoryComponent::GetItemIndexesFrom_Implementation(UElementusI
 	}
 
 	TArray<FElementusItemInfo> Modifiers;
-	for (const int32& Iterator : ItemIndexes)
+	for (const uint32& Iterator : ItemIndexes)
 	{
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
 			Modifiers.Add(OtherInventory->ElementusItems[Iterator]);
-			OtherInventory->ElementusItems.RemoveAt(Iterator, 1, false);
+			
+			if (OtherInventory->bAllowEmptySlots)
+			{
+				OtherInventory->ElementusItems[Iterator] = FElementusItemInfo::EmptyItemInfo;
+			}
+			else
+			{
+				OtherInventory->ElementusItems.RemoveAt(Iterator, 1, false);
+			}
 		}
 	}
 
@@ -352,12 +395,20 @@ void UElementusInventoryComponent::GiveItemIndexesTo_Implementation(UElementusIn
 	}
 
 	TArray<FElementusItemInfo> Modifiers;
-	for (const int32& Iterator : ItemIndexes)
+	for (const uint32& Iterator : ItemIndexes)
 	{
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
 			Modifiers.Add(ElementusItems[Iterator]);
-			ElementusItems.RemoveAt(Iterator, 1, false);
+
+			if (bAllowEmptySlots)
+			{
+				ElementusItems[Iterator] = FElementusItemInfo::EmptyItemInfo;
+			}
+			else
+			{
+				ElementusItems.RemoveAt(Iterator, 1, false);
+			}
 		}
 	}
 
@@ -414,11 +465,18 @@ void UElementusInventoryComponent::DiscardItemIndexes_Implementation(const TArra
 		return;
 	}
 
-	for (const int32& Index : ItemIndexes)
+	for (const uint32& Index : ItemIndexes)
 	{
 		if (ElementusItems.IsValidIndex(Index))
 		{
-			ElementusItems.RemoveAt(Index, 1, false);
+			if (bAllowEmptySlots)
+			{
+				ElementusItems[Index] = FElementusItemInfo::EmptyItemInfo;
+			}
+			else
+			{
+				ElementusItems.RemoveAt(Index, 1, false);
+			}
 		}
 	}
 
@@ -454,7 +512,7 @@ void UElementusInventoryComponent::UpdateElementusItems(const TArray<FElementusI
 	const FString OpStr = Operation == EElementusInventoryUpdateOperation::Add ? "Add" : "Remove";
 	const FString OpPred = Operation == EElementusInventoryUpdateOperation::Add ? "to" : "from";
 
-	int32 SearchOffset = 0;
+	uint32 SearchOffset = 0;
 	FElementusItemInfo LastCheckedItem;
 	for (const FElementusItemInfo& Iterator : Modifiers)
 	{
@@ -462,13 +520,13 @@ void UElementusInventoryComponent::UpdateElementusItems(const TArray<FElementusI
 
 		if (Iterator != LastCheckedItem)
 		{
-			SearchOffset = 0;
+			SearchOffset = 0u;
 		}
 
 		int32 Index;
 		if (FindFirstItemIndexWithInfo(Iterator, Index, FGameplayTagContainer::EmptyContainer, SearchOffset) && Operation == EElementusInventoryUpdateOperation::Remove)
 		{
-			SearchOffset = Index + 1;
+			SearchOffset = Index + 1u;
 		}
 
 		ModifierDataArr.Add(FItemModifierData(Iterator, Index));
@@ -506,7 +564,7 @@ void UElementusInventoryComponent::Server_ProcessInventoryAddition_Internal_Impl
 		}
 		else if (!bIsStackable)
 		{
-			for (int32 i = 0; i < Iterator.ItemInfo.Quantity; ++i)
+			for (int32 i = 0u; i < Iterator.ItemInfo.Quantity; ++i)
 			{
 				const FElementusItemInfo ItemInfo{Iterator.ItemInfo.ItemId, 1, Iterator.ItemInfo.Tags};
 
@@ -541,10 +599,23 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 		ElementusItems[Iterator.Index].Quantity -= Iterator.ItemInfo.Quantity;
 	}
 
-	ElementusItems.RemoveAll([](const FElementusItemInfo& InInfo)
+	if (bAllowEmptySlots)
 	{
-		return InInfo.Quantity <= 0;
-	});
+		Algo::ForEach(ElementusItems, [](FElementusItemInfo& InInfo)
+		{
+			if (InInfo.Quantity <= 0)
+			{
+				InInfo = FElementusItemInfo::EmptyItemInfo;
+			}
+		});
+	}
+	else
+	{
+		ElementusItems.RemoveAll([](const FElementusItemInfo& InInfo)
+		{
+			return InInfo.Quantity <= 0;
+		});		
+	}
 
 	NotifyInventoryChange();
 }
@@ -553,8 +624,10 @@ void UElementusInventoryComponent::OnRep_ElementusItems()
 {
 	ElementusItems.Shrink();
 
-	if (ElementusItems.IsEmpty())
+	if (IsInventoryEmpty())
 	{
+		ElementusItems.Empty();
+		
 		CurrentWeight = 0.f;
 		OnInventoryEmpty.Broadcast();
 	}
@@ -581,7 +654,7 @@ void UElementusInventoryComponent::UpdateWeight_Implementation()
 	float NewWeight = 0.f;
 	for (const FElementusItemInfo& Iterator : ElementusItems)
 	{
-		if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId, {"Data"}))
+		if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId, { "Data" }))
 		{
 			NewWeight += ItemData->ItemWeight * Iterator.Quantity;
 		}

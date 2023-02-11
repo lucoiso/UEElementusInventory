@@ -16,9 +16,7 @@ public:
 	}
 
 	SLATE_ARGUMENT(SElementusTable*, TableSource)
-	SLATE_END_ARGS
-	(
-	)
+	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
 

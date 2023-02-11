@@ -20,6 +20,7 @@ class UElementusInventoryComponent;
 class UAssetManager;
 class UElementusItemData;
 struct FPrimaryElementusItemId;
+
 /**
  * 
  */
