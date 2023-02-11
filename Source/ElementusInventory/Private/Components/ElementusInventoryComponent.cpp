@@ -9,6 +9,7 @@
 #include <GameFramework/Actor.h>
 #include <Net/UnrealNetwork.h>
 #include <Algo/ForEach.h>
+#include <Algo/Copy.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryComponent)
@@ -49,6 +50,11 @@ FElementusItemInfo UElementusInventoryComponent::GetItemCopyAt(const int32 Index
 
 bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InItemInfo) const
 {
+	if (InItemInfo == FElementusItemInfo::EmptyItemInfo)
+	{
+		return false;
+	}
+
 	if (MaxWeight == 0.f && MaxNumItems == 0)
 	{
 		return true;
@@ -71,6 +77,11 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 
 bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo InItemInfo) const
 {
+	if (InItemInfo == FElementusItemInfo::EmptyItemInfo)
+	{
+		return false;
+	}
+
 	if (TArray<int32> InIndex; FindAllItemIndexesWithInfo(InItemInfo, InIndex))
 	{
 		int32 Quantity = 0u;
@@ -98,7 +109,10 @@ void UElementusInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimePr
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UElementusInventoryComponent, ElementusItems);
+	FDoRepLifetimeParams SharedParams;
+	SharedParams.bIsPushBased = true;
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(UElementusInventoryComponent, ElementusItems, SharedParams);
 }
 
 void UElementusInventoryComponent::RefreshInventory()
@@ -280,10 +294,15 @@ bool UElementusInventoryComponent::FindAllItemIndexesWithId(const FPrimaryElemen
 	return !OutIndexes.IsEmpty();
 }
 
-bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemInfo) const
+bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemInfo, const bool bIgnoreTags) const
 {
-	return ElementusItems.FindByPredicate([&InItemInfo](const FElementusItemInfo& InInfo)
+	return ElementusItems.FindByPredicate([&InItemInfo, &bIgnoreTags](const FElementusItemInfo& InInfo)
 	{
+		if (bIgnoreTags)
+		{
+			return InInfo.ItemId == InItemInfo.ItemId;
+		}
+
 		return InInfo == InItemInfo;
 	}) != nullptr;
 }
@@ -304,6 +323,7 @@ bool UElementusInventoryComponent::IsInventoryEmpty() const
 	return bOutput;
 }
 
+#if WITH_EDITORONLY_DATA
 void UElementusInventoryComponent::DebugInventory()
 {
 #if !UE_BUILD_SHIPPING
@@ -328,6 +348,7 @@ void UElementusInventoryComponent::DebugInventory()
 	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Component Memory Size: %d"), GetResourceSizeBytes(EResourceSizeMode::EstimatedTotal));
 #endif
 }
+#endif
 
 void UElementusInventoryComponent::ClearInventory_Implementation()
 {
@@ -337,7 +358,7 @@ void UElementusInventoryComponent::ClearInventory_Implementation()
 	CurrentWeight = 0.f;
 }
 
-void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
+void UElementusInventoryComponent::GetItemIndexesFrom_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
 {
 	if (GetOwnerRole() != ROLE_Authority)
 	{
@@ -366,7 +387,7 @@ void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInvento
 	UpdateElementusItems(Modifiers, EElementusInventoryUpdateOperation::Add);
 }
 
-void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
+void UElementusInventoryComponent::GiveItemIndexesTo_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
 {
 	if (GetOwnerRole() != ROLE_Authority)
 	{
@@ -395,7 +416,49 @@ void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventor
 	OtherInventory->UpdateElementusItems(Modifiers, EElementusInventoryUpdateOperation::Add);
 }
 
-void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<int32>& ItemIndexes)
+void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+
+	if (!IsValid(OtherInventory))
+	{
+		return;
+	}
+
+	TArray<FElementusItemInfo> TradeableItems;
+	Algo::CopyIf(Items, TradeableItems, [this, &OtherInventory](const FElementusItemInfo& Item) {
+		return OtherInventory->CanGiveItem(Item) && CanReceiveItem(Item);;
+	});
+	
+	OtherInventory->UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Remove);
+	UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Add);
+}
+
+void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority)
+	{
+		return;
+	}
+	
+	if (!IsValid(OtherInventory))
+	{
+		return;
+	}
+
+	TArray<FElementusItemInfo> TradeableItems;
+	Algo::CopyIf(Items, TradeableItems, [this, &OtherInventory](const FElementusItemInfo& Item) {
+		return CanGiveItem(Item) && OtherInventory->CanReceiveItem(Item);
+	});
+
+	UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Remove);
+	OtherInventory->UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Add);
+}
+
+void UElementusInventoryComponent::DiscardItemIndexes_Implementation(const TArray<int32>& ItemIndexes)
 {
 	if (GetOwnerRole() != ROLE_Authority || ItemIndexes.IsEmpty())
 	{
@@ -417,6 +480,28 @@ void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<int3
 		}
 	}
 
+	NotifyInventoryChange();
+}
+
+void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority || Items.IsEmpty())
+	{
+		return;
+	}
+
+	UpdateElementusItems(Items, EElementusInventoryUpdateOperation::Remove);
+	NotifyInventoryChange();
+}
+
+void UElementusInventoryComponent::AddItems_Implementation(const TArray<FElementusItemInfo>& Items)
+{
+	if (GetOwnerRole() != ROLE_Authority || Items.IsEmpty())
+	{
+		return;
+	}
+
+	UpdateElementusItems(Items, EElementusInventoryUpdateOperation::Add);
 	NotifyInventoryChange();
 }
 
@@ -535,7 +620,7 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 	NotifyInventoryChange();
 }
 
-void UElementusInventoryComponent::NotifyInventoryChange()
+void UElementusInventoryComponent::OnRep_ElementusItems()
 {
 	ElementusItems.Shrink();
 
@@ -552,6 +637,16 @@ void UElementusInventoryComponent::NotifyInventoryChange()
 	}
 
 	OnInventoryUpdate.Broadcast();
+}
+
+void UElementusInventoryComponent::NotifyInventoryChange()
+{
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		OnRep_ElementusItems();
+	}
+
+	MARK_PROPERTY_DIRTY_FROM_NAME(UElementusInventoryComponent, ElementusItems, this);
 }
 
 void UElementusInventoryComponent::UpdateWeight_Implementation()
