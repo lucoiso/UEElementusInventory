@@ -50,7 +50,7 @@ class ELEMENTUSINVENTORY_API UElementusInventoryComponent : public UActorCompone
 public:
 	explicit UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	/* If true, will replace empty slots with empty item info */
+	/* Experimental parameter to assist using empty slots in the inventory: If true, will replace empty slots with empty item info */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
 	bool bAllowEmptySlots;
 
