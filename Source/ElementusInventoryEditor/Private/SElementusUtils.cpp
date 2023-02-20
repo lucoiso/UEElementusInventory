@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusUtils.h"
@@ -12,6 +12,10 @@
 void SElementusUtils::Construct(const FArguments& InArgs)
 {
 	TableSource = InArgs._TableSource;
+
+#if ENGINE_MAJOR_VERSION < 5
+	using FAppStyle = FEditorStyle;
+#endif
 
 	const ISlateStyle& AppStyle = FAppStyle::Get();
 	constexpr float Slot_Padding = 2.f;

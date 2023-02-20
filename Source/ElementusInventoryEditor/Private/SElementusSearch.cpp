@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusSearch.h"
@@ -12,6 +12,10 @@ void SElementusSearch::Construct(const FArguments& InArgs)
 {
 	OnCheckStateChanged = InArgs._OnCheckboxStateChanged;
 	OnTextChangedDelegate = InArgs._OnSearchTextChanged;
+
+#if ENGINE_MAJOR_VERSION < 5
+	using FAppStyle = FEditorStyle;
+#endif
 
 	const ISlateStyle& AppStyle = FAppStyle::Get();
 	

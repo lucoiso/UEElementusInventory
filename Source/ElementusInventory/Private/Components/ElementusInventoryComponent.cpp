@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "Components/ElementusInventoryComponent.h"
@@ -90,7 +90,7 @@ bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo InItemIn
 		return false;
 	}
 
-	if (TArray<int32> InIndex; FindAllItemIndexesWithInfo(InItemInfo, InIndex))
+	if (TArray<int32> InIndex; FindAllItemIndexesWithInfo(InItemInfo, InIndex, FGameplayTagContainer::EmptyContainer))
 	{
 		int32 Quantity = 0u;
 		for (const int32& Index : InIndex)
@@ -169,7 +169,7 @@ void UElementusInventoryComponent::ForceInventoryValidation()
 		}
 	}
 
-	if (!IndexesToRemove.IsEmpty())
+	if (!UElementusInventoryFunctions::HasEmptyParam(IndexesToRemove))
 	{
 		for (const uint32& Iterator : IndexesToRemove)
 		{
@@ -183,7 +183,7 @@ void UElementusInventoryComponent::ForceInventoryValidation()
 			}
 		}
 	}
-	if (!NewItems.IsEmpty())
+	if (!UElementusInventoryFunctions::HasEmptyParam(NewItems))
 	{
 		ElementusItems.Append(NewItems);
 	}
@@ -191,7 +191,7 @@ void UElementusInventoryComponent::ForceInventoryValidation()
 	NotifyInventoryChange();
 }
 
-bool UElementusInventoryComponent::FindFirstItemIndexWithInfo(const FElementusItemInfo InItemInfo, int32& OutIndex, const FGameplayTagContainer IgnoreTags, const int32 Offset) const
+bool UElementusInventoryComponent::FindFirstItemIndexWithInfo(const FElementusItemInfo InItemInfo, int32& OutIndex, const FGameplayTagContainer& IgnoreTags, const int32 Offset) const
 {
 	for (int32 Iterator = Offset; Iterator < ElementusItems.Num(); ++Iterator)
 	{
@@ -212,7 +212,7 @@ bool UElementusInventoryComponent::FindFirstItemIndexWithInfo(const FElementusIt
 	return false;
 }
 
-bool UElementusInventoryComponent::FindFirstItemIndexWithTags(const FGameplayTagContainer WithTags, int32& OutIndex, const FGameplayTagContainer IgnoreTags, const int32 Offset) const
+bool UElementusInventoryComponent::FindFirstItemIndexWithTags(const FGameplayTagContainer WithTags, int32& OutIndex, const FGameplayTagContainer& IgnoreTags, const int32 Offset) const
 {
 	for (int32 Iterator = Offset; Iterator < ElementusItems.Num(); ++Iterator)
 	{
@@ -230,7 +230,7 @@ bool UElementusInventoryComponent::FindFirstItemIndexWithTags(const FGameplayTag
 	return false;
 }
 
-bool UElementusInventoryComponent::FindFirstItemIndexWithId(const FPrimaryElementusItemId InId, int32& OutIndex, const FGameplayTagContainer IgnoreTags, const int32 Offset) const
+bool UElementusInventoryComponent::FindFirstItemIndexWithId(const FPrimaryElementusItemId InId, int32& OutIndex, const FGameplayTagContainer& IgnoreTags, const int32 Offset) const
 {
 	for (int32 Iterator = Offset; Iterator < ElementusItems.Num(); ++Iterator)
 	{
@@ -245,7 +245,7 @@ bool UElementusInventoryComponent::FindFirstItemIndexWithId(const FPrimaryElemen
 	return false;
 }
 
-bool UElementusInventoryComponent::FindAllItemIndexesWithInfo(const FElementusItemInfo InItemInfo, TArray<int32>& OutIndexes, const FGameplayTagContainer IgnoreTags) const
+bool UElementusInventoryComponent::FindAllItemIndexesWithInfo(const FElementusItemInfo InItemInfo, TArray<int32>& OutIndexes, const FGameplayTagContainer& IgnoreTags) const
 {
 	for (auto Iterator = ElementusItems.CreateConstIterator(); Iterator; ++Iterator)
 	{
@@ -267,10 +267,10 @@ bool UElementusInventoryComponent::FindAllItemIndexesWithInfo(const FElementusIt
 		}
 	}
 
-	return !OutIndexes.IsEmpty();
+	return !UElementusInventoryFunctions::HasEmptyParam(OutIndexes);
 }
 
-bool UElementusInventoryComponent::FindAllItemIndexesWithTags(const FGameplayTagContainer WithTags, TArray<int32>& OutIndexes, const FGameplayTagContainer IgnoreTags) const
+bool UElementusInventoryComponent::FindAllItemIndexesWithTags(const FGameplayTagContainer WithTags, TArray<int32>& OutIndexes, const FGameplayTagContainer& IgnoreTags) const
 {
 	for (auto Iterator = ElementusItems.CreateConstIterator(); Iterator; ++Iterator)
 	{
@@ -286,10 +286,10 @@ bool UElementusInventoryComponent::FindAllItemIndexesWithTags(const FGameplayTag
 		}
 	}
 
-	return !OutIndexes.IsEmpty();
+	return !UElementusInventoryFunctions::HasEmptyParam(OutIndexes);
 }
 
-bool UElementusInventoryComponent::FindAllItemIndexesWithId(const FPrimaryElementusItemId InId, TArray<int32>& OutIndexes, const FGameplayTagContainer IgnoreTags) const
+bool UElementusInventoryComponent::FindAllItemIndexesWithId(const FPrimaryElementusItemId InId, TArray<int32>& OutIndexes, const FGameplayTagContainer& IgnoreTags) const
 {
 	for (auto Iterator = ElementusItems.CreateConstIterator(); Iterator; ++Iterator)
 	{
@@ -299,7 +299,7 @@ bool UElementusInventoryComponent::FindAllItemIndexesWithId(const FPrimaryElemen
 		}
 	}
 
-	return !OutIndexes.IsEmpty();
+	return !UElementusInventoryFunctions::HasEmptyParam(OutIndexes);
 }
 
 bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemInfo, const bool bIgnoreTags) const
@@ -468,7 +468,7 @@ void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventor
 
 void UElementusInventoryComponent::DiscardItemIndexes_Implementation(const TArray<int32>& ItemIndexes)
 {
-	if (GetOwnerRole() != ROLE_Authority || ItemIndexes.IsEmpty())
+	if (GetOwnerRole() != ROLE_Authority || UElementusInventoryFunctions::HasEmptyParam(ItemIndexes))
 	{
 		return;
 	}
@@ -493,7 +493,7 @@ void UElementusInventoryComponent::DiscardItemIndexes_Implementation(const TArra
 
 void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<FElementusItemInfo>& Items)
 {
-	if (GetOwnerRole() != ROLE_Authority || Items.IsEmpty())
+	if (GetOwnerRole() != ROLE_Authority || UElementusInventoryFunctions::HasEmptyParam(Items))
 	{
 		return;
 	}
@@ -504,7 +504,7 @@ void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<FEle
 
 void UElementusInventoryComponent::AddItems_Implementation(const TArray<FElementusItemInfo>& Items)
 {
-	if (GetOwnerRole() != ROLE_Authority || Items.IsEmpty())
+	if (GetOwnerRole() != ROLE_Authority || UElementusInventoryFunctions::HasEmptyParam(Items))
 	{
 		return;
 	}
@@ -635,7 +635,7 @@ void UElementusInventoryComponent::OnRep_ElementusItems()
 	{
 		ElementusItems.RemoveAt(LastValidIndex + 1, ElementusItems.Num() - LastValidIndex - 1, false);
 	}
-	else if (LastValidIndex == INDEX_NONE && !ElementusItems.IsEmpty())
+	else if (LastValidIndex == INDEX_NONE && !UElementusInventoryFunctions::HasEmptyParam(ElementusItems))
 	{
 		ElementusItems.Empty();
 	}
