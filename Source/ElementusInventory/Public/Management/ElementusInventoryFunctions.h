@@ -1,11 +1,12 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #pragma once
 
 #include <CoreMinimal.h>
 #include <Kismet/BlueprintFunctionLibrary.h>
+#include <Runtime/Launch/Resources/Version.h>
 #include "ElementusInventoryFunctions.generated.h"
 
 UENUM(BlueprintType, Category = "Elementus Inventory | Enumerations")
@@ -81,6 +82,27 @@ public:
 	/* Convert an item type enum value to string */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	static FString ElementusItemEnumTypeToString(const EElementusItemType InEnumName);
+
+	template<typename Ty>
+	constexpr static const bool HasEmptyParam(const Ty& Arg1)
+	{
+		if constexpr (std::is_base_of<FString, Ty>())
+		{
+			return Arg1.IsEmpty();
+		}
+		else if constexpr (std::is_base_of<FName, Ty>())
+		{
+			return Arg1.IsNone();
+		}
+		else
+		{
+#if ENGINE_MAJOR_VERSION >= 5
+			return Arg1.IsEmpty();
+#else
+			return Arg1.Num() == 0;
+#endif
+		}
+	}
 
 private:
 	static TArray<UElementusItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryAssetId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload);

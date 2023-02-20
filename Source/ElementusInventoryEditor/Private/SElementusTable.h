@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #pragma once
@@ -57,17 +57,17 @@ public:
 
 protected:
 	TSharedRef<ITableRow> OnGenerateWidgetForList(const FElementusItemPtr InItem, const TSharedRef<STableViewBase>& OwnerTable) const;
-	void OnTableItemDoubleClicked(TSharedPtr<FElementusItemRowData> ElementusItemRowData) const;
+	void OnTableItemDoubleClicked(FElementusItemPtr ElementusItemRowData) const;
 	void OnColumnSort(EColumnSortPriority::Type SortPriority, const FName& ColumnName, EColumnSortMode::Type SortMode);
 	EColumnSortMode::Type GetColumnSort(const FName ColumnId) const;
 	EVisibility GetIsVisible(const FElementusItemPtr InItem) const;
 	void OnSearchTextModified(const FText& InText);
 	void OnSearchTypeModified(const ECheckBoxState InState, const int32 InType);
 	void UpdateItemList();
-	TArray<TSharedPtr<FElementusItemRowData>> GetSelectedItems() const;
+	TArray<FElementusItemPtr> GetSelectedItems() const;
 
 private:
-	TArray<TSharedPtr<FElementusItemRowData>> ItemArr;
+	TArray<FElementusItemPtr> ItemArr;
 	TArray<int32> AllowedTypes;
 	FText SearchText;
 	FName ColumnBeingSorted = NAME_None;

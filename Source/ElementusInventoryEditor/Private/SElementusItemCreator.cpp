@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusItemCreator.h"
@@ -15,13 +15,21 @@
 #include <Widgets/Input/STextComboBox.h>
 #include <Widgets/Layout/SScrollBox.h>
 #include <Factories/DataAssetFactory.h>
+
+#if ENGINE_MAJOR_VERSION >= 5
 #include <UObject/SavePackage.h>
+#endif
 
 void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 {
 	constexpr float Slot_Padding = 1.f;
 
 	ImageIcon_ThumbnailPool = MakeShareable(new FAssetThumbnailPool(1024));
+
+#if ENGINE_MAJOR_VERSION < 5
+	using FAppStyle = FEditorStyle;
+#endif
+
 	const ISlateStyle& AppStyle = FAppStyle::Get();
 
 	const auto CenterTextCreator_Lambda = [&AppStyle](const FString& InStr) -> const TSharedRef<STextBlock>
@@ -290,7 +298,7 @@ void SElementusItemCreator::UpdateFolders()
 		}
 	}
 
-	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid(); IsValid(AssetManager) && AssetManager->HasInitialScanCompleted() && AssetFoldersArr.IsEmpty())
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid(); IsValid(AssetManager) && AssetManager->HasInitialScanCompleted() && UElementusInventoryFunctions::HasEmptyParam(AssetFoldersArr))
 	{
 		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(TEXT("Asset Manager could not find any folder. Please check your Asset Manager settings.")));
 	}
@@ -315,8 +323,8 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 	{
 		UElementusItemData* const ItemData = Cast<UElementusItemData>(NewData);
 		ItemData->ItemId = ItemId;
-		ItemData->ItemObject = TSoftObjectPtr(Cast<UObject>(ObjectMap.FindRef(0)));
-		ItemData->ItemClass = TSoftClassPtr(ItemClass.Get());
+		ItemData->ItemObject = TSoftObjectPtr<UObject>(Cast<UObject>(ObjectMap.FindRef(0)));
+		ItemData->ItemClass = TSoftClassPtr<UClass>(ItemClass.Get());
 		ItemData->ItemName = ItemName;
 		ItemData->ItemDescription = ItemDescription;
 		ItemData->ItemType = static_cast<EElementusItemType>(ItemType);
@@ -330,11 +338,16 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 		SyncAssets.Add(FAssetData(ItemData));
 		GEditor->SyncBrowserToObjects(SyncAssets);
 
-		const FSavePackageArgs SaveArgs;
 		const FString TempPackageName = ItemData->GetPackage()->GetName();
 		const FString TempPackageFilename = FPackageName::LongPackageNameToFilename(TempPackageName, FPackageName::GetAssetPackageExtension());
 
-		GEditor->Save(ItemData->GetPackage(), ItemData, *TempPackageFilename, SaveArgs);
+#if ENGINE_MAJOR_VERSION >= 5
+		FSavePackageArgs SaveArgs;
+		SaveArgs.SaveFlags = RF_Public | RF_Standalone;
+		UPackage::SavePackage(ItemData->GetPackage(), ItemData, *TempPackageFilename, SaveArgs);
+#else
+		UPackage::SavePackage(ItemData->GetPackage(), ItemData, RF_Public | RF_Standalone, *TempPackageFilename);
+#endif
 	}
 
 	return FReply::Handled();

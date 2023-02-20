@@ -1,15 +1,14 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #pragma once
 
 #include <CoreMinimal.h>
+#include <GameplayTagContainer.h>
 #include <Components/ActorComponent.h>
 #include "Management/ElementusInventoryData.h"
 #include "ElementusInventoryComponent.generated.h"
-
-struct FElementusItemInfo;
 
 UENUM(Category = "Elementus Inventory | Enumerations")
 enum class EElementusInventoryUpdateOperation : uint8
@@ -91,28 +90,28 @@ public:
 	virtual bool CanGiveItem(const FElementusItemInfo InItemInfo) const;
 
 	/* Find the first elementus item that matches the specified info */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindFirstItemIndexWithInfo(const FElementusItemInfo InItemInfo, int32& OutIndex, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(), const int32 Offset = 0) const;
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindFirstItemIndexWithInfo(const FElementusItemInfo InItemInfo, int32& OutIndex, const FGameplayTagContainer& IgnoreTags, const int32 Offset = 0) const;
 
 	/* Find the first elementus item that matches the specified tag container */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindFirstItemIndexWithTags(const FGameplayTagContainer WithTags, int32& OutIndex, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(), const int32 Offset = 0) const;
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindFirstItemIndexWithTags(const FGameplayTagContainer WithTags, int32& OutIndex, const FGameplayTagContainer& IgnoreTags, const int32 Offset = 0) const;
 
 	/* Find the first elementus item that matches the specified id */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindFirstItemIndexWithId(const FPrimaryElementusItemId InId, int32& OutIndex, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(), const int32 Offset = 0) const;
-	
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindFirstItemIndexWithId(const FPrimaryElementusItemId InId, int32& OutIndex, const FGameplayTagContainer& IgnoreTags, const int32 Offset = 0) const;
+
 	/* Find the first elementus item that matches the specified info */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindAllItemIndexesWithInfo(const FElementusItemInfo InItemInfo, TArray<int32>& OutIndexes, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindAllItemIndexesWithInfo(const FElementusItemInfo InItemInfo, TArray<int32>& OutIndexes, const FGameplayTagContainer& IgnoreTags) const;
 
 	/* Find the first elementus item that matches the specified tag container */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindAllItemIndexesWithTags(const FGameplayTagContainer WithTags, TArray<int32>& OutIndexes, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindAllItemIndexesWithTags(const FGameplayTagContainer WithTags, TArray<int32>& OutIndexes, const FGameplayTagContainer& IgnoreTags) const;
 
 	/* Find the first elementus item that matches the specified id */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindAllItemIndexesWithId(const FPrimaryElementusItemId InId, TArray<int32>& OutIndexes, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindAllItemIndexesWithId(const FPrimaryElementusItemId InId, TArray<int32>& OutIndexes, const FGameplayTagContainer& IgnoreTags) const;
 
 	/* Check if the inventory stack contains a item that matches the specified info */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
@@ -122,11 +121,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool IsInventoryEmpty() const;
 
-#if WITH_EDITORONLY_DATA
 	/* Print debug informations in the log about this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	virtual void DebugInventory();
-#endif
 
 	/* Remove all items from this inventory */
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "Elementus Inventory")

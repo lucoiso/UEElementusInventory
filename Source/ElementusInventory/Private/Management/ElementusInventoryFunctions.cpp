@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "Management/ElementusInventoryFunctions.h"
@@ -135,7 +135,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 
 	const auto PassItemArr_Lambda = [&CheckAssetValidity_Lambda, &Output, FuncName = __func__](TArray<UObject*>& InArr)
 	{
-		if (InArr.IsEmpty())
+		if (UElementusInventoryFunctions::HasEmptyParam(InArr))
 		{
 			UE_LOG(LogElementusInventory_Internal, Error, TEXT("%s: Failed to find items with the given parameters"), *FString(FuncName));
 		}
@@ -171,7 +171,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 			PassItemArr_Lambda(LoadedAssets);
 		}
 
-		if (!Output.IsEmpty())
+		if (!UElementusInventoryFunctions::HasEmptyParam(Output))
 		{
 			for (int32 Iterator = 0; Iterator < InIDs.Num(); ++Iterator)
 			{
@@ -215,7 +215,7 @@ TArray<FPrimaryAssetId> UElementusInventoryFunctions::GetAllElementusItemIds()
 
 void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo> ItemsToTrade, UElementusInventoryComponent* FromInventory, UElementusInventoryComponent* ToInventory)
 {
-	if (ItemsToTrade.IsEmpty())
+	if (UElementusInventoryFunctions::HasEmptyParam(ItemsToTrade))
 	{
 		return;
 	}

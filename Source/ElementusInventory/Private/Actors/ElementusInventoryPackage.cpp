@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "Actors/ElementusInventoryPackage.h"
@@ -9,6 +9,10 @@
 #include "Management/ElementusInventoryData.h"
 #include "LogElementusInventory.h"
 #include <Net/UnrealNetwork.h>
+
+#if ENGINE_MAJOR_VERSION < 5
+#include <Net/Core/PushModel/PushModel.h>
+#endif
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryPackage)
@@ -40,7 +44,7 @@ void AElementusInventoryPackage::BeginPlay()
 
 	SetDestroyOnEmpty(bDestroyWhenInventoryIsEmpty);
 
-	if (bDestroyWhenInventoryIsEmpty && PackageInventory->GetItemsArray().IsEmpty())
+	if (bDestroyWhenInventoryIsEmpty && UElementusInventoryFunctions::HasEmptyParam(PackageInventory->GetItemsArray()))
 	{
 		Destroy();
 	}

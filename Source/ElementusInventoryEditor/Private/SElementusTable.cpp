@@ -1,12 +1,12 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusTable.h"
 #include <Management/ElementusInventoryFunctions.h>
 #include <Management/ElementusInventoryData.h>
-#include <Engine/AssetManager.h>
 #include <Subsystems/AssetEditorSubsystem.h>
+#include <Engine/AssetManager.h>
 
 static const FName ColumnId_PrimaryIdLabel("PrimaryAssetId");
 static const FName ColumnId_ItemIdLabel("Id");
@@ -150,7 +150,7 @@ TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusI
 		.HightlightTextSource(&SearchText);
 }
 
-void SElementusTable::OnTableItemDoubleClicked(const TSharedPtr<FElementusItemRowData> ElementusItemRowData) const
+void SElementusTable::OnTableItemDoubleClicked(const FElementusItemPtr ElementusItemRowData) const
 {
 	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
@@ -176,7 +176,7 @@ EVisibility SElementusTable::GetIsVisible(const FElementusItemPtr InItem) const
 				|| FString::SanitizeFloat(InItem->Value).Contains(InText, ESearchCase::IgnoreCase)
 				|| FString::SanitizeFloat(InItem->Weight).Contains(InText, ESearchCase::IgnoreCase);
 		}(SearchText.ToString())
-		&& (AllowedTypes.Contains(static_cast<uint8>(InItem->Type)) || AllowedTypes.IsEmpty()))
+		&& (AllowedTypes.Contains(static_cast<uint8>(InItem->Type)) || UElementusInventoryFunctions::HasEmptyParam(AllowedTypes)))
 	{
 		Output = EVisibility::Visible;
 	}
@@ -223,13 +223,13 @@ void SElementusTable::UpdateItemList()
 
 	EdListView->RequestListRefresh();
 
-	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid(); IsValid(AssetManager) && AssetManager->HasInitialScanCompleted() && ItemArr.IsEmpty())
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid(); IsValid(AssetManager) && AssetManager->HasInitialScanCompleted() && UElementusInventoryFunctions::HasEmptyParam(ItemArr))
 	{
 		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(TEXT("Asset Manager could not find any Elementus Items. Please check your Asset Manager settings.")));
 	}
 }
 
-TArray<TSharedPtr<FElementusItemRowData>> SElementusTable::GetSelectedItems() const
+TArray<FElementusItemPtr> SElementusTable::GetSelectedItems() const
 {
 	return EdListView->GetSelectedItems();
 }
@@ -257,7 +257,7 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
 		}
 	};
 
-	const auto Sort_Lambda = [&ColumnName, &CompareLambda](const TSharedPtr<FElementusItemRowData>& Val1, const TSharedPtr<FElementusItemRowData>& Val2) -> bool
+	const auto Sort_Lambda = [&ColumnName, &CompareLambda](const FElementusItemPtr& Val1, const FElementusItemPtr& Val2) -> bool
 	{
 		if (ColumnName == ColumnId_PrimaryIdLabel)
 		{
