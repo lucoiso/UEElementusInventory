@@ -622,6 +622,16 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 
 void UElementusInventoryComponent::OnRep_ElementusItems()
 {
+	if (const int32 LastValidIndex = ElementusItems.FindLastByPredicate([](const FElementusItemInfo& Item) { return Item != FElementusItemInfo::EmptyItemInfo; }); 
+		LastValidIndex != INDEX_NONE && ElementusItems.IsValidIndex(LastValidIndex + 1))
+	{
+		ElementusItems.RemoveAt(LastValidIndex + 1, ElementusItems.Num() - LastValidIndex - 1, false);
+	}
+	else if (LastValidIndex == INDEX_NONE && !ElementusItems.IsEmpty())
+	{
+		ElementusItems.Empty();
+	}
+
 	ElementusItems.Shrink();
 
 	if (IsInventoryEmpty())
