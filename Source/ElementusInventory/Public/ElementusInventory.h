@@ -1,16 +1,10 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #pragma once
 
-#include <Runtime/Launch/Resources/Version.h>
-
-#if ENGINE_MAJOR_VERSION >= 5
 #include <Modules/ModuleInterface.h>
-#else
-#include <Modules/ModuleManager.h>
-#endif
 
 /**
  *

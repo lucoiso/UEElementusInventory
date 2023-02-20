@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "SElementusItemCreator.h"
@@ -8,20 +8,28 @@
 #include <PropertyCustomizationHelpers.h>
 #include <AssetThumbnail.h>
 #include <AssetToolsModule.h>
+#include <PackageTools.h>
 #include <Engine/AssetManager.h>
 #include <Widgets/Input/SNumericEntryBox.h>
 #include <Widgets/Input/SMultiLineEditableTextBox.h>
 #include <Widgets/Input/STextComboBox.h>
 #include <Widgets/Layout/SScrollBox.h>
-#include <PackageTools.h>
 #include <Factories/DataAssetFactory.h>
+
+#if ENGINE_MAJOR_VERSION >= 5
 #include <UObject/SavePackage.h>
+#endif
 
 void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 {
 	constexpr float Slot_Padding = 1.f;
 
 	ImageIcon_ThumbnailPool = MakeShareable(new FAssetThumbnailPool(1024));
+
+#if ENGINE_MAJOR_VERSION < 5
+	using FAppStyle = FEditorStyle;
+#endif
+
 	const ISlateStyle& AppStyle = FAppStyle::Get();
 
 	const auto CenterTextCreator_Lambda = [&AppStyle](const FString& InStr) -> const TSharedRef<STextBlock>
@@ -281,8 +289,7 @@ void SElementusItemCreator::UpdateFolders()
 
 	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		if (FPrimaryAssetTypeInfo Info;
-			AssetManager->GetPrimaryAssetTypeInfo(FPrimaryAssetType(ElementusItemDataType), Info))
+		if (FPrimaryAssetTypeInfo Info; AssetManager->GetPrimaryAssetTypeInfo(FPrimaryAssetType(ElementusItemDataType), Info))
 		{
 			for (const FString& Path : Info.AssetScanPaths)
 			{
@@ -291,8 +298,7 @@ void SElementusItemCreator::UpdateFolders()
 		}
 	}
 
-	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid();
-		IsValid(AssetManager) && AssetManager->HasInitialScanCompleted() && AssetFoldersArr.IsEmpty())
+	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid(); IsValid(AssetManager) && AssetManager->HasInitialScanCompleted() && UElementusInventoryFunctions::HasEmptyParam(AssetFoldersArr))
 	{
 		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(TEXT("Asset Manager could not find any folder. Please check your Asset Manager settings.")));
 	}
@@ -313,13 +319,12 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 
 	UDataAssetFactory* const Factory = NewObject<UDataAssetFactory>();
 
-	if (UObject* const NewData = AssetToolsModule.Get().CreateAsset(AssetName.ToString(), FPackageName::GetLongPackagePath(PackageName), UElementusItemData::StaticClass(), Factory);
-		NewData != nullptr)
+	if (UObject* const NewData = AssetToolsModule.Get().CreateAsset(AssetName.ToString(), FPackageName::GetLongPackagePath(PackageName), UElementusItemData::StaticClass(), Factory))
 	{
 		UElementusItemData* const ItemData = Cast<UElementusItemData>(NewData);
 		ItemData->ItemId = ItemId;
-		ItemData->ItemObject = TSoftObjectPtr(Cast<UObject>(ObjectMap.FindRef(0)));
-		ItemData->ItemClass = TSoftClassPtr(ItemClass.Get());
+		ItemData->ItemObject = TSoftObjectPtr<UObject>(Cast<UObject>(ObjectMap.FindRef(0)));
+		ItemData->ItemClass = TSoftClassPtr<UClass>(ItemClass.Get());
 		ItemData->ItemName = ItemName;
 		ItemData->ItemDescription = ItemDescription;
 		ItemData->ItemType = static_cast<EElementusItemType>(ItemType);
@@ -333,11 +338,16 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 		SyncAssets.Add(FAssetData(ItemData));
 		GEditor->SyncBrowserToObjects(SyncAssets);
 
-		const FSavePackageArgs SaveArgs;
 		const FString TempPackageName = ItemData->GetPackage()->GetName();
 		const FString TempPackageFilename = FPackageName::LongPackageNameToFilename(TempPackageName, FPackageName::GetAssetPackageExtension());
 
-		GEditor->Save(ItemData->GetPackage(), ItemData, *TempPackageFilename, SaveArgs);
+#if ENGINE_MAJOR_VERSION >= 5
+		FSavePackageArgs SaveArgs;
+		SaveArgs.SaveFlags = RF_Public | RF_Standalone;
+		UPackage::SavePackage(ItemData->GetPackage(), ItemData, *TempPackageFilename, SaveArgs);
+#else
+		UPackage::SavePackage(ItemData->GetPackage(), ItemData, RF_Public | RF_Standalone, *TempPackageFilename);
+#endif
 	}
 
 	return FReply::Handled();
@@ -347,9 +357,7 @@ bool SElementusItemCreator::IsCreateEnabled() const
 {
 	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		const FPrimaryAssetId InId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)));
-
-		return ItemId != 0 && !AssetManager->GetPrimaryAssetPath(InId).IsValid();
+		return ItemId != 0 && !AssetManager->GetPrimaryAssetPath(FPrimaryAssetId(ElementusItemDataType, *("Item_" + FString::FromInt(ItemId)))).IsValid();
 	}
 
 	return false;
@@ -358,9 +366,9 @@ bool SElementusItemCreator::IsCreateEnabled() const
 TArray<TSharedPtr<FString>> SElementusItemCreator::GetEnumValuesAsStringArray() const
 {
 	TArray<TSharedPtr<FString>> EnumValues;
-	for (int32 i = 0; i < static_cast<int32>(EElementusItemType::MAX); i++)
+	for (uint32 iterator = 0; iterator < static_cast<uint32>(EElementusItemType::MAX); iterator++)
 	{
-		EnumValues.Add(MakeShareable<FString>(new FString(UElementusInventoryFunctions::ElementusItemEnumTypeToString(static_cast<EElementusItemType>(i)))));
+		EnumValues.Add(MakeShareable<FString>(new FString(UElementusInventoryFunctions::ElementusItemEnumTypeToString(static_cast<EElementusItemType>(iterator)))));
 	}
 
 	return EnumValues;

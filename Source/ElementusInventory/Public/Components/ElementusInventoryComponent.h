@@ -1,15 +1,14 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #pragma once
 
 #include <CoreMinimal.h>
+#include <GameplayTagContainer.h>
 #include <Components/ActorComponent.h>
 #include "Management/ElementusInventoryData.h"
 #include "ElementusInventoryComponent.generated.h"
-
-struct FElementusItemInfo;
 
 UENUM(Category = "Elementus Inventory | Enumerations")
 enum class EElementusInventoryUpdateOperation : uint8
@@ -22,7 +21,7 @@ enum class EElementusInventoryUpdateOperation : uint8
 USTRUCT(Category = "Elementus Inventory | Structures")
 struct FItemModifierData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	FItemModifierData() = default;
 
@@ -49,7 +48,11 @@ class ELEMENTUSINVENTORY_API UElementusInventoryComponent : public UActorCompone
 
 public:
 	explicit UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
+
+	/* Experimental parameter to assist using empty slots in the inventory: If true, will replace empty slots with empty item info */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	bool bAllowEmptySlots;
+
 	/* Get the current inventory weight */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	float GetCurrentWeight() const;
@@ -87,32 +90,36 @@ public:
 	virtual bool CanGiveItem(const FElementusItemInfo InItemInfo) const;
 
 	/* Find the first elementus item that matches the specified info */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindFirstItemIndexWithInfo(const FElementusItemInfo InItemInfo, int32& OutIndex, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(), const int32 Offset = 0) const;
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindFirstItemIndexWithInfo(const FElementusItemInfo InItemInfo, int32& OutIndex, const FGameplayTagContainer& IgnoreTags, const int32 Offset = 0) const;
 
 	/* Find the first elementus item that matches the specified tag container */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindFirstItemIndexWithTags(const FGameplayTagContainer WithTags, int32& OutIndex, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(), const int32 Offset = 0) const;
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindFirstItemIndexWithTags(const FGameplayTagContainer WithTags, int32& OutIndex, const FGameplayTagContainer& IgnoreTags, const int32 Offset = 0) const;
 
 	/* Find the first elementus item that matches the specified id */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindFirstItemIndexWithId(const FPrimaryElementusItemId InId, int32& OutIndex, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer(), const int32 Offset = 0) const;
-	
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindFirstItemIndexWithId(const FPrimaryElementusItemId InId, int32& OutIndex, const FGameplayTagContainer& IgnoreTags, const int32 Offset = 0) const;
+
 	/* Find the first elementus item that matches the specified info */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindAllItemIndexesWithInfo(const FElementusItemInfo InItemInfo, TArray<int32>& OutIndexes, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindAllItemIndexesWithInfo(const FElementusItemInfo InItemInfo, TArray<int32>& OutIndexes, const FGameplayTagContainer& IgnoreTags) const;
 
 	/* Find the first elementus item that matches the specified tag container */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindAllItemIndexesWithTags(const FGameplayTagContainer WithTags, TArray<int32>& OutIndexes, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindAllItemIndexesWithTags(const FGameplayTagContainer WithTags, TArray<int32>& OutIndexes, const FGameplayTagContainer& IgnoreTags) const;
 
 	/* Find the first elementus item that matches the specified id */
-	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool FindAllItemIndexesWithId(const FPrimaryElementusItemId InId, TArray<int32>& OutIndexes, const FGameplayTagContainer IgnoreTags = FGameplayTagContainer()) const;
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory", meta = (AutoCreateRefTerm = "IgnoreTags"))
+	bool FindAllItemIndexesWithId(const FPrimaryElementusItemId InId, TArray<int32>& OutIndexes, const FGameplayTagContainer& IgnoreTags) const;
 
 	/* Check if the inventory stack contains a item that matches the specified info */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
-	bool ContainsItem(const FElementusItemInfo InItemInfo) const;
+	bool ContainsItem(const FElementusItemInfo InItemInfo, const bool bIgnoreTags = false) const;
+
+	/* Check if the inventory is empty */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	bool IsInventoryEmpty() const;
 
 	/* Print debug informations in the log about this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
@@ -128,19 +135,35 @@ public:
 
 	/* Get items from another inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
-	void GetItemsFrom(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+	void GetItemIndexesFrom(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
 
 	/* Give items to another inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
-	void GiveItemsTo(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+	void GiveItemIndexesTo(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes);
+
+	/* Get items from another inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void GetItemsFrom(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items);
+
+	/* Give items to another inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void GiveItemsTo(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items);
 
 	/* Discard items from this inventory */
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
-	void DiscardItems(const TArray<int32>& ItemIndexes);
+	void DiscardItemIndexes(const TArray<int32>& ItemIndexes);
+
+	/* Discard items from this inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void DiscardItems(const TArray<FElementusItemInfo>& Items);
+
+	/* Add items to this inventory */
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
+	void AddItems(const TArray<FElementusItemInfo>& Items);
 
 protected:
 	/* Items that this inventory have */
-	UPROPERTY(ReplicatedUsing=NotifyInventoryChange, EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory", meta = (Getter = "GetItemsArray", ArrayClamp = "MaxNumItems"))
+	UPROPERTY(ReplicatedUsing=OnRep_ElementusItems, EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory", meta = (Getter = "GetItemsArray", ArrayClamp = "MaxNumItems"))
 	TArray<FElementusItemInfo> ElementusItems;
 
 	/* Current weight of this inventory */
@@ -158,7 +181,7 @@ private:
 	float MaxWeight;
 
 	/* Max num of items allowed for this inventory */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Elementus Inventory", meta=(AllowPrivateAccess = "true", ClampMax = "100", UIMax = "100", ClampMin = "1", UIMin = "1"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Elementus Inventory", meta=(AllowPrivateAccess = "true", ClampMin = "1", UIMin = "1"))
 	int32 MaxNumItems;
 
 	void ForceWeightUpdate();
@@ -176,5 +199,10 @@ private:
 	void Server_ProcessInventoryRemoval_Internal(const TArray<FItemModifierData>& Modifiers);
 
 	UFUNCTION(Category = "Elementus Inventory")
+	void OnRep_ElementusItems();
+
+protected:
+	/* Mark the inventory as dirty to update the replicated data and broadcast the events */
+	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	void NotifyInventoryChange();
 };

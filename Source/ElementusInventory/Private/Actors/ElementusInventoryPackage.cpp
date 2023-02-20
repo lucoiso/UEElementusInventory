@@ -1,15 +1,24 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "Actors/ElementusInventoryPackage.h"
-#include <Components/ElementusInventoryComponent.h>
+#include "Components/ElementusInventoryComponent.h"
+#include "Management/ElementusInventorySettings.h"
 #include "Management/ElementusInventoryFunctions.h"
 #include "Management/ElementusInventoryData.h"
 #include "LogElementusInventory.h"
 #include <Net/UnrealNetwork.h>
 
-AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bDestroyWhenInventoryIsEmpty(false)
+#if ENGINE_MAJOR_VERSION < 5
+#include <Net/Core/PushModel/PushModel.h>
+#endif
+
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryPackage)
+#endif
+
+AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	bNetStartup = false;
 	bNetLoadOnClient = false;
@@ -22,6 +31,11 @@ AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer&
 
 	PackageInventory = CreateDefaultSubobject<UElementusInventoryComponent>(TEXT("PackageInventory"));
 	PackageInventory->SetIsReplicated(true);
+
+	if (const UElementusInventorySettings* const Settings = UElementusInventorySettings::Get())
+	{
+		bDestroyWhenInventoryIsEmpty = Settings->bDestroyWhenInventoryIsEmpty;
+	}
 }
 
 void AElementusInventoryPackage::BeginPlay()
@@ -30,7 +44,7 @@ void AElementusInventoryPackage::BeginPlay()
 
 	SetDestroyOnEmpty(bDestroyWhenInventoryIsEmpty);
 
-	if (bDestroyWhenInventoryIsEmpty && PackageInventory->GetItemsArray().IsEmpty())
+	if (bDestroyWhenInventoryIsEmpty && UElementusInventoryFunctions::HasEmptyParam(PackageInventory->GetItemsArray()))
 	{
 		Destroy();
 	}
@@ -40,17 +54,22 @@ void AElementusInventoryPackage::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AElementusInventoryPackage, PackageInventory);
+	FDoRepLifetimeParams SharedParams;
+	SharedParams.bIsPushBased = true;
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(AElementusInventoryPackage, PackageInventory, SharedParams);
 }
 
 void AElementusInventoryPackage::PutItemIntoPackage(const TArray<FElementusItemInfo> ItemInfo, UElementusInventoryComponent* FromInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, FromInventory, PackageInventory);
+	MARK_PROPERTY_DIRTY_FROM_NAME(AElementusInventoryPackage, PackageInventory, this);
 }
 
 void AElementusInventoryPackage::GetItemFromPackage(const TArray<FElementusItemInfo> ItemInfo, UElementusInventoryComponent* ToInventory)
 {
 	UElementusInventoryFunctions::TradeElementusItem(ItemInfo, PackageInventory, ToInventory);
+	MARK_PROPERTY_DIRTY_FROM_NAME(AElementusInventoryPackage, PackageInventory, this);
 }
 
 void AElementusInventoryPackage::SetDestroyOnEmpty(const bool bDestroy)
@@ -61,10 +80,9 @@ void AElementusInventoryPackage::SetDestroyOnEmpty(const bool bDestroy)
 	}
 
 	bDestroyWhenInventoryIsEmpty = bDestroy;
-	FElementusInventoryEmpty& Delegate = PackageInventory->OnInventoryEmpty;
+	FElementusInventoryEmpty Delegate = PackageInventory->OnInventoryEmpty;
 
-	if (const bool bIsAlreadyBound = Delegate.IsAlreadyBound(this, &AElementusInventoryPackage::BeginPackageDestruction);
-		bDestroy && !bIsAlreadyBound)
+	if (const bool bIsAlreadyBound = Delegate.IsAlreadyBound(this, &AElementusInventoryPackage::BeginPackageDestruction); bDestroy && !bIsAlreadyBound)
 	{
 		Delegate.AddDynamic(this, &AElementusInventoryPackage::BeginPackageDestruction);
 	}
@@ -81,7 +99,7 @@ bool AElementusInventoryPackage::GetDestroyOnEmpty() const
 
 void AElementusInventoryPackage::BeginPackageDestruction_Implementation()
 {
-	// Check if this option is still active
+	// Check if this option is still active before the destruction
 	if (bDestroyWhenInventoryIsEmpty)
 	{
 		Destroy();

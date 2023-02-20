@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "Management/ElementusInventoryFunctions.h"
@@ -7,6 +7,10 @@
 #include "Management/ElementusInventoryData.h"
 #include "LogElementusInventory.h"
 #include <Engine/AssetManager.h>
+
+#ifdef UE_INLINE_GENERATED_CPP_BY_NAME
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryFunctions)
+#endif
 
 void UElementusInventoryFunctions::UnloadAllElementusItems()
 {
@@ -39,8 +43,7 @@ UElementusItemData* UElementusInventoryFunctions::GetSingleItemDataById(const FP
 	UElementusItemData* Output = nullptr;
 	if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		if (const TSharedPtr<FStreamableHandle> StreamableHandle = AssetManager->LoadPrimaryAsset(InID, InBundles);
-			StreamableHandle.IsValid())
+		if (const TSharedPtr<FStreamableHandle> StreamableHandle = AssetManager->LoadPrimaryAsset(InID, InBundles); StreamableHandle.IsValid())
 		{
 			StreamableHandle->WaitUntilComplete(5.f);
 			Output = Cast<UElementusItemData>(StreamableHandle->GetLoadedAsset());
@@ -132,7 +135,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 
 	const auto PassItemArr_Lambda = [&CheckAssetValidity_Lambda, &Output, FuncName = __func__](TArray<UObject*>& InArr)
 	{
-		if (InArr.IsEmpty())
+		if (UElementusInventoryFunctions::HasEmptyParam(InArr))
 		{
 			UE_LOG(LogElementusInventory_Internal, Error, TEXT("%s: Failed to find items with the given parameters"), *FString(FuncName));
 		}
@@ -151,13 +154,13 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 		}
 	};
 
-	if (const TSharedPtr<FStreamableHandle> StreamableHandle = InAssetManager->LoadPrimaryAssets(InIDs, InBundles);
-		StreamableHandle.IsValid())
+	if (const TSharedPtr<FStreamableHandle> StreamableHandle = InAssetManager->LoadPrimaryAssets(InIDs, InBundles); StreamableHandle.IsValid())
 	{
 		StreamableHandle->WaitUntilComplete(5.f);
 
 		TArray<UObject*> LoadedAssets;
 		StreamableHandle->GetLoadedAssets(LoadedAssets);
+		
 		PassItemArr_Lambda(LoadedAssets);
 	}
 	else // Objects already loaded
@@ -168,7 +171,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 			PassItemArr_Lambda(LoadedAssets);
 		}
 
-		if (!Output.IsEmpty())
+		if (!UElementusInventoryFunctions::HasEmptyParam(Output))
 		{
 			for (int32 Iterator = 0; Iterator < InIDs.Num(); ++Iterator)
 			{
@@ -200,41 +203,39 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 
 TArray<FPrimaryAssetId> UElementusInventoryFunctions::GetAllElementusItemIds()
 {
+	TArray<FPrimaryAssetId> Output;
+
 	if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
 	{
-		if (TArray<FPrimaryAssetId> IdList;
-			AssetManager->GetPrimaryAssetIdList(FPrimaryAssetType(ElementusItemDataType), IdList))
-		{
-			return IdList;
-		}
+		AssetManager->GetPrimaryAssetIdList(FPrimaryAssetType(ElementusItemDataType), Output);
 	}
-	return TArray<FPrimaryAssetId>();
+
+	return Output;
 }
 
 void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo> ItemsToTrade, UElementusInventoryComponent* FromInventory, UElementusInventoryComponent* ToInventory)
 {
-	ItemsToTrade.RemoveAll([&FromInventory, &ToInventory](const FElementusItemInfo& InInfo)
-	{
-		return !FromInventory->CanGiveItem(InInfo) || !ToInventory->CanReceiveItem(InInfo);
-	});
-
-	if (ItemsToTrade.IsEmpty())
+	if (UElementusInventoryFunctions::HasEmptyParam(ItemsToTrade))
 	{
 		return;
 	}
 
-	FromInventory->UpdateElementusItems(ItemsToTrade, EElementusInventoryUpdateOperation::Remove);
-	ToInventory->UpdateElementusItems(ItemsToTrade, EElementusInventoryUpdateOperation::Add);
+	FromInventory->GiveItemsTo(ToInventory, ItemsToTrade);
 }
 
 bool UElementusInventoryFunctions::IsItemValid(const FElementusItemInfo InItemInfo)
 {
-	return InItemInfo.ItemId.IsValid();
+	return InItemInfo.ItemId.IsValid() && InItemInfo != FElementusItemInfo::EmptyItemInfo;
 }
 
 bool UElementusInventoryFunctions::IsItemStackable(const FElementusItemInfo InItemInfo)
 {
-	if (const UElementusItemData* const ItemData = GetSingleItemDataById(InItemInfo.ItemId, {"Data"}))
+	if (!IsItemValid(InItemInfo))
+	{
+		return false;
+	}
+
+	if (const UElementusItemData* const ItemData = GetSingleItemDataById(InItemInfo.ItemId, { "Data" }))
 	{
 		return ItemData->bIsStackable;
 	}

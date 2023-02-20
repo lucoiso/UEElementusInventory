@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 using UnrealBuildTool;
@@ -19,8 +19,10 @@ public class ElementusInventory : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new[]
 		{
 			"Engine",
+			"NetCore",
 			"CoreUObject",
-			"GameplayTags"
+			"GameplayTags",
+			"DeveloperSettings"
 		});
 	}
 }

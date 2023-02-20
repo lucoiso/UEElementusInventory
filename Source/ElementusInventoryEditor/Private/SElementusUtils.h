@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #pragma once
@@ -16,9 +16,7 @@ public:
 	}
 
 	SLATE_ARGUMENT(SElementusTable*, TableSource)
-	SLATE_END_ARGS
-	(
-	)
+	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
 

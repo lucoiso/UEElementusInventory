@@ -1,5 +1,5 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "ElementusInventoryEditor.h"
@@ -7,8 +7,8 @@
 #include "SElementusFrame.h"
 #include "SElementusItemCreator.h"
 #include "ElementusStaticIds.h"
-#include <Widgets/Docking/SDockTab.h>
 #include <ToolMenus.h>
+#include <Widgets/Docking/SDockTab.h>
 #include <WorkspaceMenuStructure.h>
 #include <WorkspaceMenuStructureModule.h>
 
@@ -66,7 +66,13 @@ void FElementusInventoryEditorModule::RegisterMenus()
 {
 	FToolMenuOwnerScoped OwnerScoped(this);
 
-	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(LOCTEXT("ElementusCategory", "Elementus"), LOCTEXT("ElementusCategoryTooltip", "Elementus Plugins Tabs"), FSlateIcon(FAppStyle::GetAppStyleSetName(), "InputBindingEditor.LevelViewport"));
+#if ENGINE_MAJOR_VERSION < 5
+	const FName AppStyleName = FEditorStyle::GetStyleSetName();
+#else
+	const FName AppStyleName = FAppStyle::GetAppStyleSetName();
+#endif
+
+	const TSharedPtr<FWorkspaceItem> Menu = WorkspaceMenu::GetMenuStructure().GetToolsCategory()->AddGroup(LOCTEXT("ElementusCategory", "Elementus"), LOCTEXT("ElementusCategoryTooltip", "Elementus Plugins Tabs"), FSlateIcon(AppStyleName, "InputBindingEditor.LevelViewport"));
 
 	const auto EditorTabSpawnerDelegate = FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ElementusEditorTabId);
 
@@ -74,7 +80,7 @@ void FElementusInventoryEditorModule::RegisterMenus()
 		.SetDisplayName(FText::FromString("Elementus Inventory Management"))
 		.SetTooltipText(FText::FromString("Open Elementus Inventory Window"))
 		.SetGroup(Menu.ToSharedRef())
-		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Package"));
+		.SetIcon(FSlateIcon(AppStyleName, "Icons.Package"));
 
 
 	const auto ItemCreatorTabSpawnerDelegate = FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ItemCreatorTabId);
@@ -82,7 +88,7 @@ void FElementusInventoryEditorModule::RegisterMenus()
 	FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ItemCreatorTabId, ItemCreatorTabSpawnerDelegate)
 		.SetDisplayName(FText::FromString("Elementus Item Creator"))
 		.SetGroup(Menu.ToSharedRef())
-		.SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.PlusCircle"));
+		.SetIcon(FSlateIcon(AppStyleName, "Icons.PlusCircle"));
 }
 #undef LOCTEXT_NAMESPACE
 

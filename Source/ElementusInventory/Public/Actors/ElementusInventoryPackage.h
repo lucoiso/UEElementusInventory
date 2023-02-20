@@ -1,14 +1,13 @@
 // Author: Lucas Vilas-Boas
-// Year: 2022
+// Year: 2023
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #pragma once
 
 #include <CoreMinimal.h>
 #include <GameFramework/Actor.h>
+#include <Components/ElementusInventoryComponent.h>
 #include "ElementusInventoryPackage.generated.h"
-
-class UElementusInventoryComponent;
 
 UCLASS(Category = "Elementus Inventory | Classes")
 class ELEMENTUSINVENTORY_API AElementusInventoryPackage : public AActor
@@ -18,9 +17,9 @@ class ELEMENTUSINVENTORY_API AElementusInventoryPackage : public AActor
 public:
 	explicit AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	/* The inventory of this package actor */
-	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory")
-	TObjectPtr<UElementusInventoryComponent> PackageInventory;
+	/* The inventory component of this package actor */
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory") 
+	UElementusInventoryComponent* PackageInventory;
 
 	/* Put a item in this package */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
