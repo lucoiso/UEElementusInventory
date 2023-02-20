@@ -225,12 +225,12 @@ void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo>
 
 bool UElementusInventoryFunctions::IsItemValid(const FElementusItemInfo InItemInfo)
 {
-	return InItemInfo.ItemId.IsValid();
+	return InItemInfo.ItemId.IsValid() && InItemInfo != FElementusItemInfo::EmptyItemInfo;
 }
 
 bool UElementusInventoryFunctions::IsItemStackable(const FElementusItemInfo InItemInfo)
 {
-	if (InItemInfo == FElementusItemInfo::EmptyItemInfo)
+	if (!IsItemValid(InItemInfo))
 	{
 		return false;
 	}
