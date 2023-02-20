@@ -17,8 +17,8 @@ class ELEMENTUSINVENTORY_API AElementusInventoryPackage : public AActor
 public:
 	explicit AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	/* The inventory of this package actor */
-	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory")
+	/* The inventory component of this package actor */
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory") 
 	UElementusInventoryComponent* PackageInventory;
 
 	/* Put a item in this package */
