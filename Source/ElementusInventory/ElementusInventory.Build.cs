@@ -21,7 +21,8 @@ public class ElementusInventory : ModuleRules
 			"Engine",
 			"NetCore",
 			"CoreUObject",
-			"GameplayTags"
+			"GameplayTags",
+			"DeveloperSettings"
 		});
 	}
 }

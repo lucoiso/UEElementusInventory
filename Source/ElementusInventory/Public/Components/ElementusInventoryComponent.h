@@ -184,7 +184,7 @@ private:
 	float MaxWeight;
 
 	/* Max num of items allowed for this inventory */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Elementus Inventory", meta=(AllowPrivateAccess = "true", ClampMax = "100", UIMax = "100", ClampMin = "1", UIMin = "1"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Elementus Inventory", meta=(AllowPrivateAccess = "true", ClampMin = "1", UIMin = "1"))
 	int32 MaxNumItems;
 
 	void ForceWeightUpdate();

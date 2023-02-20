@@ -4,6 +4,7 @@
 
 #include "Components/ElementusInventoryComponent.h"
 #include "Management/ElementusInventoryFunctions.h"
+#include "Management/ElementusInventorySettings.h"
 #include "LogElementusInventory.h"
 #include <Engine/AssetManager.h>
 #include <GameFramework/Actor.h>
@@ -15,12 +16,19 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryComponent)
 #endif
 
-UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bAllowEmptySlots(false), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
+UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 
 	SetIsReplicatedByDefault(true);
+
+	if (const UElementusInventorySettings* const Settings = UElementusInventorySettings::Get())
+	{
+		bAllowEmptySlots = Settings->bAllowEmptySlots;
+		MaxWeight = Settings->MaxWeight;
+		MaxNumItems = Settings->MaxNumItems;
+	}
 }
 
 float UElementusInventoryComponent::GetCurrentWeight() const
@@ -50,7 +58,7 @@ FElementusItemInfo UElementusInventoryComponent::GetItemCopyAt(const int32 Index
 
 bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InItemInfo) const
 {
-	if (InItemInfo == FElementusItemInfo::EmptyItemInfo)
+	if (!UElementusInventoryFunctions::IsItemValid(InItemInfo))
 	{
 		return false;
 	}
@@ -77,7 +85,7 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 
 bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo InItemInfo) const
 {
-	if (InItemInfo == FElementusItemInfo::EmptyItemInfo)
+	if (!UElementusInventoryFunctions::IsItemValid(InItemInfo))
 	{
 		return false;
 	}
@@ -622,7 +630,7 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 
 void UElementusInventoryComponent::OnRep_ElementusItems()
 {
-	if (const int32 LastValidIndex = ElementusItems.FindLastByPredicate([](const FElementusItemInfo& Item) { return Item != FElementusItemInfo::EmptyItemInfo; }); 
+	if (const int32 LastValidIndex = ElementusItems.FindLastByPredicate([](const FElementusItemInfo& Item) { return UElementusInventoryFunctions::IsItemValid(Item); });
 		LastValidIndex != INDEX_NONE && ElementusItems.IsValidIndex(LastValidIndex + 1))
 	{
 		ElementusItems.RemoveAt(LastValidIndex + 1, ElementusItems.Num() - LastValidIndex - 1, false);

@@ -3,7 +3,8 @@
 // Repo: https://github.com/lucoiso/UEElementusInventory
 
 #include "Actors/ElementusInventoryPackage.h"
-#include <Components/ElementusInventoryComponent.h>
+#include "Components/ElementusInventoryComponent.h"
+#include "Management/ElementusInventorySettings.h"
 #include "Management/ElementusInventoryFunctions.h"
 #include "Management/ElementusInventoryData.h"
 #include "LogElementusInventory.h"
@@ -13,7 +14,7 @@
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryPackage)
 #endif
 
-AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bDestroyWhenInventoryIsEmpty(false)
+AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	bNetStartup = false;
 	bNetLoadOnClient = false;
@@ -26,6 +27,11 @@ AElementusInventoryPackage::AElementusInventoryPackage(const FObjectInitializer&
 
 	PackageInventory = CreateDefaultSubobject<UElementusInventoryComponent>(TEXT("PackageInventory"));
 	PackageInventory->SetIsReplicated(true);
+
+	if (const UElementusInventorySettings* const Settings = UElementusInventorySettings::Get())
+	{
+		bDestroyWhenInventoryIsEmpty = Settings->bDestroyWhenInventoryIsEmpty;
+	}
 }
 
 void AElementusInventoryPackage::BeginPlay()
