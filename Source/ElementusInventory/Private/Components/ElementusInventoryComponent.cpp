@@ -171,7 +171,7 @@ void UElementusInventoryComponent::ForceInventoryValidation()
 
 	if (!UElementusInventoryFunctions::HasEmptyParam(IndexesToRemove))
 	{
-		for (const uint32& Iterator : IndexesToRemove)
+		for (const int32& Iterator : IndexesToRemove)
 		{
 			if (bAllowEmptySlots)
 			{
@@ -331,7 +331,6 @@ bool UElementusInventoryComponent::IsInventoryEmpty() const
 	return bOutput;
 }
 
-#if WITH_EDITORONLY_DATA
 void UElementusInventoryComponent::DebugInventory()
 {
 #if !UE_BUILD_SHIPPING
@@ -356,7 +355,6 @@ void UElementusInventoryComponent::DebugInventory()
 	UE_LOG(LogElementusInventory_Internal, Warning, TEXT("Component Memory Size: %d"), GetResourceSizeBytes(EResourceSizeMode::EstimatedTotal));
 #endif
 }
-#endif
 
 void UElementusInventoryComponent::ClearInventory_Implementation()
 {
@@ -374,7 +372,7 @@ void UElementusInventoryComponent::GetItemIndexesFrom_Implementation(UElementusI
 	}
 
 	TArray<FElementusItemInfo> Modifiers;
-	for (const uint32& Iterator : ItemIndexes)
+	for (const int32& Iterator : ItemIndexes)
 	{
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
@@ -403,7 +401,7 @@ void UElementusInventoryComponent::GiveItemIndexesTo_Implementation(UElementusIn
 	}
 
 	TArray<FElementusItemInfo> Modifiers;
-	for (const uint32& Iterator : ItemIndexes)
+	for (const int32& Iterator : ItemIndexes)
 	{
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
@@ -473,7 +471,7 @@ void UElementusInventoryComponent::DiscardItemIndexes_Implementation(const TArra
 		return;
 	}
 
-	for (const uint32& Index : ItemIndexes)
+	for (const int32& Index : ItemIndexes)
 	{
 		if (ElementusItems.IsValidIndex(Index))
 		{

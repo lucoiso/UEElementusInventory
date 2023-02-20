@@ -121,11 +121,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	bool IsInventoryEmpty() const;
 
-#if WITH_EDITORONLY_DATA
 	/* Print debug informations in the log about this inventory */
 	UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
 	virtual void DebugInventory();
-#endif
 
 	/* Remove all items from this inventory */
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "Elementus Inventory")
