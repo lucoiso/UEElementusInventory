@@ -114,6 +114,30 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::SearchElementusItemDat
 	return Output;
 }
 
+TMap<FGameplayTag, FName> UElementusInventoryFunctions::GetItemMetadatas(const FElementusItemInfo InItemInfo)
+{
+	TMap<FGameplayTag, FName> Output;
+	if (UElementusItemData* const Data = GetSingleItemDataById(InItemInfo.ItemId, TArray<FName> { "Custom" }))
+	{
+		Output = Data->Metadatas;
+		UnloadElementusItem(InItemInfo.ItemId);
+	}
+
+	return Output;
+}
+
+TMap<FGameplayTag, FPrimaryElementusItemIdContainer> UElementusInventoryFunctions::GetItemRelations(const FElementusItemInfo InItemInfo)
+{
+	TMap<FGameplayTag, FPrimaryElementusItemIdContainer> Output;
+	if (UElementusItemData* const Data = GetSingleItemDataById(InItemInfo.ItemId, TArray<FName> { "Custom" }))
+	{
+		Output = Data->Relations;
+		UnloadElementusItem(InItemInfo.ItemId);
+	}
+
+	return Output;
+}
+
 TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryAssetId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload)
 {
 	TArray<UElementusItemData*> Output;
@@ -192,8 +216,6 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 
 	return Output;
 }
-
-
 
 TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryElementusItemId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload)
 {

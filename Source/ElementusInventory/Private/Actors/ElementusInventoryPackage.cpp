@@ -106,6 +106,6 @@ void AElementusInventoryPackage::BeginPackageDestruction_Implementation()
 	}
 	else
 	{
-		UE_LOG(LogElementusInventory, Warning, TEXT("ElementusInventory - %s: Package %s was not destroyed because the " "option 'bDestroyWhenInventoryIsEmpty' was disabled"), *FString(__func__), *GetName());
+		UE_LOG(LogElementusInventory_Internal, Warning, TEXT("ElementusInventory - %s: Package %s was not destroyed because the " "option 'bDestroyWhenInventoryIsEmpty' was disabled"), *FString(__func__), *GetName());
 	}
 }

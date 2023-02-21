@@ -9,6 +9,8 @@
 #include <Engine/DataAsset.h>
 #include "ElementusInventoryData.generated.h"
 
+class UTexture2D;
+
 constexpr auto ElementusItemDataType = TEXT("ElementusInventory_ItemData");
 
 UENUM(BlueprintType, Category = "Elementus Inventory | Enumerations")
@@ -31,7 +33,81 @@ enum class EElementusItemType : uint8
 	MAX
 };
 
-class UTexture2D;
+USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
+struct FPrimaryElementusItemId : public FPrimaryAssetId
+{
+	GENERATED_BODY()
+
+	FPrimaryElementusItemId() : Super()
+	{
+	}
+
+	explicit FPrimaryElementusItemId(const FPrimaryAssetId& InId) : Super(InId.PrimaryAssetType, InId.PrimaryAssetName)
+	{
+	}
+
+	explicit FPrimaryElementusItemId(const FString& TypeAndName) : Super(TypeAndName)
+	{
+	}
+};
+
+USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
+struct FPrimaryElementusItemIdContainer
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	TArray<FPrimaryElementusItemId> Items;
+};
+
+USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
+struct FElementusItemInfo
+{
+	GENERATED_BODY()
+
+	static const FElementusItemInfo EmptyItemInfo;
+
+	FElementusItemInfo() = default;
+
+	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId) : ItemId(InItemId)
+	{
+	}
+
+	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId, const int32& InQuant) : ItemId(InItemId), Quantity(InQuant)
+	{
+	}
+
+	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId, const int32& InQuant, const FGameplayTagContainer& InTags) : ItemId(InItemId), Quantity(InQuant), Tags(InTags)
+	{
+	}
+
+	bool operator==(const FElementusItemInfo& Other) const
+	{
+		return ItemId == Other.ItemId && Tags == Other.Tags && Level == Other.Level;
+	}
+
+	bool operator!=(const FElementusItemInfo& Other) const
+	{
+		return !(*this == Other);
+	}
+
+	bool operator<(const FElementusItemInfo& Other) const
+	{
+		return ItemId.ToString() < Other.ItemId.ToString();
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	FPrimaryElementusItemId ItemId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	int32 Level = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	int32 Quantity = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	FGameplayTagContainer Tags;
+};
 
 UCLASS(NotBlueprintable, NotPlaceable, Category = "Elementus Inventory | Classes | Data")
 class ELEMENTUSINVENTORY_API UElementusItemData final : public UPrimaryDataAsset
@@ -67,7 +143,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
 	bool bIsStackable = true;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (UIMin = 0, ClampMin = 0, AssetBundles = "Data"))
 	float ItemValue;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (UIMin = 0, ClampMin = 0, AssetBundles = "Data"))
@@ -78,68 +154,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "UI"))
 	TSoftObjectPtr<UTexture2D> ItemImage;
-};
 
-USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
-struct FPrimaryElementusItemId : public FPrimaryAssetId
-{
-	GENERATED_BODY()
+	/* Allows to implement custom properties in this item data */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (DisplayName = "Custom Metadatas", AssetBundles = "Custom"))
+	TMap<FGameplayTag, FName> Metadatas;
 
-	FPrimaryElementusItemId() : Super()
-	{
-	}
-
-	explicit FPrimaryElementusItemId(const FPrimaryAssetId& InId) : Super(InId.PrimaryAssetType, InId.PrimaryAssetName)
-	{
-	}
-
-	explicit FPrimaryElementusItemId(const FString& TypeAndName) : Super(TypeAndName)
-	{
-	}
-};
-
-USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
-struct FElementusItemInfo
-{
-	GENERATED_BODY()
-
-	static const FElementusItemInfo EmptyItemInfo;
-
-	FElementusItemInfo() = default;
-
-	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId) : ItemId(InItemId)
-	{
-	}
-
-	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId, const int32& InQuant) : ItemId(InItemId), Quantity(InQuant)
-	{
-	}
-
-	explicit FElementusItemInfo(const FPrimaryElementusItemId& InItemId, const int32& InQuant, const FGameplayTagContainer& InTags) : ItemId(InItemId), Quantity(InQuant), Tags(InTags)
-	{
-	}
-
-	bool operator==(const FElementusItemInfo& Other) const
-	{
-		return ItemId == Other.ItemId && Tags == Other.Tags;
-	}
-
-	bool operator!=(const FElementusItemInfo& Other) const
-	{
-		return !(ItemId == Other.ItemId && Tags == Other.Tags);
-	}
-
-	bool operator<(const FElementusItemInfo& Other) const
-	{
-		return ItemId.ToString() < Other.ItemId.ToString();
-	}
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
-	FPrimaryElementusItemId ItemId;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
-	int32 Quantity = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
-	FGameplayTagContainer Tags;
+	/* Map containing a tag as key and a ID container as value to add relations to other items such as crafting requirements, etc. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (DisplayName = "Item Relations", AssetBundles = "Custom"))
+	TMap<FGameplayTag, FPrimaryElementusItemIdContainer> Relations;
 };
