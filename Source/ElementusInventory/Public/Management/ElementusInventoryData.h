@@ -155,9 +155,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "UI"))
 	TSoftObjectPtr<UTexture2D> ItemImage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Custom"))
+	/* Allows to implement custom properties in this item data */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (DisplayName = "Custom Metadatas", AssetBundles = "Custom"))
 	TMap<FGameplayTag, FName> Metadatas;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Custom"))
+	/* Map containing a tag as key and a ID container as value to add relations to other items such as crafting requirements, etc. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (DisplayName = "Item Relations", AssetBundles = "Custom"))
 	TMap<FGameplayTag, FPrimaryElementusItemIdContainer> Relations;
 };
