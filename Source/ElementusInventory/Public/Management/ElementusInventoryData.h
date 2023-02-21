@@ -9,6 +9,8 @@
 #include <Engine/DataAsset.h>
 #include "ElementusInventoryData.generated.h"
 
+class UTexture2D;
+
 constexpr auto ElementusItemDataType = TEXT("ElementusInventory_ItemData");
 
 UENUM(BlueprintType, Category = "Elementus Inventory | Enumerations")
@@ -29,58 +31,6 @@ enum class EElementusItemType : uint8
 	Other,
 
 	MAX
-};
-
-class UTexture2D;
-
-UCLASS(NotBlueprintable, NotPlaceable, Category = "Elementus Inventory | Classes | Data")
-class ELEMENTUSINVENTORY_API UElementusItemData final : public UPrimaryDataAsset
-{
-	GENERATED_BODY()
-
-public:
-	explicit UElementusItemData(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
-	FORCEINLINE virtual FPrimaryAssetId GetPrimaryAssetId() const override
-	{
-		return FPrimaryAssetId(TEXT("ElementusInventory_ItemData"), *("Item_" + FString::FromInt(ItemId)));
-	}
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
-	int32 ItemId;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "SoftData"))
-	TSoftObjectPtr<UObject> ItemObject;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "SoftData"))
-	TSoftClassPtr<UObject> ItemClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
-	FName ItemName;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data", MultiLine = "true"))
-	FText ItemDescription;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
-	EElementusItemType ItemType;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
-	bool bIsStackable = true;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
-	float ItemValue;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (UIMin = 0, ClampMin = 0, AssetBundles = "Data"))
-	float ItemWeight;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "UI"))
-	TSoftObjectPtr<UTexture2D> ItemIcon;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "UI"))
-	TSoftObjectPtr<UTexture2D> ItemImage;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
-	TMap<FGameplayTag, FName> Metadatas;
 };
 
 USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
@@ -148,4 +98,57 @@ struct FElementusItemInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
 	FGameplayTagContainer Tags;
+};
+
+UCLASS(NotBlueprintable, NotPlaceable, Category = "Elementus Inventory | Classes | Data")
+class ELEMENTUSINVENTORY_API UElementusItemData final : public UPrimaryDataAsset
+{
+	GENERATED_BODY()
+
+public:
+	explicit UElementusItemData(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	FORCEINLINE virtual FPrimaryAssetId GetPrimaryAssetId() const override
+	{
+		return FPrimaryAssetId(TEXT("ElementusInventory_ItemData"), *("Item_" + FString::FromInt(ItemId)));
+	}
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
+	int32 ItemId;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "SoftData"))
+	TSoftObjectPtr<UObject> ItemObject;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "SoftData"))
+	TSoftClassPtr<UObject> ItemClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
+	FName ItemName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data", MultiLine = "true"))
+	FText ItemDescription;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
+	EElementusItemType ItemType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
+	bool bIsStackable = true;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
+	float ItemValue;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (UIMin = 0, ClampMin = 0, AssetBundles = "Data"))
+	float ItemWeight;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "UI"))
+	TSoftObjectPtr<UTexture2D> ItemIcon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "UI"))
+	TSoftObjectPtr<UTexture2D> ItemImage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Custom"))
+	TMap<FGameplayTag, FName> Metadatas;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Custom"))
+	TMap<FGameplayTag, FPrimaryElementusItemId> Relations;
 };
