@@ -193,8 +193,6 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 	return Output;
 }
 
-
-
 TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryElementusItemId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload)
 {
 	const TArray<FPrimaryAssetId> PrimaryAssetIds(InIDs);

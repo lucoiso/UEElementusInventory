@@ -121,12 +121,12 @@ struct FElementusItemInfo
 
 	bool operator==(const FElementusItemInfo& Other) const
 	{
-		return ItemId == Other.ItemId && Tags == Other.Tags;
+		return ItemId == Other.ItemId && Tags == Other.Tags && EqualsMetadatas(Other.Metadatas);
 	}
 
 	bool operator!=(const FElementusItemInfo& Other) const
 	{
-		return !(ItemId == Other.ItemId && Tags == Other.Tags);
+		return !(*this == Other);
 	}
 
 	bool operator<(const FElementusItemInfo& Other) const
@@ -142,4 +142,28 @@ struct FElementusItemInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
 	FGameplayTagContainer Tags;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	TMap<FGameplayTag, FName> Metadatas;
+
+private:
+	const bool EqualsMetadatas(const TMap<FGameplayTag, FName>& Other) const
+	{
+		if (Metadatas.Num() != Other.Num())
+		{
+			return false;
+		}
+
+		bool bMetadataEquals = true;
+		for (const auto& [Key, Value] : Metadatas)
+		{
+			if (!Other.Contains(Key) || Other[Key] != Value)
+			{
+				bMetadataEquals = false;
+				break;
+			}
+		}
+
+		return bMetadataEquals;
+	}
 };
