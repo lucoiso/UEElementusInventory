@@ -104,6 +104,12 @@ public:
 		}
 	}
 
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	static TMap<FGameplayTag, FName> GetItemMetadatas(const FElementusItemInfo InItemInfo);
+
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	static TMap<FGameplayTag, FPrimaryElementusItemIdContainer> GetItemRelations(const FElementusItemInfo InItemInfo);
+
 private:
 	static TArray<UElementusItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryAssetId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload);
 	static TArray<UElementusItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryElementusItemId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload);
