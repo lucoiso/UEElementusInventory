@@ -78,6 +78,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "UI"))
 	TSoftObjectPtr<UTexture2D> ItemImage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
+	TMap<FGameplayTag, FName> Metadatas;
 };
 
 USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
@@ -121,7 +124,7 @@ struct FElementusItemInfo
 
 	bool operator==(const FElementusItemInfo& Other) const
 	{
-		return ItemId == Other.ItemId && Tags == Other.Tags && EqualsMetadatas(Other.Metadatas);
+		return ItemId == Other.ItemId && Tags == Other.Tags && Level == Other.Level;
 	}
 
 	bool operator!=(const FElementusItemInfo& Other) const
@@ -138,32 +141,11 @@ struct FElementusItemInfo
 	FPrimaryElementusItemId ItemId;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	int32 Level = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
 	int32 Quantity = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
 	FGameplayTagContainer Tags;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
-	TMap<FGameplayTag, FName> Metadatas;
-
-private:
-	const bool EqualsMetadatas(const TMap<FGameplayTag, FName>& Other) const
-	{
-		if (Metadatas.Num() != Other.Num())
-		{
-			return false;
-		}
-
-		bool bMetadataEquals = true;
-		for (const auto& [Key, Value] : Metadatas)
-		{
-			if (!Other.Contains(Key) || Other[Key] != Value)
-			{
-				bMetadataEquals = false;
-				break;
-			}
-		}
-
-		return bMetadataEquals;
-	}
 };
