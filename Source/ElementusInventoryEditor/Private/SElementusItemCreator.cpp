@@ -131,31 +131,31 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 				  .AutoHeight()
 				[
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Name"), SNew(SEditableTextBox)
-						.OnTextChanged(FOnTextChanged::CreateLambda([this](const FText& InText)
+						.OnTextChanged_Lambda([this](const FText& InText)
 						{
 							ItemName = *InText.ToString();
-						})))
+						}))
 				]
 				+ SVerticalBox::Slot()
 				  .Padding(Slot_Padding)
 				  .AutoHeight()
 				[
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Description"), SNew(SMultiLineEditableTextBox)
-						.OnTextChanged(FOnTextChanged::CreateLambda([this](const FText& InText)
+						.OnTextChanged_Lambda([this](const FText& InText)
 						{
 							ItemDescription = InText;
-						})))
+						}))
 				]
 				+ SVerticalBox::Slot()
 				  .Padding(Slot_Padding)
 				  .AutoHeight()
 				[
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Item Type"), SNew(STextComboBox)
-						.OptionsSource(&ItemTypesArr)
-						.OnSelectionChanged(STextComboBox::FOnTextSelectionChanged::CreateLambda([this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
-						{
-							ItemType = ItemTypesArr.Find(InStr);
-						})))
+					.OptionsSource(&ItemTypesArr)
+					.OnSelectionChanged_Lambda([this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
+					{
+						ItemType = ItemTypesArr.Find(InStr);
+					}))
 				]
 				+ SVerticalBox::Slot()
 				  .Padding(Slot_Padding)
@@ -211,10 +211,10 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 				  .AutoHeight()
 				[
 					ContentPairCreator_Lambda(CenterTextCreator_Lambda("Asset Name"), SNew(SEditableTextBox)
-						.OnTextChanged(FOnTextChanged::CreateLambda([this](const FText& InText)
-						{
-							AssetName = *InText.ToString();
-						})))
+					.OnTextChanged_Lambda([this](const FText& InText)
+					{
+						AssetName = *InText.ToString();
+					}))
 				]
 				+ SVerticalBox::Slot()
 				  .Padding(Slot_Padding)
@@ -225,21 +225,20 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 						[
 							SNew(STextComboBox)
 							.OptionsSource(&AssetFoldersArr)
-							.OnSelectionChanged(STextComboBox::FOnTextSelectionChanged::CreateLambda(
-							[this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
+							.OnSelectionChanged_Lambda([this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
 							{
 								AssetFolder = FName(*InStr.Get());
-							}))
+							})
 						]
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						[
 							SNew(SButton)
-							.OnClicked(FOnClicked::CreateLambda([this]() -> FReply
+							.OnClicked_Lambda([this]() -> FReply
 							{
 								UpdateFolders();
 								return FReply::Handled();
-							}))
+							})
 							.Content()
 							[
 								SNew(SImage)
