@@ -52,6 +52,15 @@ struct FPrimaryElementusItemId : public FPrimaryAssetId
 };
 
 USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
+struct FPrimaryElementusItemIdContainer
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elementus Inventory")
+	TArray<FPrimaryElementusItemId> Items;
+};
+
+USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")
 struct FElementusItemInfo
 {
 	GENERATED_BODY()
@@ -134,7 +143,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
 	bool bIsStackable = true;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Data"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (UIMin = 0, ClampMin = 0, AssetBundles = "Data"))
 	float ItemValue;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (UIMin = 0, ClampMin = 0, AssetBundles = "Data"))
@@ -150,5 +159,5 @@ public:
 	TMap<FGameplayTag, FName> Metadatas;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Elementus Inventory", meta = (AssetBundles = "Custom"))
-	TMap<FGameplayTag, FPrimaryElementusItemId> Relations;
+	TMap<FGameplayTag, FPrimaryElementusItemIdContainer> Relations;
 };
