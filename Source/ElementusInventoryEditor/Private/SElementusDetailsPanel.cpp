@@ -24,10 +24,12 @@ void SElementusDetailsPanel::CustomizeHeader(const TSharedRef<IPropertyHandle> P
 			.ThumbnailPool(CustomizationUtils.GetThumbnailPool())
 			.ObjectPath(this, &SElementusDetailsPanel::GetObjPath)
 			.OnObjectChanged(this, &SElementusDetailsPanel::OnObjChanged)
-			.OnShouldFilterAsset_Lambda([](const FAssetData& AssetData) -> bool
-			{
-				return AssetData.GetPrimaryAssetId().PrimaryAssetType != FPrimaryAssetType(ElementusItemDataType);
-			})
+			.OnShouldFilterAsset_Lambda(
+				[](const FAssetData& AssetData) -> bool
+				{
+					return AssetData.GetPrimaryAssetId().PrimaryAssetType != FPrimaryAssetType(ElementusItemDataType);
+				}
+			)
 		];
 }
 

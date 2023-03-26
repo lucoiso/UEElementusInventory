@@ -137,10 +137,12 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments&)
 		]
 	];
 
-	UAssetManager::CallOrRegister_OnCompletedInitialScan(FSimpleMulticastDelegate::FDelegate::CreateLambda([this]
-	{
-		UpdateItemList();
-	}));
+	UAssetManager::CallOrRegister_OnCompletedInitialScan(FSimpleMulticastDelegate::FDelegate::CreateLambda(
+		[this]
+		{
+			UpdateItemList();
+		}
+	));
 }
 
 TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusItemPtr InItem, const TSharedRef<STableViewBase>& OwnerTable) const

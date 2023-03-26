@@ -113,4 +113,9 @@ public:
 private:
 	static TArray<UElementusItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryAssetId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload);
 	static TArray<UElementusItemData*> LoadElementusItemDatas_Internal(UAssetManager* InAssetManager, const TArray<FPrimaryElementusItemId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload);
+
+public:
+	/* Filter the container and return only items that can be traded at the current context */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	static TArray<FElementusItemInfo> FilterTradeableItems(UElementusInventoryComponent* FromInventory, UElementusInventoryComponent* ToInventory, const TArray<FElementusItemInfo>& Items);
 };

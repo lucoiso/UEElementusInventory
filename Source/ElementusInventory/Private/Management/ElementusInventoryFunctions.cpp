@@ -7,6 +7,7 @@
 #include "Management/ElementusInventoryData.h"
 #include "LogElementusInventory.h"
 #include <Engine/AssetManager.h>
+#include <Algo/Copy.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryFunctions)
@@ -223,6 +224,41 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::LoadElementusItemDatas
 	return LoadElementusItemDatas_Internal(InAssetManager, PrimaryAssetIds, InBundles, bAutoUnload);
 }
 
+TArray<FElementusItemInfo> UElementusInventoryFunctions::FilterTradeableItems(UElementusInventoryComponent* FromInventory, UElementusInventoryComponent* ToInventory, const TArray<FElementusItemInfo>& Items)
+{
+	TArray<FElementusItemInfo> Output;
+	float VirtualWeight = ToInventory->GetCurrentWeight();
+
+	Algo::CopyIf(Items, Output, 
+		[&](const FElementusItemInfo& Iterator) 
+		{
+			if (VirtualWeight >= ToInventory->GetMaxWeight())
+			{
+				return false;
+			}
+
+			bool bCanTradeIterator = FromInventory->CanGiveItem(Iterator) && ToInventory->CanReceiveItem(Iterator);
+
+			if (bCanTradeIterator)
+			{
+				if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(Iterator.ItemId, { "Data" }))
+				{
+					VirtualWeight += Iterator.Quantity * ItemData->ItemWeight;
+					bCanTradeIterator = bCanTradeIterator && VirtualWeight <= ToInventory->GetMaxWeight();
+				}
+				else
+				{
+					return false;
+				}
+			}
+
+			return bCanTradeIterator;
+		}
+	);
+
+	return Output;
+}
+
 TArray<FPrimaryAssetId> UElementusInventoryFunctions::GetAllElementusItemIds()
 {
 	TArray<FPrimaryAssetId> Output;
@@ -247,7 +283,7 @@ void UElementusInventoryFunctions::TradeElementusItem(TArray<FElementusItemInfo>
 
 bool UElementusInventoryFunctions::IsItemValid(const FElementusItemInfo InItemInfo)
 {
-	return InItemInfo.ItemId.IsValid() && InItemInfo != FElementusItemInfo::EmptyItemInfo;
+	return InItemInfo.ItemId.IsValid() && InItemInfo != FElementusItemInfo::EmptyItemInfo && InItemInfo.Quantity > 0;
 }
 
 bool UElementusInventoryFunctions::IsItemStackable(const FElementusItemInfo InItemInfo)
