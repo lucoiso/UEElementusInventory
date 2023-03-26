@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
-	"Version": 4,
-	"VersionName": "1.1.6",
+	"Version": 5,
+	"VersionName": "1.1.7",
 	"FriendlyName": "Elementus Inventory",
 	"Description": "Plugin that provides a Data-Driven Inventory & Items system based on FPrimaryAssetIds and the Asset Manager.",
 	"Category": "Game Features",
@@ -21,7 +21,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux",
 				"IOS",

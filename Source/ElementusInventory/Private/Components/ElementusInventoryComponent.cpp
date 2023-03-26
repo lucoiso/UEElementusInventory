@@ -10,13 +10,12 @@
 #include <GameFramework/Actor.h>
 #include <Net/UnrealNetwork.h>
 #include <Algo/ForEach.h>
-#include <Algo/Copy.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryComponent)
 #endif
 
-UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UElementusInventoryComponent::UElementusInventoryComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), CurrentWeight(0.f), MaxWeight(0.f), MaxNumItems(0)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
@@ -36,9 +35,19 @@ float UElementusInventoryComponent::GetCurrentWeight() const
 	return CurrentWeight;
 }
 
+float UElementusInventoryComponent::GetMaxWeight() const
+{
+	return MaxWeight <= 0.f ? MAX_flt : MaxWeight;
+}
+
 int32 UElementusInventoryComponent::GetCurrentNumItems() const
 {
 	return ElementusItems.Num();
+}
+
+int32 UElementusInventoryComponent::GetMaxNumItems() const
+{
+	return MaxNumItems;
 }
 
 TArray<FElementusItemInfo> UElementusInventoryComponent::GetItemsArray() const
@@ -377,20 +386,10 @@ void UElementusInventoryComponent::GetItemIndexesFrom_Implementation(UElementusI
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
 			Modifiers.Add(OtherInventory->ElementusItems[Iterator]);
-			
-			if (OtherInventory->bAllowEmptySlots)
-			{
-				OtherInventory->ElementusItems[Iterator] = FElementusItemInfo::EmptyItemInfo;
-			}
-			else
-			{
-				OtherInventory->ElementusItems.RemoveAt(Iterator, 1, false);
-			}
 		}
 	}
 
-	OtherInventory->NotifyInventoryChange();
-	UpdateElementusItems(Modifiers, EElementusInventoryUpdateOperation::Add);
+	GetItemsFrom_Implementation(OtherInventory, Modifiers);
 }
 
 void UElementusInventoryComponent::GiveItemIndexesTo_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<int32>& ItemIndexes)
@@ -406,20 +405,10 @@ void UElementusInventoryComponent::GiveItemIndexesTo_Implementation(UElementusIn
 		if (OtherInventory->ElementusItems.IsValidIndex(Iterator))
 		{
 			Modifiers.Add(ElementusItems[Iterator]);
-
-			if (bAllowEmptySlots)
-			{
-				ElementusItems[Iterator] = FElementusItemInfo::EmptyItemInfo;
-			}
-			else
-			{
-				ElementusItems.RemoveAt(Iterator, 1, false);
-			}
 		}
 	}
 
-	NotifyInventoryChange();
-	OtherInventory->UpdateElementusItems(Modifiers, EElementusInventoryUpdateOperation::Add);
+	GiveItemsTo_Implementation(OtherInventory, Modifiers);
 }
 
 void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInventoryComponent* OtherInventory, const TArray<FElementusItemInfo>& Items)
@@ -434,10 +423,7 @@ void UElementusInventoryComponent::GetItemsFrom_Implementation(UElementusInvento
 		return;
 	}
 
-	TArray<FElementusItemInfo> TradeableItems;
-	Algo::CopyIf(Items, TradeableItems, [this, &OtherInventory](const FElementusItemInfo& Item) {
-		return OtherInventory->CanGiveItem(Item) && CanReceiveItem(Item);;
-	});
+	const TArray<FElementusItemInfo> TradeableItems = UElementusInventoryFunctions::FilterTradeableItems(OtherInventory, this, Items);
 	
 	OtherInventory->UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Remove);
 	UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Add);
@@ -455,10 +441,7 @@ void UElementusInventoryComponent::GiveItemsTo_Implementation(UElementusInventor
 		return;
 	}
 
-	TArray<FElementusItemInfo> TradeableItems;
-	Algo::CopyIf(Items, TradeableItems, [this, &OtherInventory](const FElementusItemInfo& Item) {
-		return CanGiveItem(Item) && OtherInventory->CanReceiveItem(Item);
-	});
+	const TArray<FElementusItemInfo> TradeableItems = UElementusInventoryFunctions::FilterTradeableItems(this, OtherInventory, Items);
 
 	UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Remove);
 	OtherInventory->UpdateElementusItems(TradeableItems, EElementusInventoryUpdateOperation::Add);
@@ -471,22 +454,16 @@ void UElementusInventoryComponent::DiscardItemIndexes_Implementation(const TArra
 		return;
 	}
 
-	for (const int32& Index : ItemIndexes)
+	TArray<FElementusItemInfo> Modifiers;
+	for (const int32& Iterator : ItemIndexes)
 	{
-		if (ElementusItems.IsValidIndex(Index))
+		if (ElementusItems.IsValidIndex(Iterator))
 		{
-			if (bAllowEmptySlots)
-			{
-				ElementusItems[Index] = FElementusItemInfo::EmptyItemInfo;
-			}
-			else
-			{
-				ElementusItems.RemoveAt(Index, 1, false);
-			}
+			Modifiers.Add(ElementusItems[Iterator]);
 		}
 	}
 
-	NotifyInventoryChange();
+	DiscardItems(Modifiers);
 }
 
 void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<FElementusItemInfo>& Items)
