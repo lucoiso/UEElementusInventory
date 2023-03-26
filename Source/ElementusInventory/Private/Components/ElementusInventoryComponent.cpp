@@ -47,7 +47,7 @@ int32 UElementusInventoryComponent::GetCurrentNumItems() const
 
 int32 UElementusInventoryComponent::GetMaxNumItems() const
 {
-	return MaxNumItems;
+	return MaxNumItems <= 0 ? MAX_int32 : MaxNumItems;
 }
 
 TArray<FElementusItemInfo> UElementusInventoryComponent::GetItemsArray() const
@@ -72,16 +72,11 @@ bool UElementusInventoryComponent::CanReceiveItem(const FElementusItemInfo InIte
 		return false;
 	}
 
-	if (MaxWeight == 0.f && MaxNumItems == 0)
-	{
-		return true;
-	}
-
-	bool bOutput = MaxNumItems > ElementusItems.Num();
+	bool bOutput = ElementusItems.Num() <= GetMaxNumItems();
 
 	if (const UElementusItemData* const ItemData = UElementusInventoryFunctions::GetSingleItemDataById(InItemInfo.ItemId, { "Data" }))
 	{
-		bOutput = bOutput && (MaxWeight == 0.f || MaxWeight >= CurrentWeight + ItemData->ItemWeight * InItemInfo.Quantity);
+		bOutput = bOutput && ((GetCurrentWeight() + (ItemData->ItemWeight * InItemInfo.Quantity)) <= GetMaxWeight());
 	}
 
 	if (!bOutput)
