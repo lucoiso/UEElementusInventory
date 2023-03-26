@@ -56,10 +56,18 @@ public:
 	/* Get the current inventory weight */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	float GetCurrentWeight() const;
+	
+	/* Get the max inventory weight */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	float GetMaxWeight() const;
 
 	/* Get the current num of items in this inventory */
 	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
 	int32 GetCurrentNumItems() const;
+
+	/* Get the current max num of items in this inventory */
+	UFUNCTION(BlueprintPure, Category = "Elementus Inventory")
+	int32 GetMaxNumItems() const;
 
 	/* Called on every inventory update */
 	UPROPERTY(BlueprintAssignable, Category = "Elementus Inventory")
