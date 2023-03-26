@@ -308,15 +308,17 @@ bool UElementusInventoryComponent::FindAllItemIndexesWithId(const FPrimaryElemen
 
 bool UElementusInventoryComponent::ContainsItem(const FElementusItemInfo InItemInfo, const bool bIgnoreTags) const
 {
-	return ElementusItems.FindByPredicate([&InItemInfo, &bIgnoreTags](const FElementusItemInfo& InInfo)
-	{
-		if (bIgnoreTags)
+	return ElementusItems.FindByPredicate(
+		[&InItemInfo, &bIgnoreTags](const FElementusItemInfo& InInfo)
 		{
-			return InInfo.ItemId == InItemInfo.ItemId;
-		}
+			if (bIgnoreTags)
+			{
+				return InInfo.ItemId == InItemInfo.ItemId;
+			}
 
-		return InInfo == InItemInfo;
-	}) != nullptr;
+			return InInfo == InItemInfo;
+		}
+	) != nullptr;
 }
 
 bool UElementusInventoryComponent::IsInventoryEmpty() const
@@ -589,10 +591,12 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 	}
 	else
 	{
-		ElementusItems.RemoveAll([](const FElementusItemInfo& InInfo)
-		{
-			return InInfo.Quantity <= 0;
-		});		
+		ElementusItems.RemoveAll(
+			[](const FElementusItemInfo& InInfo)
+			{
+				return InInfo.Quantity <= 0;
+			}
+		);		
 	}
 
 	NotifyInventoryChange();
@@ -600,8 +604,7 @@ void UElementusInventoryComponent::Server_ProcessInventoryRemoval_Internal_Imple
 
 void UElementusInventoryComponent::OnRep_ElementusItems()
 {
-	if (const int32 LastValidIndex = ElementusItems.FindLastByPredicate([](const FElementusItemInfo& Item) { return UElementusInventoryFunctions::IsItemValid(Item); });
-		LastValidIndex != INDEX_NONE && ElementusItems.IsValidIndex(LastValidIndex + 1))
+	if (const int32 LastValidIndex = ElementusItems.FindLastByPredicate([](const FElementusItemInfo& Item) { return UElementusInventoryFunctions::IsItemValid(Item); }); LastValidIndex != INDEX_NONE && ElementusItems.IsValidIndex(LastValidIndex + 1))
 	{
 		ElementusItems.RemoveAt(LastValidIndex + 1, ElementusItems.Num() - LastValidIndex - 1, false);
 	}
