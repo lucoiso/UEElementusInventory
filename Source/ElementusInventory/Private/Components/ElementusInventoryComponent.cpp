@@ -471,7 +471,6 @@ void UElementusInventoryComponent::DiscardItems_Implementation(const TArray<FEle
 	}
 
 	UpdateElementusItems(Items, EElementusInventoryUpdateOperation::Remove);
-	NotifyInventoryChange();
 }
 
 void UElementusInventoryComponent::AddItems_Implementation(const TArray<FElementusItemInfo>& Items)
@@ -482,7 +481,6 @@ void UElementusInventoryComponent::AddItems_Implementation(const TArray<FElement
 	}
 
 	UpdateElementusItems(Items, EElementusInventoryUpdateOperation::Add);
-	NotifyInventoryChange();
 }
 
 void UElementusInventoryComponent::UpdateElementusItems(const TArray<FElementusItemInfo>& Modifiers, const EElementusInventoryUpdateOperation Operation)
