@@ -8,8 +8,9 @@
 #include "LogElementusInventory.h"
 #include <Engine/AssetManager.h>
 #include <GameFramework/Actor.h>
-#include <Net/UnrealNetwork.h>
 #include <Algo/ForEach.h>
+#include <Net/UnrealNetwork.h>
+#include <Net/Core/PushModel/PushModel.h>
 
 #ifdef UE_INLINE_GENERATED_CPP_BY_NAME
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ElementusInventoryComponent)
