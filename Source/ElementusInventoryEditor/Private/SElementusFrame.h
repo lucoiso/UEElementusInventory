@@ -9,11 +9,11 @@
 class SElementusFrame final : public SCompoundWidget
 {
 public:
-	SLATE_USER_ARGS(SElementusFrame)
-	{
-	}
+    SLATE_USER_ARGS(SElementusFrame)
+        {
+        }
 
-	SLATE_END_ARGS()
+    SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs);
+    void Construct(const FArguments& InArgs);
 };

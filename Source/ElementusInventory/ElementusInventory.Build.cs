@@ -6,23 +6,23 @@ using UnrealBuildTool;
 
 public class ElementusInventory : ModuleRules
 {
-	public ElementusInventory(ReadOnlyTargetRules Target) : base(Target)
-	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-		CppStandard = CppStandardVersion.Cpp17;
+    public ElementusInventory(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        CppStandard = CppStandardVersion.Cpp17;
 
-		PublicDependencyModuleNames.AddRange(new[]
-		{
-			"Core"
-		});
+        PublicDependencyModuleNames.AddRange(new[]
+        {
+            "Core"
+        });
 
-		PrivateDependencyModuleNames.AddRange(new[]
-		{
-			"Engine",
-			"NetCore",
-			"CoreUObject",
-			"GameplayTags",
-			"DeveloperSettings"
-		});
-	}
+        PrivateDependencyModuleNames.AddRange(new[]
+        {
+            "Engine",
+            "NetCore",
+            "CoreUObject",
+            "GameplayTags",
+            "DeveloperSettings"
+        });
+    }
 }
