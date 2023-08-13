@@ -11,37 +11,37 @@
 
 UElementusInventorySettings::UElementusInventorySettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer), bEnableInternalLogs(false)
 {
-	CategoryName = TEXT("Plugins");
+    CategoryName = TEXT("Plugins");
 }
 
 const UElementusInventorySettings* UElementusInventorySettings::Get()
 {
-	static const UElementusInventorySettings* const Instance = GetDefault<UElementusInventorySettings>();
-	return Instance;
+    static const UElementusInventorySettings* const Instance = GetDefault<UElementusInventorySettings>();
+    return Instance;
 }
 
 #if WITH_EDITOR
 void UElementusInventorySettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-	
-	if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UElementusInventorySettings, bEnableInternalLogs))
-	{
-		ToggleInternalLogs();
-	}
+    Super::PostEditChangeProperty(PropertyChangedEvent);
+
+    if (PropertyChangedEvent.Property->GetFName() == GET_MEMBER_NAME_CHECKED(UElementusInventorySettings, bEnableInternalLogs))
+    {
+        ToggleInternalLogs();
+    }
 }
 #endif
 
 void UElementusInventorySettings::PostInitProperties()
 {
-	Super::PostInitProperties();
+    Super::PostInitProperties();
 
-	ToggleInternalLogs();
+    ToggleInternalLogs();
 }
 
 void UElementusInventorySettings::ToggleInternalLogs()
 {
 #if !UE_BUILD_SHIPPING
-	LogElementusInventory_Internal.SetVerbosity(bEnableInternalLogs ? ELogVerbosity::Display : ELogVerbosity::NoLogging);
+    LogElementusInventory_Internal.SetVerbosity(bEnableInternalLogs ? ELogVerbosity::Display : ELogVerbosity::NoLogging);
 #endif
 }

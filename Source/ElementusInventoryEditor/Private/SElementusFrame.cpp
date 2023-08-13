@@ -10,38 +10,38 @@
 
 void SElementusFrame::Construct([[maybe_unused]] const FArguments& InArgs)
 {
-	const TSharedRef<SElementusTable> Table = SNew(SElementusTable);
+    const TSharedRef<SElementusTable> Table = SNew(SElementusTable);
 
-	ChildSlot
-	[
-		SNew(SHorizontalBox)
-		+ SHorizontalBox::Slot()
-		  .AutoWidth()
-		  .MaxWidth(300.f)
-		[
-			SNew(SScrollBox)
-			+ SScrollBox::Slot()
-			[
-				SNew(SVerticalBox)
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SElementusSearch)
-					.OnSearchTextChanged(Table, &SElementusTable::OnSearchTextModified)
-					.OnCheckboxStateChanged(Table, &SElementusTable::OnSearchTypeModified)
-				]
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SElementusUtils)
-					.TableSource(&Table.Get())
-				]
-			]
-		]
-		+ SHorizontalBox::Slot()
-		.FillWidth(1.f)
-		[
-			Table
-		]
-	];
+    ChildSlot
+        [
+            SNew(SHorizontalBox)
+                + SHorizontalBox::Slot()
+                .AutoWidth()
+                .MaxWidth(300.f)
+                [
+                    SNew(SScrollBox)
+                        + SScrollBox::Slot()
+                        [
+                            SNew(SVerticalBox)
+                                + SVerticalBox::Slot()
+                                .AutoHeight()
+                                [
+                                    SNew(SElementusSearch)
+                                        .OnSearchTextChanged(Table, &SElementusTable::OnSearchTextModified)
+                                        .OnCheckboxStateChanged(Table, &SElementusTable::OnSearchTypeModified)
+                                ]
+                                + SVerticalBox::Slot()
+                                .AutoHeight()
+                                [
+                                    SNew(SElementusUtils)
+                                        .TableSource(&Table.Get())
+                                ]
+                        ]
+                ]
+                + SHorizontalBox::Slot()
+                .FillWidth(1.f)
+                [
+                    Table
+                ]
+        ];
 }
