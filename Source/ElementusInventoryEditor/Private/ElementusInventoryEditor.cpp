@@ -53,10 +53,10 @@ TSharedRef<SDockTab> FElementusInventoryEditorModule::OnSpawnTab([[maybe_unused]
     if (OutContent.IsValid())
     {
         return SNew(SDockTab)
-        .TabRole(NomadTab)
-        [
-            OutContent.ToSharedRef()
-        ];
+            .TabRole(NomadTab)
+            [
+                OutContent.ToSharedRef()
+            ];
     }
 
     return SNew(SDockTab);

@@ -42,13 +42,13 @@ protected:
         const FMargin CellMargin = FMargin(4.f);
 
         const auto TextBlockCreator_Lambda = [this, &CellFont, &CellMargin](const FText& InText) -> TSharedRef<STextBlock>
-        {
-            return SNew(STextBlock)
-                .Text(InText)
-                .Font(CellFont)
-                .Margin(CellMargin)
-                .HighlightText(*HighlightText);
-        };
+            {
+                return SNew(STextBlock)
+                    .Text(InText)
+                    .Font(CellFont)
+                    .Margin(CellMargin)
+                    .HighlightText(*HighlightText);
+            };
 
         if (ColumnName == ColumnId_PrimaryIdLabel)
         {
@@ -103,14 +103,14 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments&)
     const TSharedPtr<SHeaderRow> HeaderRow = SNew(SHeaderRow);
 
     const auto HeaderColumnCreator_Lambda = [this](const FName& ColumnId, const FString& ColumnText, const float InWidth = 1.f) -> const SHeaderRow::FColumn::FArguments
-    {
-        return SHeaderRow::Column(ColumnId)
-            .DefaultLabel(FText::FromString(ColumnText))
-            .FillWidth(InWidth)
-            .SortMode(this, &SElementusTable::GetColumnSort, ColumnId)
-            .OnSort(this, &SElementusTable::OnColumnSort)
-            .HeaderComboVisibility(EHeaderComboVisibility::OnHover);
-    };
+        {
+            return SHeaderRow::Column(ColumnId)
+                .DefaultLabel(FText::FromString(ColumnText))
+                .FillWidth(InWidth)
+                .SortMode(this, &SElementusTable::GetColumnSort, ColumnId)
+                .OnSort(this, &SElementusTable::OnColumnSort)
+                .HeaderComboVisibility(EHeaderComboVisibility::OnHover);
+        };
 
     HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_PrimaryIdLabel, "Primary Asset Id", 0.75f));
     HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_ItemIdLabel, "Id"));
@@ -130,12 +130,12 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments&)
         .OnMouseButtonDoubleClick(this, &SElementusTable::OnTableItemDoubleClicked);
 
     ChildSlot
-    [
-        SNew(SBorder)
         [
-            EdListView.ToSharedRef()
-        ]
-    ];
+            SNew(SBorder)
+                [
+                    EdListView.ToSharedRef()
+                ]
+        ];
 
     UAssetManager::CallOrRegister_OnCompletedInitialScan(
         FSimpleMulticastDelegate::FDelegate::CreateLambda(
@@ -281,9 +281,9 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
             if (ColumnName == ColumnId_TypeLabel)
             {
                 const auto ItemTypeToString_Lambda = [&](const EElementusItemType& InType) -> FString
-                {
-                    return *UElementusInventoryFunctions::ElementusItemEnumTypeToString(InType);
-                };
+                    {
+                        return *UElementusInventoryFunctions::ElementusItemEnumTypeToString(InType);
+                    };
 
                 return CompareLambda(ItemTypeToString_Lambda(Val1->Type), ItemTypeToString_Lambda(Val2->Type));
             }

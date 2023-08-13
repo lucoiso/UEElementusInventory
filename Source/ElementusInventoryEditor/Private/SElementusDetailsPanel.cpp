@@ -11,26 +11,26 @@ void SElementusDetailsPanel::CustomizeHeader(const TSharedRef<IPropertyHandle> P
     PropertyHandlePtr = PropertyHandle;
 
     HeaderRow
-    .NameContent()
-    [
-        PropertyHandle->CreatePropertyNameWidget()
-    ]
-    .ValueContent()
-    [
-        SNew(SObjectPropertyEntryBox)
-        .AllowedClass(UElementusItemData::StaticClass())
-        .PropertyHandle(PropertyHandle)
-        .DisplayThumbnail(true)
-        .ThumbnailPool(CustomizationUtils.GetThumbnailPool())
-        .ObjectPath(this, &SElementusDetailsPanel::GetObjPath)
-        .OnObjectChanged(this, &SElementusDetailsPanel::OnObjChanged)
-        .OnShouldFilterAsset_Lambda(
-            [](const FAssetData& AssetData) -> bool
-            {
-                return AssetData.GetPrimaryAssetId().PrimaryAssetType != FPrimaryAssetType(ElementusItemDataType);
-            }
-        )
-    ];
+        .NameContent()
+        [
+            PropertyHandle->CreatePropertyNameWidget()
+        ]
+        .ValueContent()
+        [
+            SNew(SObjectPropertyEntryBox)
+                .AllowedClass(UElementusItemData::StaticClass())
+                .PropertyHandle(PropertyHandle)
+                .DisplayThumbnail(true)
+                .ThumbnailPool(CustomizationUtils.GetThumbnailPool())
+                .ObjectPath(this, &SElementusDetailsPanel::GetObjPath)
+                .OnObjectChanged(this, &SElementusDetailsPanel::OnObjChanged)
+                .OnShouldFilterAsset_Lambda(
+                    [](const FAssetData& AssetData) -> bool
+                    {
+                        return AssetData.GetPrimaryAssetId().PrimaryAssetType != FPrimaryAssetType(ElementusItemDataType);
+                    }
+                )
+        ];
 }
 
 void SElementusDetailsPanel::CustomizeChildren(TSharedRef<IPropertyHandle> StructPropertyHandle, IDetailChildrenBuilder& StructBuilder, IPropertyTypeCustomizationUtils& CustomizationUtils)
