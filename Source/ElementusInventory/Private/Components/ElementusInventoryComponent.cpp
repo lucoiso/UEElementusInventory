@@ -111,6 +111,11 @@ bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo InItemIn
     return false;
 }
 
+void UElementusInventoryComponent::SortInventory_Implementation()
+{
+    // Override this function to implement your own sorting algorithm
+}
+
 void UElementusInventoryComponent::BeginPlay()
 {
     Super::BeginPlay();

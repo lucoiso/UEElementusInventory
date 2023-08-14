@@ -169,6 +169,9 @@ public:
     UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
     void AddItems(const TArray<FElementusItemInfo>& Items);
 
+    UFUNCTION(BlueprintNativeEvent, Category = "Elementus Inventory")
+    void SortInventory();
+
 protected:
     /* Items that this inventory have */
     UPROPERTY(ReplicatedUsing = OnRep_ElementusItems, EditAnywhere, BlueprintReadOnly, Category = "Elementus Inventory", meta = (Getter = "GetItemsArray", ArrayClamp = "MaxNumItems"))

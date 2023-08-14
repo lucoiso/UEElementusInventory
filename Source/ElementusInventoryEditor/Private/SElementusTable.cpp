@@ -222,7 +222,7 @@ void SElementusTable::UpdateItemList()
 
     for (const FPrimaryAssetId& Iterator : UElementusInventoryFunctions::GetAllElementusItemIds())
     {
-        ItemArr.Add(MakeShareable<FElementusItemRowData>(new FElementusItemRowData(Iterator)));
+        ItemArr.Add(MakeShared<FElementusItemRowData>(Iterator));
     }
 
     EdListView->RequestListRefresh();

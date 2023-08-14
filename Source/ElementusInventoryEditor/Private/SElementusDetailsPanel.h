@@ -12,7 +12,7 @@ class SElementusDetailsPanel final : public IPropertyTypeCustomization
 public:
     static TSharedRef<IPropertyTypeCustomization> MakeInstance()
     {
-        return MakeShareable(new SElementusDetailsPanel());
+        return MakeShared<SElementusDetailsPanel>();
     }
 
 protected:

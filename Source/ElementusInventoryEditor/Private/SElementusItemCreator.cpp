@@ -24,7 +24,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 {
     constexpr float Slot_Padding = 1.f;
 
-    ImageIcon_ThumbnailPool = MakeShareable(new FAssetThumbnailPool(1024));
+    ImageIcon_ThumbnailPool = MakeShared<FAssetThumbnailPool>(1024);
 
 #if ENGINE_MAJOR_VERSION < 5
     using FAppStyle = FEditorStyle;
@@ -353,7 +353,7 @@ void SElementusItemCreator::UpdateFolders()
         {
             for (const FString& Path : Info.AssetScanPaths)
             {
-                AssetFoldersArr.Add(MakeShareable(new FString(Path)));
+                AssetFoldersArr.Add(MakeShared<FString>(Path));
             }
         }
     }
@@ -428,7 +428,7 @@ TArray<TSharedPtr<FString>> SElementusItemCreator::GetEnumValuesAsStringArray() 
     TArray<TSharedPtr<FString>> EnumValues;
     for (uint32 iterator = 0; iterator < static_cast<uint32>(EElementusItemType::MAX); iterator++)
     {
-        EnumValues.Add(MakeShareable<FString>(new FString(UElementusInventoryFunctions::ElementusItemEnumTypeToString(static_cast<EElementusItemType>(iterator)))));
+        EnumValues.Add(MakeShared<FString>(UElementusInventoryFunctions::ElementusItemEnumTypeToString(static_cast<EElementusItemType>(iterator))));
     }
 
     return EnumValues;
