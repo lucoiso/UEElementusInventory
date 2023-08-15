@@ -16,4 +16,9 @@ public:
     SLATE_END_ARGS()
 
     void Construct(const FArguments& InArgs);
+
+private:
+    TSharedRef<SWidget> ConstructContent();
+
+    TSharedPtr<class SElementusTable> Table;
 };

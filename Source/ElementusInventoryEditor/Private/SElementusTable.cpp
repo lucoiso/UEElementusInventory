@@ -24,7 +24,7 @@ public:
         {
         }
 
-        SLATE_ARGUMENT(const FText*, HightlightTextSource)
+        SLATE_ARGUMENT(TSharedPtr<FText>, HightlightTextSource)
     SLATE_END_ARGS()
 
     void Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTableView, const FElementusItemPtr InEntryItem)
@@ -39,7 +39,7 @@ protected:
     virtual TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName) override
     {
         const FSlateFontInfo CellFont = FCoreStyle::GetDefaultFontStyle("Regular", 10);
-        const FMargin CellMargin = FMargin(4.f);
+        const FMargin CellMargin(4.f);
 
         const auto TextBlockCreator_Lambda = [this, &CellFont, &CellMargin](const FText& InText) -> TSharedRef<STextBlock>
             {
@@ -47,7 +47,7 @@ protected:
                     .Text(InText)
                     .Font(CellFont)
                     .Margin(CellMargin)
-                    .HighlightText(*HighlightText);
+                    .HighlightText(HighlightText.IsValid() ? *HighlightText.Get() : FText::GetEmpty());
             };
 
         if (ColumnName == ColumnId_PrimaryIdLabel)
@@ -95,7 +95,7 @@ protected:
 
 private:
     FElementusItemPtr Item;
-    const FText* HighlightText = nullptr;
+    TSharedPtr<FText> HighlightText;
 };
 
 void SElementusTable::Construct([[maybe_unused]] const FArguments&)
@@ -121,20 +121,9 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments&)
     HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_ValueLabel, "Value"));
     HeaderRow->AddColumn(HeaderColumnCreator_Lambda(ColumnId_WeightLabel, "Weight"));
 
-    EdListView = SNew(SListView<FElementusItemPtr>)
-        .ListItemsSource(&ItemArr)
-        .SelectionMode(ESelectionMode::Multi)
-        .IsFocusable(true)
-        .OnGenerateRow(this, &SElementusTable::OnGenerateWidgetForList)
-        .HeaderRow(HeaderRow)
-        .OnMouseButtonDoubleClick(this, &SElementusTable::OnTableItemDoubleClicked);
-
     ChildSlot
         [
-            SNew(SBorder)
-                [
-                    EdListView.ToSharedRef()
-                ]
+            ConstructContent(HeaderRow.ToSharedRef())
         ];
 
     UAssetManager::CallOrRegister_OnCompletedInitialScan(
@@ -147,11 +136,22 @@ void SElementusTable::Construct([[maybe_unused]] const FArguments&)
     );
 }
 
+TSharedRef<SWidget> SElementusTable::ConstructContent(const TSharedRef<SHeaderRow> HeaderRow)
+{
+    return SAssignNew(EdListView, SListView<FElementusItemPtr>)
+        .ListItemsSource(&ItemArr)
+        .SelectionMode(ESelectionMode::Multi)
+        .IsFocusable(true)
+        .OnGenerateRow(this, &SElementusTable::OnGenerateWidgetForList)
+        .HeaderRow(HeaderRow)
+        .OnMouseButtonDoubleClick(this, &SElementusTable::OnTableItemDoubleClicked);
+}
+
 TSharedRef<ITableRow> SElementusTable::OnGenerateWidgetForList(const FElementusItemPtr InItem, const TSharedRef<STableViewBase>& OwnerTable) const
 {
     return SNew(SElementusItemTableRow, OwnerTable, InItem)
         .Visibility(this, &SElementusTable::GetIsVisible, InItem)
-        .HightlightTextSource(&SearchText);
+        .HightlightTextSource(SearchText);
 }
 
 void SElementusTable::OnTableItemDoubleClicked(const FElementusItemPtr ElementusItemRowData) const
@@ -179,7 +179,7 @@ EVisibility SElementusTable::GetIsVisible(const FElementusItemPtr InItem) const
                 || InItem->Class.ToString().Contains(InText, ESearchCase::IgnoreCase)
                 || FString::SanitizeFloat(InItem->Value).Contains(InText, ESearchCase::IgnoreCase)
                 || FString::SanitizeFloat(InItem->Weight).Contains(InText, ESearchCase::IgnoreCase);
-        }(SearchText.ToString())
+        }(SearchText.IsValid() ? SearchText->ToString() : FString())
                 && (AllowedTypes.Contains(static_cast<uint8>(InItem->Type)) || UElementusInventoryFunctions::HasEmptyParam(AllowedTypes)))
     {
         Output = EVisibility::Visible;
@@ -194,7 +194,7 @@ EVisibility SElementusTable::GetIsVisible(const FElementusItemPtr InItem) const
 
 void SElementusTable::OnSearchTextModified(const FText& InText)
 {
-    SearchText = InText;
+    SearchText = MakeShared<FText>(InText);
     EdListView->RebuildList();
 }
 
@@ -222,7 +222,7 @@ void SElementusTable::UpdateItemList()
 
     for (const FPrimaryAssetId& Iterator : UElementusInventoryFunctions::GetAllElementusItemIds())
     {
-        ItemArr.Add(MakeShareable<FElementusItemRowData>(new FElementusItemRowData(Iterator)));
+        ItemArr.Add(MakeShared<FElementusItemRowData>(Iterator));
     }
 
     EdListView->RequestListRefresh();
@@ -243,7 +243,7 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
     ColumnBeingSorted = ColumnName;
     CurrentSortMode = SortMode;
 
-    const auto CompareLambda = [&SortMode](const auto& Val1, const auto& Val2) -> bool
+    const auto Compare_Lambda = [&SortMode](const auto& Val1, const auto& Val2) -> bool
         {
             switch (SortMode)
             {
@@ -261,21 +261,21 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
             }
         };
 
-    const auto Sort_Lambda = [&ColumnName, &CompareLambda](const FElementusItemPtr& Val1, const FElementusItemPtr& Val2) -> bool
+    const auto Sort_Lambda = [&ColumnName, &Compare_Lambda](const FElementusItemPtr& Val1, const FElementusItemPtr& Val2) -> bool
         {
             if (ColumnName == ColumnId_PrimaryIdLabel)
             {
-                return CompareLambda(Val1->PrimaryAssetId.ToString(), Val2->PrimaryAssetId.ToString());
+                return Compare_Lambda(Val1->PrimaryAssetId.ToString(), Val2->PrimaryAssetId.ToString());
             }
 
             if (ColumnName == ColumnId_ItemIdLabel)
             {
-                return CompareLambda(Val1->Id, Val2->Id);
+                return Compare_Lambda(Val1->Id, Val2->Id);
             }
 
             if (ColumnName == ColumnId_NameLabel)
             {
-                return CompareLambda(Val1->Name.ToString(), Val2->Name.ToString());
+                return Compare_Lambda(Val1->Name.ToString(), Val2->Name.ToString());
             }
 
             if (ColumnName == ColumnId_TypeLabel)
@@ -285,22 +285,22 @@ void SElementusTable::OnColumnSort([[maybe_unused]] const EColumnSortPriority::T
                         return *UElementusInventoryFunctions::ElementusItemEnumTypeToString(InType);
                     };
 
-                return CompareLambda(ItemTypeToString_Lambda(Val1->Type), ItemTypeToString_Lambda(Val2->Type));
+                return Compare_Lambda(ItemTypeToString_Lambda(Val1->Type), ItemTypeToString_Lambda(Val2->Type));
             }
 
             if (ColumnName == ColumnId_ClassLabel)
             {
-                return CompareLambda(Val1->Class.ToString(), Val2->Class.ToString());
+                return Compare_Lambda(Val1->Class.ToString(), Val2->Class.ToString());
             }
 
             if (ColumnName == ColumnId_ValueLabel)
             {
-                return CompareLambda(Val1->Value, Val2->Value);
+                return Compare_Lambda(Val1->Value, Val2->Value);
             }
 
             if (ColumnName == ColumnId_WeightLabel)
             {
-                return CompareLambda(Val1->Weight, Val2->Weight);
+                return Compare_Lambda(Val1->Weight, Val2->Weight);
             }
 
             return false;
