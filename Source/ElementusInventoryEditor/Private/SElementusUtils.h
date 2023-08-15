@@ -15,14 +15,14 @@ public:
         {
         }
 
-        SLATE_ARGUMENT(SElementusTable*, TableSource)
+        SLATE_ARGUMENT(TSharedPtr<class SElementusTable>, TableSource)
     SLATE_END_ARGS()
 
     void Construct(const FArguments& InArgs);
 
-protected:
+private:
+    TSharedRef<SWidget> ConstructContent();
     FReply OnButtonClicked(const uint32 ButtonId) const;
 
-private:
-    SElementusTable* TableSource = nullptr;
+    TSharedPtr<class SElementusTable> TableSource;
 };

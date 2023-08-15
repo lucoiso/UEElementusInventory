@@ -49,6 +49,16 @@ struct FPrimaryElementusItemId : public FPrimaryAssetId
     explicit FPrimaryElementusItemId(const FString& TypeAndName) : Super(TypeAndName)
     {
     }
+
+    bool operator>(const FPrimaryElementusItemId& Other) const
+    {
+        return ToString() > Other.ToString();
+    }
+
+    bool operator<(const FPrimaryElementusItemId& Other) const
+    {
+        return ToString() < Other.ToString();
+    }
 };
 
 USTRUCT(BlueprintType, Category = "Elementus Inventory | Structs")

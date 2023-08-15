@@ -77,15 +77,15 @@ void FElementusInventoryEditorModule::RegisterMenus()
     const auto EditorTabSpawnerDelegate = FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ElementusEditorTabId);
 
     FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ElementusEditorTabId, EditorTabSpawnerDelegate)
-        .SetDisplayName(FText::FromString("Elementus Inventory Management"))
-        .SetTooltipText(FText::FromString("Open Elementus Inventory Window"))
+        .SetDisplayName(FText::FromString(TEXT("Elementus Inventory Management")))
+        .SetTooltipText(FText::FromString(TEXT("Open Elementus Inventory Window")))
         .SetGroup(Menu.ToSharedRef())
         .SetIcon(FSlateIcon(AppStyleName, "Icons.Package"));
 
     const auto ItemCreatorTabSpawnerDelegate = FOnSpawnTab::CreateRaw(this, &FElementusInventoryEditorModule::OnSpawnTab, ItemCreatorTabId);
 
     FGlobalTabmanager::Get()->RegisterNomadTabSpawner(ItemCreatorTabId, ItemCreatorTabSpawnerDelegate)
-        .SetDisplayName(FText::FromString("Elementus Item Creator"))
+        .SetDisplayName(FText::FromString(TEXT("Elementus Item Creator")))
         .SetGroup(Menu.ToSharedRef())
         .SetIcon(FSlateIcon(AppStyleName, "Icons.PlusCircle"));
 }

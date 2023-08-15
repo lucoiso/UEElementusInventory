@@ -16,7 +16,6 @@ public:
     SLATE_USER_ARGS(SElementusSearch)
         {
         }
-
         SLATE_EVENT(FOnElementusItemCheckStateChanged, OnCheckboxStateChanged)
         SLATE_EVENT(FOnTextChanged, OnSearchTextChanged)
 
@@ -24,11 +23,12 @@ public:
 
     void Construct(const FArguments& InArgs);
 
-protected:
+private:
+    TSharedRef<SWidget> ConstructContent();
+
     void TriggerOnCheckboxStateChanged(ECheckBoxState NewState, int32 InType) const;
     void TriggerOnSearchTextChanged(const FText& InText) const;
 
-private:
     FOnElementusItemCheckStateChanged OnCheckStateChanged;
     FOnTextChanged OnTextChangedDelegate;
 };

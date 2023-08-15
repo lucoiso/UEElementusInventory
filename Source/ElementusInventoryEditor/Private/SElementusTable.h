@@ -5,6 +5,7 @@
 #pragma once
 
 #include <CoreMinimal.h>
+#include "Management/ElementusInventoryData.h"
 #include "Management/ElementusInventoryFunctions.h"
 
 struct FElementusItemRowData
@@ -43,6 +44,9 @@ using FElementusItemPtr = TSharedPtr<FElementusItemRowData, ESPMode::ThreadSafe>
 
 class SElementusTable final : public SCompoundWidget
 {
+    friend class SElementusFrame;
+    friend class SElementusUtils;
+
 public:
     SLATE_USER_ARGS(SElementusTable)
         {
@@ -52,10 +56,9 @@ public:
 
     void Construct(const FArguments& InArgs);
 
-    friend class SElementusFrame;
-    friend class SElementusUtils;
+private:
+    TSharedRef<SWidget> ConstructContent(const TSharedRef<class SHeaderRow> HeaderRow);
 
-protected:
     TSharedRef<ITableRow> OnGenerateWidgetForList(const FElementusItemPtr InItem, const TSharedRef<STableViewBase>& OwnerTable) const;
     void OnTableItemDoubleClicked(FElementusItemPtr ElementusItemRowData) const;
     void OnColumnSort(EColumnSortPriority::Type SortPriority, const FName& ColumnName, EColumnSortMode::Type SortMode);
@@ -66,10 +69,9 @@ protected:
     void UpdateItemList();
     TArray<FElementusItemPtr> GetSelectedItems() const;
 
-private:
     TArray<FElementusItemPtr> ItemArr;
     TArray<int32> AllowedTypes;
-    FText SearchText;
+    TSharedPtr<FText> SearchText;
     FName ColumnBeingSorted = NAME_None;
     EColumnSortMode::Type CurrentSortMode = EColumnSortMode::None;
 
