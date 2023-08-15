@@ -34,7 +34,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
 
 TSharedRef<SWidget> SElementusItemCreator::ConstructContent()
 {
-    constexpr float SlotPadding = 1.f;
+    constexpr float SlotPadding = 4.f;
 
     ImageIcon_ThumbnailPool = MakeShared<FAssetThumbnailPool>(1024);
 
@@ -60,7 +60,8 @@ TSharedRef<SWidget> SElementusItemCreator::ConstructContent()
         + SScrollBox::Slot()
         [
             SNew(SGridPanel)
-                .FillColumn(1, 1.f)
+                .FillColumn(0, 0.3f)
+                .FillColumn(1, 0.7f)
                 + SGridPanel::Slot(0, 0)
                 .Padding(SlotPadding)
                 [
