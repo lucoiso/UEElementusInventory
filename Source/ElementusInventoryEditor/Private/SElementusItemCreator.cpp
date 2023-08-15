@@ -36,13 +36,13 @@ TSharedRef<SWidget> SElementusItemCreator::ConstructContent()
 {
     constexpr float SlotPadding = 4.f;
 
-    ImageIcon_ThumbnailPool = MakeShared<FAssetThumbnailPool>(1024);
+    ImageIcon_ThumbnailPool = MakeShared<FAssetThumbnailPool>(1024u);
 
 #if ENGINE_MAJOR_VERSION < 5
     using FAppStyle = FEditorStyle;
 #endif
 
-    const auto ObjEntryBoxCreator_Lambda = [this](UClass* ObjClass, const int32 ObjId) -> const TSharedRef<SObjectPropertyEntryBox>
+    const auto ObjEntryBoxCreator_Lambda = [this](UClass* const ObjClass, const int32 ObjId) -> const TSharedRef<SObjectPropertyEntryBox>
         {
             return SNew(SObjectPropertyEntryBox)
                 .IsEnabled(true)

@@ -111,9 +111,197 @@ bool UElementusInventoryComponent::CanGiveItem(const FElementusItemInfo InItemIn
     return false;
 }
 
-void UElementusInventoryComponent::SortInventory_Implementation()
+void UElementusInventoryComponent::SortInventory(const EElementusInventorySortingMode Mode, const EElementusInventorySortingOrientation Orientation)
 {
-    // Override this function to implement your own sorting algorithm
+    const auto SortByOrientation = [Orientation](const auto A, const auto B) {
+        switch (Orientation)
+        {
+        case EElementusInventorySortingOrientation::Ascending:
+            return A < B;
+
+        case EElementusInventorySortingOrientation::Descending:
+            return A > B;
+
+        default:
+            return false;
+        }
+
+        return false;
+        };
+
+    switch (Mode)
+    {
+    case EElementusInventorySortingMode::ID:
+        ElementusItems.Sort(
+            [SortByOrientation](const FElementusItemInfo& A, const FElementusItemInfo& B)
+            {
+                return UElementusInventoryFunctions::IsItemValid(A) && SortByOrientation(A.ItemId, B.ItemId);
+            }
+        );
+        break;
+
+    case EElementusInventorySortingMode::Name:
+        ElementusItems.Sort(
+            [SortByOrientation](const FElementusItemInfo& A, const FElementusItemInfo& B)
+            {
+                if (!UElementusInventoryFunctions::IsItemValid(A))
+                {
+                    return false;
+                }
+
+                if (const UElementusItemData* const ItemDataA = UElementusInventoryFunctions::GetSingleItemDataById(A.ItemId, { "Data" }))
+                {
+                    if (const UElementusItemData* const ItemDataB = UElementusInventoryFunctions::GetSingleItemDataById(B.ItemId, { "Data" }))
+                    {
+                        return SortByOrientation(ItemDataA->ItemName, ItemDataB->ItemName);
+                    }
+                }
+
+                return false;
+            }
+        );
+        break;
+
+    case EElementusInventorySortingMode::Type:
+        ElementusItems.Sort(
+            [SortByOrientation](const FElementusItemInfo& A, const FElementusItemInfo& B)
+            {
+                if (!UElementusInventoryFunctions::IsItemValid(A))
+                {
+                    return false;
+                }
+
+                if (const UElementusItemData* const ItemDataA = UElementusInventoryFunctions::GetSingleItemDataById(A.ItemId, { "Data" }))
+                {
+                    if (const UElementusItemData* const ItemDataB = UElementusInventoryFunctions::GetSingleItemDataById(B.ItemId, { "Data" }))
+                    {
+                        return SortByOrientation(ItemDataA->ItemType, ItemDataB->ItemType);
+                    }
+                }
+
+                return false;
+            }
+        );
+        break;
+
+    case EElementusInventorySortingMode::IndividualValue:
+        ElementusItems.Sort(
+            [SortByOrientation](const FElementusItemInfo& A, const FElementusItemInfo& B)
+            {
+                if (!UElementusInventoryFunctions::IsItemValid(A))
+                {
+                    return false;
+                }
+
+                if (const UElementusItemData* const ItemDataA = UElementusInventoryFunctions::GetSingleItemDataById(A.ItemId, { "Data" }))
+                {
+                    if (const UElementusItemData* const ItemDataB = UElementusInventoryFunctions::GetSingleItemDataById(B.ItemId, { "Data" }))
+                    {
+                        return SortByOrientation(ItemDataA->ItemValue, ItemDataB->ItemValue);
+                    }
+                }
+
+                return false;
+            }
+        );
+        break;
+
+    case EElementusInventorySortingMode::StackValue:
+        ElementusItems.Sort(
+            [SortByOrientation](const FElementusItemInfo& A, const FElementusItemInfo& B)
+            {
+                if (!UElementusInventoryFunctions::IsItemValid(A))
+                {
+                    return false;
+                }
+
+                if (const UElementusItemData* const ItemDataA = UElementusInventoryFunctions::GetSingleItemDataById(A.ItemId, { "Data" }))
+                {
+                    if (const UElementusItemData* const ItemDataB = UElementusInventoryFunctions::GetSingleItemDataById(B.ItemId, { "Data" }))
+                    {
+                        return SortByOrientation(ItemDataA->ItemValue * A.Quantity, ItemDataB->ItemValue * B.Quantity);
+                    }
+                }
+
+                return false;
+            }
+        );
+        break;
+
+    case EElementusInventorySortingMode::IndividualWeight:
+        ElementusItems.Sort(
+            [SortByOrientation](const FElementusItemInfo& A, const FElementusItemInfo& B)
+            {
+                if (!UElementusInventoryFunctions::IsItemValid(A))
+                {
+                    return false;
+                }
+
+                if (const UElementusItemData* const ItemDataA = UElementusInventoryFunctions::GetSingleItemDataById(A.ItemId, { "Data" }))
+                {
+                    if (const UElementusItemData* const ItemDataB = UElementusInventoryFunctions::GetSingleItemDataById(B.ItemId, { "Data" }))
+                    {
+                        return SortByOrientation(ItemDataA->ItemWeight, ItemDataB->ItemWeight);
+                    }
+                }
+
+                return false;
+            }
+        );
+        break;
+
+    case EElementusInventorySortingMode::StackWeight:
+        ElementusItems.Sort(
+            [SortByOrientation](const FElementusItemInfo& A, const FElementusItemInfo& B)
+            {
+                if (!UElementusInventoryFunctions::IsItemValid(A))
+                {
+                    return false;
+                }
+
+                if (const UElementusItemData* const ItemDataA = UElementusInventoryFunctions::GetSingleItemDataById(A.ItemId, { "Data" }))
+                {
+                    if (const UElementusItemData* const ItemDataB = UElementusInventoryFunctions::GetSingleItemDataById(B.ItemId, { "Data" }))
+                    {
+                        return SortByOrientation(ItemDataA->ItemWeight * A.Quantity, ItemDataB->ItemWeight * B.Quantity);
+                    }
+                }
+
+                return false;
+            }
+        );
+        break;
+
+    case EElementusInventorySortingMode::Quantity:
+        ElementusItems.Sort(
+            [SortByOrientation](const FElementusItemInfo& A, const FElementusItemInfo& B)
+            {
+                return UElementusInventoryFunctions::IsItemValid(A) && SortByOrientation(A.Quantity, B.Quantity);
+            }
+        );
+        break;
+
+    case EElementusInventorySortingMode::Level:
+        ElementusItems.Sort(
+            [SortByOrientation](const FElementusItemInfo& A, const FElementusItemInfo& B)
+            {
+                return UElementusInventoryFunctions::IsItemValid(A) && SortByOrientation(A.Level, B.Level);
+            }
+        );
+        break;
+
+    case EElementusInventorySortingMode::Tags:
+        ElementusItems.Sort(
+            [SortByOrientation](const FElementusItemInfo& A, const FElementusItemInfo& B)
+            {
+                return UElementusInventoryFunctions::IsItemValid(A) && SortByOrientation(A.Tags.Num(), B.Tags.Num());
+            }
+        );
+        break;
+
+    default:
+        break;
+    }
 }
 
 void UElementusInventoryComponent::BeginPlay()
