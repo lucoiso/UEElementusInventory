@@ -92,7 +92,7 @@ TSharedRef<SWidget> SElementusItemCreator::ConstructContent()
                         .Font(FAppStyle::Get().GetFontStyle("PropertyWindow.NormalFont"))
                 ]
                 + SGridPanel::Slot(1, 1)
-                .Padding(Slot_Padding)
+                .Padding(SlotPadding)
                 [
                     ObjEntryBoxCreator_Lambda(UObject::StaticClass(), 0)
                 ]
@@ -140,7 +140,7 @@ TSharedRef<SWidget> SElementusItemCreator::ConstructContent()
                         .Font(FAppStyle::Get().GetFontStyle("PropertyWindow.NormalFont"))
                 ]
                 + SGridPanel::Slot(1, 4)
-                .Padding(Slot_Padding)
+                .Padding(SlotPadding)
                 [
                     SNew(SMultiLineEditableTextBox)
                         .OnTextChanged_Lambda(
@@ -316,7 +316,7 @@ TSharedRef<SWidget> SElementusItemCreator::ConstructContent()
                                 .Content()
                                         [
                                             SNew(SImage)
-                                                .Image(AppStyle.GetBrush("Icons.Refresh"))
+                                                .Image(FAppStyle::Get().GetBrush("Icons.Refresh"))
                                         ]
                         ]
                 ]
