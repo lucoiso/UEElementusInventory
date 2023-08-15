@@ -13,12 +13,19 @@ void SElementusUtils::Construct(const FArguments& InArgs)
 {
     TableSource = InArgs._TableSource;
 
+    ChildSlot
+        [
+            ConstructContent()
+        ];
+}
+
+TSharedRef<SWidget> SElementusUtils::ConstructContent()
+{
 #if ENGINE_MAJOR_VERSION < 5
     using FAppStyle = FEditorStyle;
 #endif
 
-    const ISlateStyle& AppStyle = FAppStyle::Get();
-    constexpr float Slot_Padding = 2.f;
+    constexpr float SlotPadding = 2.f;
 
     const auto ButtonCreator_Lambda = [this](const FString& InStr, const FString& Tooltip, const uint32& ButtonId) -> TSharedRef<SButton>
         {
@@ -29,35 +36,32 @@ void SElementusUtils::Construct(const FArguments& InArgs)
                 .OnClicked(this, &SElementusUtils::OnButtonClicked, ButtonId);
         };
 
-    ChildSlot
+    return SNew(SVerticalBox)
+        + SVerticalBox::Slot()
+        .AutoHeight()
+        .Padding(SlotPadding)
         [
-            SNew(SVerticalBox)
-                + SVerticalBox::Slot()
-                .AutoHeight()
-                .Padding(Slot_Padding)
+            SNew(STextBlock)
+                .Text(FText::FromString(TEXT("Utils:")))
+                .Font(FAppStyle::Get().GetFontStyle("NormalFontBold"))
+        ]
+        + SVerticalBox::Slot()
+        .AutoHeight()
+        .Padding(SlotPadding)
+        [
+            SNew(SUniformGridPanel)
+                .SlotPadding(SlotPadding / 2.f)
+                + SUniformGridPanel::Slot(0, 0)
                 [
-                    SNew(STextBlock)
-                        .Text(FText::FromString(TEXT("Utils:"))
-                        .Font(AppStyle.GetFontStyle("NormalFontBold"))
+                    ButtonCreator_Lambda("Create Item", "Open the item creator window", 0)
                 ]
-                + SVerticalBox::Slot()
-                .AutoHeight()
-                .Padding(Slot_Padding)
+                + SUniformGridPanel::Slot(1, 0)
                 [
-                    SNew(SUniformGridPanel)
-                        .SlotPadding(Slot_Padding / 2.f)
-                        + SUniformGridPanel::Slot(0, 0)
-                        [
-                            ButtonCreator_Lambda("Create Item", "Open the item creator window", 0)
-                        ]
-                        + SUniformGridPanel::Slot(1, 0)
-                        [
-                            ButtonCreator_Lambda("Delete Items", "Delete the selected items", 1)
-                        ]
-                        + SUniformGridPanel::Slot(0, 1)
-                        [
-                            ButtonCreator_Lambda("Update Table", "Update the items table", 2)
-                        ]
+                    ButtonCreator_Lambda("Delete Items", "Delete the selected items", 1)
+                ]
+                + SUniformGridPanel::Slot(0, 1)
+                [
+                    ButtonCreator_Lambda("Update Table", "Update the items table", 2)
                 ]
         ];
 }

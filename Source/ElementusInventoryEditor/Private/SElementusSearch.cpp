@@ -13,105 +13,108 @@ void SElementusSearch::Construct(const FArguments& InArgs)
     OnCheckStateChanged = InArgs._OnCheckboxStateChanged;
     OnTextChangedDelegate = InArgs._OnSearchTextChanged;
 
+    ChildSlot
+        [
+            ConstructContent()
+        ];
+}
+
+TSharedRef<SWidget> SElementusSearch::ConstructContent()
+{
 #if ENGINE_MAJOR_VERSION < 5
     using FAppStyle = FEditorStyle;
 #endif
 
-    const ISlateStyle& AppStyle = FAppStyle::Get();
+    constexpr float SlotPadding = 4.f;
 
-    constexpr float CheckBox_Padding = 2.f;
-    constexpr float Slot_Padding = 4.f;
-
-    const auto CheckBoxCreator_Lambda = [this, &CheckBox_Padding](const EElementusItemType& InType) -> const TSharedRef<SCheckBox>
+    const auto CheckBoxCreator_Lambda = [this](const EElementusItemType& InType) -> const TSharedRef<SCheckBox>
         {
+            constexpr float CheckBoxPadding = 2.f;
             const int32 Index = static_cast<int32>(InType);
 
             return SNew(SCheckBox)
-                .Padding(CheckBox_Padding)
+                .Padding(CheckBoxPadding)
                 .OnCheckStateChanged(this, &SElementusSearch::TriggerOnCheckboxStateChanged, Index)
                 .Content()
                 [
                     SNew(STextBlock)
                         .Text(FText::FromString(UElementusInventoryFunctions::ElementusItemEnumTypeToString(static_cast<EElementusItemType>(Index))))
-                        .Margin(CheckBox_Padding)
+                        .Margin(CheckBoxPadding)
                 ];
         };
 
-    ChildSlot
+    return SNew(SVerticalBox)
+        + SVerticalBox::Slot()
+        .AutoHeight()
         [
-            SNew(SVerticalBox)
-                + SVerticalBox::Slot()
-                .AutoHeight()
+            SNew(SSearchBox)
+                .OnTextChanged(this, &SElementusSearch::TriggerOnSearchTextChanged)
+        ]
+        + SVerticalBox::Slot()
+        .AutoHeight()
+        .Padding(SlotPadding)
+        [
+            SNew(STextBlock)
+                .Text(FText::FromString(TEXT("Show types:")))
+                .Font(FAppStyle::Get().GetFontStyle("NormalFontBold"))
+        ]
+        + SVerticalBox::Slot()
+        .AutoHeight()
+        .Padding(SlotPadding)
+        [
+            SNew(SUniformGridPanel)
+                .SlotPadding(1.f)
+                + SUniformGridPanel::Slot(0, 0)
                 [
-                    SNew(SSearchBox)
-                        .OnTextChanged(this, &SElementusSearch::TriggerOnSearchTextChanged)
+                    CheckBoxCreator_Lambda(EElementusItemType::Accessory)
                 ]
-                + SVerticalBox::Slot()
-                .AutoHeight()
-                .Padding(Slot_Padding)
+                + SUniformGridPanel::Slot(1, 0)
                 [
-                    SNew(STextBlock)
-                        .Text(FText::FromString(TEXT("Show only types:")))
-                        .Font(AppStyle.GetFontStyle("NormalFontBold"))
+                    CheckBoxCreator_Lambda(EElementusItemType::Armor)
                 ]
-                + SVerticalBox::Slot()
-                .AutoHeight()
-                .Padding(Slot_Padding)
+                + SUniformGridPanel::Slot(0, 1)
                 [
-                    SNew(SUniformGridPanel)
-                        .SlotPadding(Slot_Padding / 4.f)
-                        + SUniformGridPanel::Slot(0, 0)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Accessory)
-                        ]
-                        + SUniformGridPanel::Slot(1, 0)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Armor)
-                        ]
-                        + SUniformGridPanel::Slot(0, 1)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Weapon)
-                        ]
-                        + SUniformGridPanel::Slot(1, 1)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Consumable)
-                        ]
-                        + SUniformGridPanel::Slot(0, 2)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Material)
-                        ]
-                        + SUniformGridPanel::Slot(1, 2)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Crafting)
-                        ]
-                        + SUniformGridPanel::Slot(0, 3)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Information)
-                        ]
-                        + SUniformGridPanel::Slot(1, 3)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Event)
-                        ]
-                        + SUniformGridPanel::Slot(0, 4)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Quest)
-                        ]
-                        + SUniformGridPanel::Slot(1, 4)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Junk)
-                        ]
-                        + SUniformGridPanel::Slot(0, 5)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Special)
-                        ]
-                        + SUniformGridPanel::Slot(1, 5)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::Other)
-                        ]
-                        + SUniformGridPanel::Slot(0, 6)
-                        [
-                            CheckBoxCreator_Lambda(EElementusItemType::None)
-                        ]
+                    CheckBoxCreator_Lambda(EElementusItemType::Weapon)
+                ]
+                + SUniformGridPanel::Slot(1, 1)
+                [
+                    CheckBoxCreator_Lambda(EElementusItemType::Consumable)
+                ]
+                + SUniformGridPanel::Slot(0, 2)
+                [
+                    CheckBoxCreator_Lambda(EElementusItemType::Material)
+                ]
+                + SUniformGridPanel::Slot(1, 2)
+                [
+                    CheckBoxCreator_Lambda(EElementusItemType::Crafting)
+                ]
+                + SUniformGridPanel::Slot(0, 3)
+                [
+                    CheckBoxCreator_Lambda(EElementusItemType::Information)
+                ]
+                + SUniformGridPanel::Slot(1, 3)
+                [
+                    CheckBoxCreator_Lambda(EElementusItemType::Event)
+                ]
+                + SUniformGridPanel::Slot(0, 4)
+                [
+                    CheckBoxCreator_Lambda(EElementusItemType::Quest)
+                ]
+                + SUniformGridPanel::Slot(1, 4)
+                [
+                    CheckBoxCreator_Lambda(EElementusItemType::Junk)
+                ]
+                + SUniformGridPanel::Slot(0, 5)
+                [
+                    CheckBoxCreator_Lambda(EElementusItemType::Special)
+                ]
+                + SUniformGridPanel::Slot(1, 5)
+                [
+                    CheckBoxCreator_Lambda(EElementusItemType::Other)
+                ]
+                + SUniformGridPanel::Slot(0, 6)
+                [
+                    CheckBoxCreator_Lambda(EElementusItemType::None)
                 ]
         ];
 }

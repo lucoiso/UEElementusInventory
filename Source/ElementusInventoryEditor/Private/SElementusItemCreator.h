@@ -17,12 +17,14 @@ public:
 
     void Construct(const FArguments& InArgs);
 
-protected:
-    FString GetObjPath(const int32 ObjId) const;
-    void OnObjChanged(const FAssetData& AssetData, const int32 ObjId);
+private:
+    TSharedRef<SWidget> ConstructContent();
 
-    const UClass* GetSelectedEntryClass() const;
-    void HandleNewEntryClassSelected(const UClass* Class);
+    FString GetObjPath(const int32 ObjId) const;
+    void OnObjChanged(const struct FAssetData& AssetData, const int32 ObjId);
+
+    const class UClass* GetSelectedEntryClass() const;
+    void HandleNewEntryClassSelected(const class UClass* Class);
 
     void UpdateFolders();
 
@@ -31,16 +33,15 @@ protected:
 
     TArray<TSharedPtr<FString>> GetEnumValuesAsStringArray() const;
 
-private:
-    TMap<int32, TWeakObjectPtr<UObject>> ObjectMap;
-    TSharedPtr<FAssetThumbnailPool> ImageIcon_ThumbnailPool;
+    TMap<int32, TWeakObjectPtr<class UObject>> ObjectMap;
+    TSharedPtr<class FAssetThumbnailPool> ImageIcon_ThumbnailPool;
     TArray<TSharedPtr<FString>> ItemTypesArr;
     TArray<TSharedPtr<FString>> AssetFoldersArr;
 
     FName AssetName;
     FName AssetFolder;
     int32 ItemId = 1;
-    TWeakObjectPtr<const UClass> ItemClass;
+    TWeakObjectPtr<const class UClass> ItemClass;
     FName ItemName;
     FText ItemDescription;
     uint8 ItemType = 0;
