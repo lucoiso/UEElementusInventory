@@ -153,7 +153,7 @@ void UElementusInventoryComponent::SortInventory(const EElementusInventorySortin
                 {
                     if (const UElementusItemData* const ItemDataB = UElementusInventoryFunctions::GetSingleItemDataById(B.ItemId, { "Data" }))
                     {
-                        return SortByOrientation(ItemDataA->ItemName, ItemDataB->ItemName);
+                        return SortByOrientation(ItemDataA->ItemName.ToString(), ItemDataB->ItemName.ToString());
                     }
                 }
 
