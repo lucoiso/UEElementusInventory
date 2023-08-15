@@ -18,6 +18,28 @@ enum class EElementusInventoryUpdateOperation : uint8
     Remove
 };
 
+UENUM(Category = "Elementus Inventory | Enumerations")
+enum class EElementusInventorySortingMode : uint8
+{
+    ID,
+    Name,
+    Type,
+    IndividualValue,
+    StackValue,
+    IndividualWeight,
+    StackWeight,
+    Quantity,
+    Level,
+    Tags
+};
+
+UENUM(Category = "Elementus Inventory | Enumerations")
+enum class EElementusInventorySortingOrientation : uint8
+{
+    Ascending,
+    Descending
+};
+
 USTRUCT(Category = "Elementus Inventory | Structures")
 struct FItemModifierData
 {
@@ -169,8 +191,8 @@ public:
     UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Elementus Inventory")
     void AddItems(const TArray<FElementusItemInfo>& Items);
 
-    UFUNCTION(BlueprintNativeEvent, Category = "Elementus Inventory")
-    void SortInventory();
+    UFUNCTION(BlueprintCallable, Category = "Elementus Inventory")
+    void SortInventory(const EElementusInventorySortingMode Mode, const EElementusInventorySortingOrientation Orientation);
 
 protected:
     /* Items that this inventory have */
