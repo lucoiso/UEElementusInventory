@@ -39,7 +39,7 @@ protected:
     virtual TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName) override
     {
         const FSlateFontInfo CellFont = FCoreStyle::GetDefaultFontStyle("Regular", 10);
-        const FMargin CellMargin = FMargin(4.f);
+        const FMargin CellMargin(4.f);
 
         const auto TextBlockCreator_Lambda = [this, &CellFont, &CellMargin](const FText& InText) -> TSharedRef<STextBlock>
             {
@@ -47,7 +47,7 @@ protected:
                     .Text(InText)
                     .Font(CellFont)
                     .Margin(CellMargin)
-                    .HighlightText(*HighlightText);
+                    .HighlightText(HighlightText.IsValid() ? *HighlightText.Get() : FText::GetEmpty());
             };
 
         if (ColumnName == ColumnId_PrimaryIdLabel)
@@ -179,7 +179,7 @@ EVisibility SElementusTable::GetIsVisible(const FElementusItemPtr InItem) const
                 || InItem->Class.ToString().Contains(InText, ESearchCase::IgnoreCase)
                 || FString::SanitizeFloat(InItem->Value).Contains(InText, ESearchCase::IgnoreCase)
                 || FString::SanitizeFloat(InItem->Weight).Contains(InText, ESearchCase::IgnoreCase);
-        }(SearchText->ToString())
+        }(SearchText.IsValid() ? SearchText->ToString() : FString())
                 && (AllowedTypes.Contains(static_cast<uint8>(InItem->Type)) || UElementusInventoryFunctions::HasEmptyParam(AllowedTypes)))
     {
         Output = EVisibility::Visible;

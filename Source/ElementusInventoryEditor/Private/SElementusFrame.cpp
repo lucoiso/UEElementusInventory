@@ -18,6 +18,8 @@ void SElementusFrame::Construct([[maybe_unused]] const FArguments& InArgs)
 
 TSharedRef<SWidget> SElementusFrame::ConstructContent()
 {
+    constexpr float SlotPadding = 4.f;
+
     SAssignNew(Table, SElementusTable);
 
     return SNew(SHorizontalBox)
@@ -30,6 +32,7 @@ TSharedRef<SWidget> SElementusFrame::ConstructContent()
                 [
                     SNew(SVerticalBox)
                         + SVerticalBox::Slot()
+                        .Padding(SlotPadding)
                         .AutoHeight()
                         [
                             SNew(SElementusSearch)
@@ -37,6 +40,7 @@ TSharedRef<SWidget> SElementusFrame::ConstructContent()
                                 .OnCheckboxStateChanged(Table.ToSharedRef(), &SElementusTable::OnSearchTypeModified)
                         ]
                         + SVerticalBox::Slot()
+                        .Padding(SlotPadding)
                         .AutoHeight()
                         [
                             SNew(SElementusUtils)
