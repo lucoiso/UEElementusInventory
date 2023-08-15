@@ -313,7 +313,7 @@ void SElementusItemCreator::Construct([[maybe_unused]] const FArguments&)
                                 .AutoHeight()
                                 [
                                     SNew(SButton)
-                                        .Text(FText::FromString("Create Item"))
+                                        .Text(FText::FromString(TEXT("Create Item")))
                                         .OnClicked(this, &SElementusItemCreator::HandleCreateItemButtonClicked)
                                         .IsEnabled(this, &SElementusItemCreator::IsCreateEnabled)
                                         .ToolTip(ToolTip)
@@ -368,7 +368,7 @@ FReply SElementusItemCreator::HandleCreateItemButtonClicked() const
 {
     if (AssetFolder.IsNone() || AssetName.IsNone())
     {
-        FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("Please enter the asset name and folder for the new item."));
+        FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(TEXT("Please enter the asset name and folder for the new item.")));
 
         return FReply::Handled();
     }

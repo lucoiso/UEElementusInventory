@@ -37,7 +37,7 @@ void SElementusUtils::Construct(const FArguments& InArgs)
                 .Padding(Slot_Padding)
                 [
                     SNew(STextBlock)
-                        .Text(FText::FromString("Utils:"))
+                        .Text(FText::FromString(TEXT("Utils:"))
                         .Font(AppStyle.GetFontStyle("NormalFontBold"))
                 ]
                 + SVerticalBox::Slot()
@@ -92,7 +92,7 @@ FReply SElementusUtils::OnButtonClicked(const uint32 ButtonId) const
     }
     else
     {
-        FMessageDialog::Open(EAppMsgType::Ok, FText::FromString("Work in Progress - ButtonId: " + FString::FromInt(ButtonId)));
+        FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(TEXT("Work in Progress - ButtonId: ") + FString::FromInt(ButtonId)));
     }
 
     return FReply::Handled();

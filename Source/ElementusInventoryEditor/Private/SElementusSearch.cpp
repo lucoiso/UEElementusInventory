@@ -51,7 +51,7 @@ void SElementusSearch::Construct(const FArguments& InArgs)
                 .Padding(Slot_Padding)
                 [
                     SNew(STextBlock)
-                        .Text(FText::FromString("Show only types:"))
+                        .Text(FText::FromString(TEXT("Show only types:")))
                         .Font(AppStyle.GetFontStyle("NormalFontBold"))
                 ]
                 + SVerticalBox::Slot()
