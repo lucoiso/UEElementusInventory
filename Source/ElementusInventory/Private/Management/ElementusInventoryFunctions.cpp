@@ -15,7 +15,11 @@
 
 void UElementusInventoryFunctions::UnloadAllElementusItems()
 {
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+    if (UAssetManager* const AssetManager = UAssetManager::GetIfInitialized())
+#else
     if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
+#endif
     {
         AssetManager->UnloadPrimaryAssetsWithType(FPrimaryAssetType(ElementusItemDataType));
     }
@@ -23,7 +27,11 @@ void UElementusInventoryFunctions::UnloadAllElementusItems()
 
 void UElementusInventoryFunctions::UnloadElementusItem(const FPrimaryElementusItemId& InItemId)
 {
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+    if (UAssetManager* const AssetManager = UAssetManager::GetIfInitialized())
+#else
     if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
+#endif
     {
         AssetManager->UnloadPrimaryAsset(FPrimaryAssetId(InItemId));
     }
@@ -42,7 +50,12 @@ bool UElementusInventoryFunctions::CompareItemData(const UElementusItemData* Dat
 UElementusItemData* UElementusInventoryFunctions::GetSingleItemDataById(const FPrimaryElementusItemId& InID, const TArray<FName>& InBundles, const bool bAutoUnload)
 {
     UElementusItemData* Output = nullptr;
+
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+    if (UAssetManager* const AssetManager = UAssetManager::GetIfInitialized())
+#else
     if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
+#endif
     {
         if (const TSharedPtr<FStreamableHandle> StreamableHandle = AssetManager->LoadPrimaryAsset(InID, InBundles); StreamableHandle.IsValid())
         {
@@ -66,7 +79,12 @@ UElementusItemData* UElementusInventoryFunctions::GetSingleItemDataById(const FP
 TArray<UElementusItemData*> UElementusInventoryFunctions::GetItemDataArrayById(const TArray<FPrimaryElementusItemId>& InIDs, const TArray<FName>& InBundles, const bool bAutoUnload)
 {
     TArray<UElementusItemData*> Output;
+
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+    if (UAssetManager* const AssetManager = UAssetManager::GetIfInitialized())
+#else
     if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
+#endif
     {
         Output = LoadElementusItemDatas_Internal(AssetManager, InIDs, InBundles, bAutoUnload);
     }
@@ -76,7 +94,12 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::GetItemDataArrayById(c
 TArray<UElementusItemData*> UElementusInventoryFunctions::SearchElementusItemData(const EElementusSearchType SearchType, const FString& SearchString, const TArray<FName>& InBundles, const bool bAutoUnload)
 {
     TArray<UElementusItemData*> Output;
+
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+    if (UAssetManager* const AssetManager = UAssetManager::GetIfInitialized())
+#else
     if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
+#endif
     {
         TArray<UElementusItemData*> ReturnedValues = LoadElementusItemDatas_Internal(AssetManager, GetAllElementusItemIds(), InBundles, bAutoUnload);
 
@@ -263,7 +286,11 @@ TArray<FPrimaryAssetId> UElementusInventoryFunctions::GetAllElementusItemIds()
 {
     TArray<FPrimaryAssetId> Output;
 
-    if (const UAssetManager* const AssetManager = UAssetManager::GetIfValid())
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+    if (UAssetManager* const AssetManager = UAssetManager::GetIfInitialized())
+#else
+    if (UAssetManager* const AssetManager = UAssetManager::GetIfValid())
+#endif
     {
         AssetManager->GetPrimaryAssetIdList(FPrimaryAssetType(ElementusItemDataType), Output);
     }
