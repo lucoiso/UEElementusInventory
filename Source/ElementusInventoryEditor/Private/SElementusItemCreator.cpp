@@ -165,7 +165,7 @@ TSharedRef<SWidget> SElementusItemCreator::ConstructContent()
                     SNew(STextComboBox)
                         .OptionsSource(&ItemTypesArr)
                         .OnSelectionChanged_Lambda(
-                            [this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
+                            [this](const FTextDisplayStringPtr& InStr, [[maybe_unused]] ESelectInfo::Type)
                             {
                                 ItemType = ItemTypesArr.Find(InStr);
                             }
@@ -297,7 +297,7 @@ TSharedRef<SWidget> SElementusItemCreator::ConstructContent()
                             SNew(STextComboBox)
                                 .OptionsSource(&AssetFoldersArr)
                                 .OnSelectionChanged_Lambda(
-                                    [this](const TSharedPtr<FString>& InStr, [[maybe_unused]] ESelectInfo::Type)
+                                    [this](const FTextDisplayStringPtr& InStr, [[maybe_unused]] ESelectInfo::Type)
                                     {
                                         AssetFolder = FName(*InStr.Get());
                                     }
@@ -443,9 +443,9 @@ bool SElementusItemCreator::IsCreateEnabled() const
     return false;
 }
 
-TArray<TSharedPtr<FString>> SElementusItemCreator::GetEnumValuesAsStringArray() const
+TArray<FTextDisplayStringPtr> SElementusItemCreator::GetEnumValuesAsStringArray() const
 {
-    TArray<TSharedPtr<FString>> EnumValues;
+    TArray<FTextDisplayStringPtr> EnumValues;
     for (uint32 iterator = 0; iterator < static_cast<uint32>(EElementusItemType::MAX); iterator++)
     {
         EnumValues.Add(MakeShared<FString>(UElementusInventoryFunctions::ElementusItemEnumTypeToString(static_cast<EElementusItemType>(iterator))));
