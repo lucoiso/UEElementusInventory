@@ -31,12 +31,12 @@ private:
     FReply HandleCreateItemButtonClicked() const;
     bool IsCreateEnabled() const;
 
-    TArray<TSharedPtr<FString>> GetEnumValuesAsStringArray() const;
+    TArray<FTextDisplayStringPtr> GetEnumValuesAsStringArray() const;
 
     TMap<int32, TWeakObjectPtr<class UObject>> ObjectMap;
     TSharedPtr<class FAssetThumbnailPool> ImageIcon_ThumbnailPool;
-    TArray<TSharedPtr<FString>> ItemTypesArr;
-    TArray<TSharedPtr<FString>> AssetFoldersArr;
+    TArray<FTextDisplayStringPtr> ItemTypesArr;
+    TArray<FTextDisplayStringPtr> AssetFoldersArr;
 
     FName AssetName;
     FName AssetFolder;
