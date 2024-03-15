@@ -9,16 +9,16 @@
 class SElementusFrame final : public SCompoundWidget
 {
 public:
-    SLATE_USER_ARGS(SElementusFrame)
-        {
-        }
+	SLATE_USER_ARGS(SElementusFrame)
+		{
+		}
 
-    SLATE_END_ARGS()
+	SLATE_END_ARGS()
 
-    void Construct(const FArguments& InArgs);
+	void Construct(const FArguments& InArgs);
 
 private:
-    TSharedRef<SWidget> ConstructContent();
+	TSharedRef<SWidget> ConstructContent();
 
-    TSharedPtr<class SElementusTable> Table;
+	TSharedPtr<class SElementusTable> Table;
 };
