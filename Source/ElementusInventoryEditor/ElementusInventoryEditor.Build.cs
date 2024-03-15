@@ -6,31 +6,31 @@ using UnrealBuildTool;
 
 public class ElementusInventoryEditor : ModuleRules
 {
-    public ElementusInventoryEditor(ReadOnlyTargetRules Target) : base(Target)
-    {
-        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-        CppStandard = CppStandardVersion.Cpp17;
+	public ElementusInventoryEditor(ReadOnlyTargetRules Target) : base(Target)
+	{
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		CppStandard = CppStandardVersion.Cpp17;
 
-        PublicDependencyModuleNames.AddRange(new[]
-        {
-            "Core"
-        });
+		PublicDependencyModuleNames.AddRange(new[]
+		{
+			"Core"
+		});
 
-        PrivateDependencyModuleNames.AddRange(new[]
-        {
-            "ElementusInventory",
-            "InputCore",
-            "CoreUObject",
-            "UnrealEd",
-            "AssetTools",
-            "ToolMenus",
-            "Engine",
-            "Slate",
-            "SlateCore",
-            "EditorStyle",
-            "WorkspaceMenuStructure",
-            "PropertyEditor",
-            "GameplayTags"
-        });
-    }
+		PrivateDependencyModuleNames.AddRange(new[]
+		{
+			"ElementusInventory",
+			"InputCore",
+			"CoreUObject",
+			"UnrealEd",
+			"AssetTools",
+			"ToolMenus",
+			"Engine",
+			"Slate",
+			"SlateCore",
+			"EditorStyle",
+			"WorkspaceMenuStructure",
+			"PropertyEditor",
+			"GameplayTags"
+		});
+	}
 }

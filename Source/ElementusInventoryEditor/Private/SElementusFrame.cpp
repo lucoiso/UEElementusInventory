@@ -10,47 +10,38 @@
 
 void SElementusFrame::Construct([[maybe_unused]] const FArguments& InArgs)
 {
-    ChildSlot
-        [
-            ConstructContent()
-        ];
+	ChildSlot
+	[
+		ConstructContent()
+	];
 }
 
 TSharedRef<SWidget> SElementusFrame::ConstructContent()
 {
-    constexpr float SlotPadding = 4.f;
+	constexpr float SlotPadding = 4.f;
 
-    SAssignNew(Table, SElementusTable);
+	SAssignNew(Table, SElementusTable);
 
-    return SNew(SHorizontalBox)
-        + SHorizontalBox::Slot()
-        .AutoWidth()
-        .MaxWidth(300.f)
-        [
-            SNew(SScrollBox)
-                + SScrollBox::Slot()
-                [
-                    SNew(SVerticalBox)
-                        + SVerticalBox::Slot()
-                        .Padding(SlotPadding)
-                        .AutoHeight()
-                        [
-                            SNew(SElementusSearch)
-                                .OnSearchTextChanged(Table.ToSharedRef(), &SElementusTable::OnSearchTextModified)
-                                .OnCheckboxStateChanged(Table.ToSharedRef(), &SElementusTable::OnSearchTypeModified)
-                        ]
-                        + SVerticalBox::Slot()
-                        .Padding(SlotPadding)
-                        .AutoHeight()
-                        [
-                            SNew(SElementusUtils)
-                                .TableSource(Table)
-                        ]
-                ]
-        ]
-        + SHorizontalBox::Slot()
-        .FillWidth(1.f)
-        [
-            Table.ToSharedRef()
-        ];
+	return SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot().AutoWidth().MaxWidth(300.f)
+		[
+			SNew(SScrollBox)
+			+ SScrollBox::Slot()
+			[
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot().Padding(SlotPadding).AutoHeight()
+				[
+					SNew(SElementusSearch).OnSearchTextChanged(Table.ToSharedRef(), &SElementusTable::OnSearchTextModified).OnCheckboxStateChanged(
+						Table.ToSharedRef(), &SElementusTable::OnSearchTypeModified)
+				]
+				+ SVerticalBox::Slot().Padding(SlotPadding).AutoHeight()
+				[
+					SNew(SElementusUtils).TableSource(Table)
+				]
+			]
+		]
+		+ SHorizontalBox::Slot().FillWidth(1.f)
+		[
+			Table.ToSharedRef()
+		];
 }

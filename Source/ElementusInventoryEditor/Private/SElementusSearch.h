@@ -13,22 +13,23 @@ DECLARE_DELEGATE_TwoParams(FOnElementusItemCheckStateChanged, ECheckBoxState, in
 class SElementusSearch final : public SCompoundWidget
 {
 public:
-    SLATE_USER_ARGS(SElementusSearch)
-        {
-        }
-        SLATE_EVENT(FOnElementusItemCheckStateChanged, OnCheckboxStateChanged)
-        SLATE_EVENT(FOnTextChanged, OnSearchTextChanged)
+	SLATE_USER_ARGS(SElementusSearch)
+		{
+		}
 
-    SLATE_END_ARGS()
+		SLATE_EVENT(FOnElementusItemCheckStateChanged, OnCheckboxStateChanged)
+		SLATE_EVENT(FOnTextChanged, OnSearchTextChanged)
 
-    void Construct(const FArguments& InArgs);
+	SLATE_END_ARGS()
+
+	void Construct(const FArguments& InArgs);
 
 private:
-    TSharedRef<SWidget> ConstructContent();
+	TSharedRef<SWidget> ConstructContent();
 
-    void TriggerOnCheckboxStateChanged(ECheckBoxState NewState, int32 InType) const;
-    void TriggerOnSearchTextChanged(const FText& InText) const;
+	void TriggerOnCheckboxStateChanged(ECheckBoxState NewState, int32 InType) const;
+	void TriggerOnSearchTextChanged(const FText& InText) const;
 
-    FOnElementusItemCheckStateChanged OnCheckStateChanged;
-    FOnTextChanged OnTextChangedDelegate;
+	FOnElementusItemCheckStateChanged OnCheckStateChanged;
+	FOnTextChanged OnTextChangedDelegate;
 };

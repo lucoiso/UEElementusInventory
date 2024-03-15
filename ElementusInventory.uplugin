@@ -1,41 +1,41 @@
 {
-	"FileVersion": 3,
-	"Version": 7,
-	"VersionName": "1.1.9",
-	"FriendlyName": "Elementus Inventory",
-	"Description": "Plugin that provides a Data-Driven Inventory & Items system based on FPrimaryAssetIds and the Asset Manager.",
-	"Category": "Game Features",
-	"CreatedBy": "Lucas Vilas-Boas",
-	"CreatedByURL": "https://github.com/lucoiso",
-	"DocsURL": "https://github.com/lucoiso/UEElementusInventory/wiki",
-	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/ed47993a6b8a49bdb04dfe83939b6361",
-	"SupportURL": "https://github.com/lucoiso/UEElementusInventory/issues",
-	"CanContainContent": false,
-	"IsBetaVersion": true,
-	"IsExperimentalVersion": false,
-	"Installed": false,
-	"Modules": [
-		{
-			"Name": "ElementusInventory",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [
-				"Win64",
-				"Mac",
-				"Linux",
-				"IOS",
-				"Android"
-			]
-		},
-		{
-			"Name": "ElementusInventoryEditor",
-			"Type": "Editor",
-			"LoadingPhase": "Default",
-			"PlatformAllowList": [
-				"Win64",
-				"Mac",
-				"Linux"
-			]
-		}
-	]
+  "FileVersion": 3,
+  "Version": 8,
+  "VersionName": "1.1.10",
+  "FriendlyName": "Elementus Inventory",
+  "Description": "Plugin that provides a Data-Driven Inventory & Items system based on FPrimaryAssetIds and the Asset Manager.",
+  "Category": "Game Features",
+  "CreatedBy": "Lucas Vilas-Boas",
+  "CreatedByURL": "https://github.com/lucoiso",
+  "DocsURL": "https://github.com/lucoiso/UEElementusInventory/wiki",
+  "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/ed47993a6b8a49bdb04dfe83939b6361",
+  "SupportURL": "https://github.com/lucoiso/UEElementusInventory/issues",
+  "CanContainContent": false,
+  "IsBetaVersion": true,
+  "IsExperimentalVersion": false,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "ElementusInventory",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "WhitelistPlatforms": [
+        "Win64",
+        "Mac",
+        "Linux",
+        "IOS",
+        "Android"
+      ]
+    },
+    {
+      "Name": "ElementusInventoryEditor",
+      "Type": "Editor",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64",
+        "Mac",
+        "Linux"
+      ]
+    }
+  ]
 }
