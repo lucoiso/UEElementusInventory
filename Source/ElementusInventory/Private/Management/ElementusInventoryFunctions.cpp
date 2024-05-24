@@ -108,7 +108,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::SearchElementusItemDat
 
 		for (UElementusItemData* const& Iterator : ReturnedValues)
 		{
-			UE_LOG(LogElementusInventory_Internal, Display, TEXT("%s: Filtering items. Current iteration: id %s and name %s"), *FString(__func__),
+			UE_LOG(LogElementusInventory_Internal, Display, TEXT("%s: Filtering items. Current iteration: id %s and name %s"), *FString(__FUNCTION__),
 			       *FString::FromInt(Iterator->ItemId), *Iterator->ItemName.ToString());
 
 			bool bAddItem = false;
@@ -133,7 +133,7 @@ TArray<UElementusItemData*> UElementusInventoryFunctions::SearchElementusItemDat
 			if (bAddItem)
 			{
 				UE_LOG(LogElementusInventory_Internal, Display, TEXT("%s: Item with id %s and name %s matches the search parameters"),
-				       *FString(__func__), *FString::FromInt(Iterator->ItemId), *Iterator->ItemName.ToString());
+				       *FString(__FUNCTION__), *FString::FromInt(Iterator->ItemId), *Iterator->ItemName.ToString());
 
 				Output.Add(Iterator);
 			}
